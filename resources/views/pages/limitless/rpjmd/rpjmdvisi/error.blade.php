@@ -1,18 +1,20 @@
 @extends('layouts.limitless.l_main')
 @section('page_title')
-    RPJMDVISI
+    RPJMD VISI  PERIODE {{HelperKegiatan::getRPJMDTahunMulai()}} - {{HelperKegiatan::getRPJMDTahunAkhir()+1}}
 @endsection
 @section('page_header')
-    <i class="icon-price-tag position-left"></i>
+    <i class="icon-strategy position-left"></i>
     <span class="text-semibold">
-        RPJMDVISI TAHUN PERENCANAAN {{config('globalsettings.tahun_perencanaan')}}
+        RPJMD VISI  PERIODE {{HelperKegiatan::getRPJMDTahunMulai()}} - {{HelperKegiatan::getRPJMDTahunAkhir()+1}}
     </span>
 @endsection
 @section('page_info')
     @include('pages.limitless.rpjmd.rpjmdvisi.info')
 @endsection
 @section('page_breadcrumb')
-    <li><a href="{!!route('rpjmdvisi.index')!!}">RPJMDVISI</a></li>
+    <li><a href="#">PERENCANAAN</a></li>
+    <li><a href="#">RPJMD</a></li>
+    <li><a href="{!!route('rpjmdvisi.index')!!}">VISI</a></li>
     <li class="active">ERROR</li>
 @endsection
 @section('page_content')

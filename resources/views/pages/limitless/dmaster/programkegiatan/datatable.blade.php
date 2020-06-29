@@ -1,15 +1,18 @@
 <div class="panel panel-flat border-top-lg border-top-info border-bottom-info">
-    <div class="panel-heading">
-        <div class="panel-title" style="width:70px">
-            {!!Form::select('numberRecordPerPage',['1'=>1,'5'=>5,'10'=>10,'15'=>15,'30'=>30,'50'=>50],$numberRecordPerPage,['id'=>'numberRecordPerPage','class'=>'form-control'])!!}            
+    <div class="panel-heading">        
+        <div class="panel-title">
+            <h6 class="panel-title">&nbsp;</h6>    
         </div>
-        <div class="heading-elements">
-            <div class="heading-btn">
-                <a href="{!!route('programkegiatan.create')!!}" class="btn btn-info btn-xs" title="Tambah PROGRAMKEGIATAN">
-                    <i class="icon-googleplus5"></i>
-                </a>
-            </div>            
-        </div>
+        <div class="heading-elements">         
+            {!! Form::open(['url'=>'#','method'=>'post','class'=>'heading-form','id'=>'frmheading','name'=>'frmheading'])!!}   
+                <div class="form-group">
+                    {!!Form::select('numberRecordPerPage',['1'=>1,'5'=>5,'10'=>10,'15'=>15,'30'=>30,'50'=>50],$numberRecordPerPage,['id'=>'numberRecordPerPage','class'=>'form-control','style'=>'width:70px'])!!}                        
+                </div>   
+            {!! Form::close()!!}
+            <a href="{!!route('programkegiatan.create')!!}" class="btn btn-info btn-xs heading-btn" title="Tambah Kelompok Urusan">
+                <i class="icon-googleplus5"></i>
+            </a>
+        </div>        
     </div>
     @if (count($data) > 0)
     <div class="table-responsive"> 
@@ -17,20 +20,23 @@
             <thead>
                 <tr class="bg-teal-700">
                     <th width="55">NO</th>
-                    <th>
-                        <a class="column-sort text-white" id="col-kode_kegiatan" data-order="{{$direction}}" href="#">
-                            KODE KEGIATAN  
-                        </a>                                             
+                    <th width="100">
+                        KODE KEGIATAN  
                     </th> 
-                    <th>
-                        <a class="column-sort text-white" id="col-KgtNm" data-order="{{$direction}}" href="#">
-                            NAMA KEGIATAN  
-                        </a>                                             
+                    <th>                        
+                        NAMA KEGIATAN  
                     </th> 
-                    <th>
-                        <a class="column-sort text-white" id="col-PrgNm" data-order="{{$direction}}" href="#">
-                            PROGRAM  
-                        </a>                                             
+                    <th width="350">
+                        NAMA PROGRAM  
+                    </th> 
+                    <th width="150">
+                        JUMLAH RENJA
+                    </th> 
+                    <th width="150">
+                        JUMLAH RKPD
+                    </th> 
+                    <th width="70">
+                        TAHUN
                     </th> 
                     <th width="100">AKSI</th>
                 </tr>
@@ -41,41 +47,50 @@
                     <td>
                         {{ ($data->currentpage()-1) * $data->perpage() + $key + 1 }}    
                     </td>                  
-                    <td>
-                        @php
-                            if ($item->Jns==false && $filter_prgid_selected=='none')
-                            {
-                                echo 'n.nn.'.$item->Kd_Prog.'.'.$item->Kd_Keg;
-                            } 
-                            elseif ($item->Jns==false && $filter_prgid_selected!='none') 
-                            {
-                                echo $filter_kode_program_selected.'.'.$item->Kd_Keg;
-                            }
-                            else {
-                                echo $item->kode_kegiatan;
-                            }   
-                        @endphp                        
-                    </td>
+                    <td>{{$item->kode_kegiatan}}</td>
                     <td>{{$item->KgtNm}}</td>
                     <td>{{$item->PrgNm}}</td>
+                    <td>{{DB::table('trRenja')->where('KgtID',$item->KgtID)->count()}}</td>
+                    <td>{{DB::table('trRKPD')->where('KgtID',$item->KgtID)->count()}}</td>
+                    <td>{{$item->TA}}</td>
                     <td>
                         <ul class="icons-list">
                             <li class="text-primary-600">
-                                <a class="btnShow" href="{{route('programkegiatan.show',['id'=>$item->KgtID])}}" title="Detail Data ProgramKegiatan">
+                                <a class="btnShow" href="{{route('programkegiatan.show',['uuid'=>$item->KgtID])}}" title="Detail Data Program Kegiatan">
                                     <i class='icon-eye'></i>
                                 </a>  
                             </li>
                             <li class="text-primary-600">
-                                <a class="btnEdit" href="{{route('programkegiatan.edit',['id'=>$item->KgtID])}}" title="Ubah Data ProgramKegiatan">
+                                <a class="btnEdit" href="{{route('programkegiatan.edit',['uuid'=>$item->KgtID])}}" title="Ubah Data Program Kegiatan">
                                     <i class='icon-pencil7'></i>
                                 </a>  
                             </li>
                             <li class="text-danger-600">
-                                <a class="btnDelete" href="javascript:;" title="Hapus Data ProgramKegiatan" data-id="{{$item->KgtID}}" data-url="{{route('programkegiatan.index')}}">
+                                <a class="btnDelete" href="javascript:;" title="Hapus Data Program Kegiatan" data-id="{{$item->KgtID}}" data-url="{{route('programkegiatan.index')}}">
                                     <i class='icon-trash'></i>
                                 </a> 
                             </li>
                         </ul>
+                    </td>
+                </tr>
+                <tr class="text-center info">
+                    <td colspan="9">
+                        <span class="label label-warning label-rounded" style="text-transform: none">
+                            <strong>KGTID:</strong>
+                            {{$item->KgtID}}
+                        </span>
+                        <span class="label label-warning label-rounded" style="text-transform: none">
+                            <strong>PRGID:</strong>
+                            {{$item->PrgID}}
+                        </span>                                                 
+                        <span class="label label-warning label-rounded" style="text-transform: none">
+                            <strong>CREATED:</strong>
+                            {{Helper::tanggal('d/m/Y H:m',$item->created_at)}}
+                        </span>
+                        <span class="label label-warning label-rounded" style="text-transform: none">
+                            <strong>UPDATED:</strong>
+                            {{Helper::tanggal('d/m/Y H:m',$item->updated_at)}}
+                        </span>
                     </td>
                 </tr>
             @endforeach                    

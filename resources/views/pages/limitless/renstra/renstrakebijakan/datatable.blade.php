@@ -1,18 +1,19 @@
 <div class="panel panel-flat border-top-lg border-top-info border-bottom-info">
     <div class="panel-heading">
         <div class="panel-title">
-            <div class="row">
-                <div class="col-md-1">                    		
-					{!!Form::select('numberRecordPerPage',['1'=>1,'5'=>5,'10'=>10,'15'=>15,'30'=>30,'50'=>50],$numberRecordPerPage,['id'=>'numberRecordPerPage','class'=>'form-control'])!!}                        
-                </div>
-            </div>
+            <h6 class="panel-title">&nbsp;</h6>
         </div>
         <div class="heading-elements">
-            <div class="heading-btn">
-                <a href="{!!route('renstrakebijakan.create')!!}" class="btn btn-info btn-xs" title="Tambah RENSTRAKEBIJAKAN">
-                    <i class="icon-googleplus5"></i>
-                </a>
-            </div>            
+            {!! Form::open(['url'=>'#','method'=>'post','class'=>'heading-form','id'=>'frmheading','name'=>'frmheading'])!!} 
+                <div class="form-group">
+                    {!!Form::select('numberRecordPerPage',['1'=>1,'5'=>5,'10'=>10,'15'=>15,'30'=>30,'50'=>50],$numberRecordPerPage,['id'=>'numberRecordPerPage','class'=>'form-control','style'=>'width:70px'])!!}                        
+                </div> 
+                <div class="form-group">
+                    <a href="{!!route('renstrakebijakan.create')!!}" class="btn btn-info btn-xs" title="Tambah RENSTRA ARAH KEBIJAKAN">
+                        <i class="icon-googleplus5"></i>
+                    </a>
+                </div> 
+            {!! Form::close()!!}
         </div>
     </div>
     @if (count($data) > 0)
@@ -21,11 +22,13 @@
             <thead>
                 <tr class="bg-teal-700">
                     <th width="55">NO</th>
-                    <th width="100">
-                        <a class="column-sort text-white" id="col-replace_it" data-order="{{$direction}}" href="#">
-                            replace_it  
-                        </a>                                             
+                    <th width="150">
+                        KODE ARAH KEBIJAKAN 
                     </th> 
+                    <th>
+                        NAMA ARAH KEBIJAKAN  
+                    </th> 
+                    <th width="100">TA</th>
                     <th width="100">AKSI</th>
                 </tr>
             </thead>
@@ -35,25 +38,43 @@
                     <td>
                         {{ ($data->currentpage()-1) * $data->perpage() + $key + 1 }}    
                     </td>                  
-                    <td>{{$item->replace_it}}</td>
+                    <td>{{$item->Kd_RenstraKebijakan}}</td>
+                    <td>{{$item->Nm_RenstraKebijakan}}</td>
+                    <td>{{$item->TA}}</td>
                     <td>
                         <ul class="icons-list">
                             <li class="text-primary-600">
-                                <a class="btnShow" href="{{route('renstrakebijakan.show',['id'=>$item->renstrakebijakan_id])}}" title="Detail Data RenstraKebijakan">
+                                <a class="btnShow" href="{{route('renstrakebijakan.show',['uuid'=>$item->RenstraKebijakanID])}}" title="Detail Data RENSTRA Arah Kebijakan">
                                     <i class='icon-eye'></i>
                                 </a>  
                             </li>
                             <li class="text-primary-600">
-                                <a class="btnEdit" href="{{route('renstrakebijakan.edit',['id'=>$item->renstrakebijakan_id])}}" title="Ubah Data RenstraKebijakan">
+                                <a class="btnEdit" href="{{route('renstrakebijakan.edit',['uuid'=>$item->RenstraKebijakanID])}}" title="Ubah Data RENSTRA Arah Kebijakan">
                                     <i class='icon-pencil7'></i>
                                 </a>  
                             </li>
                             <li class="text-danger-600">
-                                <a class="btnDelete" href="javascript:;" title="Hapus Data RenstraKebijakan" data-id="{{$item->renstrakebijakan_id}}" data-url="{{route('renstrakebijakan.index')}}">
+                                <a class="btnDelete" href="javascript:;" title="Hapus Data RENSTRA Arah Kebijakan" data-id="{{$item->RenstraKebijakanID}}" data-url="{{route('renstrakebijakan.index')}}">
                                     <i class='icon-trash'></i>
                                 </a> 
                             </li>
                         </ul>
+                    </td>
+                </tr>
+                <tr class="text-center info">
+                    <td colspan="10">
+                        <span class="label label-warning label-rounded" style="text-transform: none">
+                            <strong>RENSTRAKEBIJAKANID:</strong>
+                            {{$item->RenstraKebijakanID}}
+                        </span>                        
+                        <span class="label label-warning label-rounded" style="text-transform: none">
+                            <strong>CREATED:</strong>
+                            {{Helper::tanggal('d/m/Y H:m',$item->created_at)}}
+                        </span>
+                        <span class="label label-warning label-rounded" style="text-transform: none">
+                            <strong>UPDATED:</strong>
+                            {{Helper::tanggal('d/m/Y H:m',$item->updated_at)}}
+                        </span>
                     </td>
                 </tr>
             @endforeach                    

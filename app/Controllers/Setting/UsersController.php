@@ -16,8 +16,7 @@ class UsersController extends Controller {
      */
     public function __construct()
     {
-        parent::__construct();
-        $this->middleware(['auth','role:superadmin']);         
+        parent::__construct();              
     }
     /**
      * dapatkan daftar roles
@@ -425,7 +424,7 @@ class UsersController extends Controller {
         $user->username = $request->input('username');
         $user->theme = $request->input('theme');
         if (!empty(trim($request->input('password')))) {
-            $user->password = Hash::make($request->input('password'));
+            $user->password = \Hash::make($request->input('password'));
         }    
         $user->updated_at = \Carbon\Carbon::now()->toDateTimeString();
         $user->save();
@@ -473,7 +472,7 @@ class UsersController extends Controller {
         }
         else
         {
-            return redirect(route('users.profil'))->with('success',"Data profil telah berhasil diubah.");
+            return redirect(route('users.profil',['id'=>$id]))->with('success',"Data profil telah berhasil diubah.");
         }
     }
      /**

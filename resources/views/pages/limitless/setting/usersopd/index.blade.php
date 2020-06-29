@@ -1,4 +1,7 @@
 @extends('layouts.limitless.l_main')
+@section('page_asset_css')
+<link rel="stylesheet" href="{!!asset('themes/limitless/assets/js/sweetalert2/sweetalert2.min.css')!!}">
+@endsection
 @section('page_title')
     USERS OPD
 @endsection
@@ -15,6 +18,29 @@
     <li><a href="#">SETTING</a></li>
     <li class="active">USERS OPD</li>
 @endsection
+@section('page_breadcrumbelement')
+<ul class="breadcrumb-elements">
+    <li class="dropdown">
+        <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+            <i class="icon-cog5 position-left"></i>
+            AKSI
+            <span class="caret"></span>
+        </a>        
+        <ul class="dropdown-menu dropdown-menu-right" id="breadcrumb-action">
+            <li>
+                <a href="#" id="lockall">
+                    <i class="icon-lock2 pull-right"></i> LOCK ALL
+                </a>
+            </li>
+            <li>
+                <a href="#" id="unlockall">
+                    <i class="icon-unlocked2 pull-right"></i> UNLOCK ALL
+                </a>
+            </li>
+        </ul>
+    </li>
+</ul>
+@endsection
 @section('page_content')
 <div class="row">
     <div class="col-md-12">
@@ -22,7 +48,7 @@
             <div class="panel-heading">
                 <h5 class="panel-title">
                     <i class="icon-search4 position-left"></i>
-                    Pencarian Data
+                    PENCARIAN DATA
                 </h5>
             </div>
             <div class="panel-body">
@@ -56,9 +82,63 @@
     </div>
 </div>
 @endsection
+@section('page_asset_js')
+<script src="{!!asset('themes/limitless/assets/js/sweetalert2/sweetalert2.all.min.js')!!}"></script>
+<script src="{!!asset('themes/limitless/assets/js/promise-polyfill.js')!!}"></script>
+@endsection
 @section('page_custom_js')
 <script type="text/javascript">
-$(document).ready(function () {  
+$(document).ready(function () {
+    $('#breadcrumb-action').on('click','#lockall',function(ev)
+    {
+        ev.preventDefault();
+        $.ajax({
+            type:'post',
+            url: url_current_page +'/changelocked/0',
+            dataType: 'json',
+            data: {                
+                "_token": token,
+                "_method": 'PUT',
+                "lockall":true
+            },
+            success:function(result)
+            { 
+                Swal.fire({
+                    title: 'Seluruh user berhasil dikunci semuanya',
+                    type: 'success',                    
+                });
+            },
+            error:function(xhr, status, error){
+                console.log('ERROR');
+                console.log(parseMessageAjaxEror(xhr, status, error));                           
+            },
+        });
+    });
+    $('#breadcrumb-action').on('click','#unlockall',function(ev)
+    {
+        ev.preventDefault();
+        $.ajax({
+            type:'post',
+            url: url_current_page +'/changelocked/0',
+            dataType: 'json',
+            data: {                
+                "_token": token,
+                "_method": 'PUT',
+                "unlockall":true
+            },
+            success:function(result)
+            { 
+                Swal.fire({
+                    title: 'Seluruh user berhasil dilepas kuncinya',
+                    type: 'success',                    
+                });
+            },
+            error:function(xhr, status, error){
+                console.log('ERROR');
+                console.log(parseMessageAjaxEror(xhr, status, error));                           
+            },
+        });
+    });
     $("#divdatatable").on("click",".btnDelete", function(){
         if (confirm('Apakah Anda ingin menghapus Data User OPD ini ?')) {
             let url_ = $(this).attr("data-url");

@@ -4,7 +4,8 @@ namespace App\Controllers\RKPD;
 
 use Illuminate\Http\Request;
 use App\Controllers\Controller;
-use App\Models\RKPD\RKPDMurniModel;
+use App\Models\RKPD\RKPDViewJudulModel;
+use App\Models\RKPD\RKPDViewRincianModel;
 use App\Models\RKPD\RKPDModel;
 use App\Models\RKPD\RKPDRincianModel;
 use App\Models\RKPD\RKPDMurniIndikatorModel;
@@ -18,15 +19,35 @@ class RKPDMurniController extends Controller {
     public function __construct()
     {
         parent::__construct();
-        $this->middleware(['auth','role:superadmin|opd']);
+        $this->middleware(['auth','role:superadmin|bapelitbang|opd']);
+        //set nama session 
+        $this->SessionName=$this->getNameForSession();      
+        //set nama halaman saat ini
+        $this->NameOfPage = \Helper::getNameOfPage();
     }
     private function populateRincianKegiatan($RKPDID)
     {
-        $data = RKPDRincianModel::select(\DB::raw('"trRKPDRinc"."RKPDRincID","trRKPDRinc"."RKPDID","trRKPDRinc"."RKPDID","trRKPDRinc"."UsulanKecID","Nm_Kecamatan","trRKPDRinc"."Uraian","trRKPDRinc"."No","trRKPDRinc"."Sasaran_Angka1","trRKPDRinc"."Sasaran_Uraian1","trRKPDRinc"."Target1","trRKPDRinc"."NilaiUsulan1","trRKPDRinc"."status" AS "Status","trRKPDRinc"."Descr","isSKPD","isReses","isReses_Uraian","trRenjaRinc"."Descr"'))
+        $data = RKPDRincianModel::select(\DB::raw('"trRKPDRinc"."RKPDRincID",
+                                                "trRKPDRinc"."RKPDID",
+                                                "trRKPDRinc"."UsulanKecID",
+                                                "Nm_Kecamatan",
+                                                "trRKPDRinc"."Uraian",
+                                                "trRKPDRinc"."No",
+                                                "trRKPDRinc"."Sasaran_Angka1",
+                                                "trRKPDRinc"."Sasaran_Uraian1",
+                                                "trRKPDRinc"."Target1",
+                                                "trRKPDRinc"."NilaiUsulan1",
+                                                "trRKPDRinc"."Status",
+                                                "trRKPDRinc"."Privilege",
+                                                "trRKPDRinc"."Descr",
+                                                "isSKPD",
+                                                "isReses",
+                                                "isReses_Uraian",
+                                                "trRKPDRinc"."Descr"'))
                                 ->leftJoin('tmPmKecamatan','tmPmKecamatan.PmKecamatanID','trRKPDRinc.PmKecamatanID')
                                 ->leftJoin('trPokPir','trPokPir.PokPirID','trRKPDRinc.PokPirID')
                                 ->leftJoin('tmPemilikPokok','tmPemilikPokok.PemilikPokokID','trPokPir.PemilikPokokID')
-                                ->where('trRKPDRinc.EntryLvl',5)
+                                ->where('trRKPDRinc.EntryLvl',\HelperKegiatan::getLevelEntriByName($this->NameOfPage))                                  
                                 ->where('RKPDID',$RKPDID)
                                 ->get();
     
@@ -34,13 +55,13 @@ class RKPDMurniController extends Controller {
     }
     private function populateIndikatorKegiatan($RKPDID)
     {
-      
-        $data = RKPDMurniIndikatorModel::join('trIndikatorKinerja','trIndikatorKinerja.IndikatorKinerjaID','trRenjaIndikator.IndikatorKinerjaID')
+        
+        $data = RKPDMurniIndikatorModel::join('trIndikatorKinerja','trIndikatorKinerja.IndikatorKinerjaID','trRKPDIndikator.IndikatorKinerjaID')
                                                             ->where('RKPDID',$RKPDID)
                                                             ->get();
 
         return $data;
-    }
+    }    
     /**
      * collect data from resources for index view
      *
@@ -62,14 +83,6 @@ class RKPDMurniController extends Controller {
         }
         $numberRecordPerPage=$this->getControllerStateSession('global_controller','numberRecordPerPage');
         
-        //filter
-        if (!$this->checkStateIsExistSession('rkpdmurni','filters')) 
-        {            
-            $this->putControllerStateSession('rkpdmurni','filters',[
-                                                                            'OrgID'=>'none',
-                                                                            'SOrgID'=>'none',
-                                                                            ]);
-        }        
         $SOrgID= $this->getControllerStateSession('rkpdmurni.filters','SOrgID');        
 
         if ($this->checkStateIsExistSession('rkpdmurni','search')) 
@@ -77,33 +90,49 @@ class RKPDMurniController extends Controller {
             $search=$this->getControllerStateSession('rkpdmurni','search');
             switch ($search['kriteria']) 
             {
+                case 'RKPDID' :
+                $data = RKPDViewRincianModel::select(\HelperKegiatan::getField($this->NameOfPage))
+                                            ->where('SOrgID',$SOrgID)                                            
+                                            ->where('TA', \HelperKegiatan::getTahunPerencanaan())    
+                                            ->where('EntryLvl',\HelperKegiatan::getLevelEntriByName($this->NameOfPage))                                  
+                                            ->where(['RKPDID'=>$search['isikriteria']])                                                    
+                                            ->orderBy($column_order,$direction);                                            
+                break;
                 case 'kode_kegiatan' :
-                    $data = RKPDMurniModel::where(['kode_kegiatan'=>$search['isikriteria']])                                                    
-                                                    ->where('SOrgID',$SOrgID)
-                                                    ->where('TA', config('globalsettings.tahun_perencanaan'))
-                                                    ->orderBy($column_order,$direction); 
+                    $data = RKPDViewRincianModel::select(\HelperKegiatan::getField($this->NameOfPage))
+                                                ->where('SOrgID',$SOrgID)                                            
+                                                ->where('TA', \HelperKegiatan::getTahunPerencanaan())    
+                                                ->where('EntryLvl',\HelperKegiatan::getLevelEntriByName($this->NameOfPage))                                  
+                                                ->where(['kode_kegiatan'=>$search['isikriteria']])                                                                                             
+                                                ->orderBy($column_order,$direction);                                       
                 break;
-                case 'KgtNm' :
-                    $data = RKPDMurniModel::where('KgtNm', 'ilike', '%' . $search['isikriteria'] . '%')                                                    
-                                                    ->where('SOrgID',$SOrgID)
-                                                    ->where('TA', config('globalsettings.tahun_perencanaan'))
-                                                    ->orderBy($column_order,$direction);                                        
+                case 'KgtNm' :                                                    
+                    $data = RKPDViewRincianModel::select(\HelperKegiatan::getField($this->NameOfPage))
+                                                ->where('SOrgID',$SOrgID)                                            
+                                                ->where('TA', \HelperKegiatan::getTahunPerencanaan())    
+                                                ->where('EntryLvl',\HelperKegiatan::getLevelEntriByName($this->NameOfPage))                                  
+                                                ->where('KgtNm', 'ilike', '%' . $search['isikriteria'] . '%')                                                    
+                                                ->orderBy($column_order,$direction);                                            
                 break;
-                case 'Uraian' :
-                    $data = RKPDMurniModel::where('Uraian', 'ilike', '%' . $search['isikriteria'] . '%')                                                    
-                                                    ->where('SOrgID',$SOrgID)
-                                                    ->where('TA', config('globalsettings.tahun_perencanaan'))
-                                                    ->orderBy($column_order,$direction);                                        
+                case 'Uraian' :                     
+                    $data = RKPDViewRincianModel::select(\HelperKegiatan::getField($this->NameOfPage))
+                                                ->where('SOrgID',$SOrgID)                                            
+                                                ->where('TA', \HelperKegiatan::getTahunPerencanaan())    
+                                                ->where('EntryLvl',\HelperKegiatan::getLevelEntriByName($this->NameOfPage))                                  
+                                                ->where('Uraian', 'ilike', '%' . $search['isikriteria'] . '%')                                                    
+                                                ->orderBy($column_order,$direction);                                            
                 break;
             }           
             $data = $data->paginate($numberRecordPerPage, $columns, 'page', $currentpage);  
         }
         else
         {
-            $data = RKPDMurniModel::where('SOrgID',$SOrgID)                                                                                      
-                                            ->where('TA', config('globalsettings.tahun_perencanaan'))                                            
+            $data = RKPDViewRincianModel::select(\HelperKegiatan::getField($this->NameOfPage))
+                                            ->where('SOrgID',$SOrgID)                                            
+                                            ->where('TA', \HelperKegiatan::getTahunPerencanaan())    
+                                            ->where('EntryLvl',\HelperKegiatan::getLevelEntriByName($this->NameOfPage))                                  
                                             ->orderBy($column_order,$direction)                                            
-                                            ->paginate($numberRecordPerPage, $columns, 'page', $currentpage);             
+                                            ->paginate($numberRecordPerPage, $columns, 'page', $currentpage);
         }        
         $data->setPath(route('rkpdmurni.index'));                  
         return $data;
@@ -117,6 +146,7 @@ class RKPDMurniController extends Controller {
     {
         $theme = \Auth::user()->theme;
 
+        $filters=$this->getControllerStateSession('rkpdmurni','filters');
         $numberRecordPerPage = $request->input('numberRecordPerPage');
         $this->putControllerStateSession('global_controller','numberRecordPerPage',$numberRecordPerPage);
         
@@ -124,6 +154,7 @@ class RKPDMurniController extends Controller {
         $data=$this->populateData();
 
         $datatable = view("pages.$theme.rkpd.rkpdmurni.datatable")->with(['page_active'=>'rkpdmurni',
+                                                                                'filters'=>$filters,
                                                                                 'search'=>$this->getControllerStateSession('rkpdmurni','search'),
                                                                                 'numberRecordPerPage'=>$this->getControllerStateSession('global_controller','numberRecordPerPage'),
                                                                                 'column_order'=>$this->getControllerStateSession('rkpdmurni.orderby','column_name'),
@@ -140,6 +171,7 @@ class RKPDMurniController extends Controller {
     {
         $theme = \Auth::user()->theme;
 
+        $filters=$this->getControllerStateSession('rkpdmurni','filters');
         $orderby = $request->input('orderby') == 'asc'?'desc':'asc';
         $column=$request->input('column_name');
         switch($column) 
@@ -172,6 +204,7 @@ class RKPDMurniController extends Controller {
         }
         
         $datatable = view("pages.$theme.rkpd.rkpdmurni.datatable")->with(['page_active'=>'rkpdmurni',
+                                                                                    'filters'=>$filters,
                                                                                     'search'=>$this->getControllerStateSession('rkpdmurni','search'),
                                                                                     'numberRecordPerPage'=>$this->getControllerStateSession('global_controller','numberRecordPerPage'),
                                                                                     'column_order'=>$this->getControllerStateSession('rkpdmurni.orderby','column_name'),
@@ -189,10 +222,12 @@ class RKPDMurniController extends Controller {
     public function paginate ($id) 
     {
         $theme = \Auth::user()->theme;
+        $filters=$this->getControllerStateSession('rkpdmurni','filters');
 
         $this->setCurrentPageInsideSession('rkpdmurni',$id);
         $data=$this->populateData($id);
         $datatable = view("pages.$theme.rkpd.rkpdmurni.datatable")->with(['page_active'=>'rkpdmurni',
+                                                                            'filters'=>$filters,
                                                                             'search'=>$this->getControllerStateSession('rkpdmurni','search'),
                                                                             'numberRecordPerPage'=>$this->getControllerStateSession('global_controller','numberRecordPerPage'),
                                                                             'column_order'=>$this->getControllerStateSession('rkpdmurni.orderby','column_name'),
@@ -211,6 +246,7 @@ class RKPDMurniController extends Controller {
     {
         $theme = \Auth::user()->theme;
 
+        $filters=$this->getControllerStateSession('rkpdmurni','filters');
         $action = $request->input('action');
         if ($action == 'reset') 
         {
@@ -225,7 +261,8 @@ class RKPDMurniController extends Controller {
         $this->setCurrentPageInsideSession('rkpdmurni',1);
         $data=$this->populateData();
 
-        $datatable = view("pages.$theme.rkpd.rkpdmurni.datatable")->with(['page_active'=>'rkpdmurni',                                                            
+        $datatable = view("pages.$theme.rkpd.rkpdmurni.datatable")->with(['page_active'=>'rkpdmurni',     
+                                                            'filters'=>$filters,
                                                             'search'=>$this->getControllerStateSession('rkpdmurni','search'),
                                                             'numberRecordPerPage'=>$this->getControllerStateSession('global_controller','numberRecordPerPage'),
                                                             'column_order'=>$this->getControllerStateSession('rkpdmurni.orderby','column_name'),
@@ -249,26 +286,34 @@ class RKPDMurniController extends Controller {
         $daftar_unitkerja=[];
         $json_data = [];
 
-        // //index
+        //index
         if ($request->exists('OrgID'))
         {
             $OrgID = $request->input('OrgID')==''?'none':$request->input('OrgID');
             $filters['OrgID']=$OrgID;
             $filters['SOrgID']='none';
-            $daftar_unitkerja=\App\Models\DMaster\SubOrganisasiModel::getDaftarUnitKerja(config('globalsettings.tahun_perencanaan'),false,$OrgID);  
+            $daftar_unitkerja=\App\Models\DMaster\SubOrganisasiModel::getDaftarUnitKerja(\HelperKegiatan::getTahunPerencanaan(),false,$OrgID);  
             
             $this->putControllerStateSession('rkpdmurni','filters',$filters);
 
-            $data = [];
-
-            $datatable = view("pages.$theme.rkpd.rkpdmurni.datatable")->with(['page_active'=>'rkpdmurni',                                                            
+            $data = [];            
+            $datatable = view("pages.$theme.rkpd.rkpdmurni.datatable")->with(['page_active'=>'rkpdmurni', 
+                                                                                    'filters'=>$filters,                                                           
                                                                                     'search'=>$this->getControllerStateSession('rkpdmurni','search'),
                                                                                     'numberRecordPerPage'=>$this->getControllerStateSession('global_controller','numberRecordPerPage'),
                                                                                     'column_order'=>$this->getControllerStateSession('rkpdmurni.orderby','column_name'),
                                                                                     'direction'=>$this->getControllerStateSession('rkpdmurni.orderby','order'),
                                                                                     'data'=>$data])->render();
 
-            $json_data = ['success'=>true,'daftar_unitkerja'=>$daftar_unitkerja,'datatable'=>$datatable];
+            $totalpaguopd = RKPDRincianModel::getTotalPaguByOPD(\HelperKegiatan::getTahunPerencanaan(),\HelperKegiatan::getLevelEntriByName($this->NameOfPage),$filters['OrgID']);            
+            
+            $totalpaguunitkerja['murni']=0;
+
+            $paguanggaranopd=\App\Models\DMaster\PaguAnggaranOPDModel::select('Jumlah1')
+                                                                        ->where('OrgID',$filters['OrgID'])
+                                                                        ->value('Jumlah1');
+            
+            $json_data = ['success'=>true,'paguanggaranopd'=>$paguanggaranopd,'totalpaguopd'=>$totalpaguopd,'totalpaguunitkerja'=>$totalpaguunitkerja,'daftar_unitkerja'=>$daftar_unitkerja,'datatable'=>$datatable];
         } 
         //index
         if ($request->exists('SOrgID'))
@@ -278,16 +323,18 @@ class RKPDMurniController extends Controller {
             $this->putControllerStateSession('rkpdmurni','filters',$filters);
             $this->setCurrentPageInsideSession('rkpdmurni',1);
 
-            $data = $this->populateData();
+            $data = $this->populateData();                        
+            $datatable = view("pages.$theme.rkpd.rkpdmurni.datatable")->with(['page_active'=>'rkpdmurni',  
+                                                                            'filters'=>$filters,                                                          
+                                                                            'search'=>$this->getControllerStateSession('rkpdmurni','search'),
+                                                                            'numberRecordPerPage'=>$this->getControllerStateSession('global_controller','numberRecordPerPage'),
+                                                                            'column_order'=>$this->getControllerStateSession('rkpdmurni.orderby','column_name'),
+                                                                            'direction'=>$this->getControllerStateSession('rkpdmurni.orderby','order'),
+                                                                            'data'=>$data])->render();                                                                                       
 
-            $datatable = view("pages.$theme.rkpd.rkpdmurni.datatable")->with(['page_active'=>'rkpdmurni',                                                            
-                                                                                    'search'=>$this->getControllerStateSession('rkpdmurni','search'),
-                                                                                    'numberRecordPerPage'=>$this->getControllerStateSession('global_controller','numberRecordPerPage'),
-                                                                                    'column_order'=>$this->getControllerStateSession('rkpdmurni.orderby','column_name'),
-                                                                                    'direction'=>$this->getControllerStateSession('rkpdmurni.orderby','order'),
-                                                                                    'data'=>$data])->render();                                                                                       
-                                                                                    
-            $json_data = ['success'=>true,'datatable'=>$datatable];    
+            $totalpaguunitkerja = RKPDRincianModel::getTotalPaguByUnitKerja(\HelperKegiatan::getTahunPerencanaan(),\HelperKegiatan::getLevelEntriByName($this->NameOfPage),$filters['SOrgID']);            
+
+            $json_data = ['success'=>true,'totalpaguunitkerja'=>$totalpaguunitkerja,'datatable'=>$datatable];    
         }
         return $json_data;
     }
@@ -300,33 +347,50 @@ class RKPDMurniController extends Controller {
     {                
         $auth = \Auth::user();    
         $theme = $auth->theme;
-
+        
+        //filter
+        if (!$this->checkStateIsExistSession('rkpdmurni','filters')) 
+        {            
+            $this->putControllerStateSession('rkpdmurni','filters',[
+                                                                    'OrgID'=>'none',
+                                                                    'SOrgID'=>'none',
+                                                                    ]);
+        }        
         $filters=$this->getControllerStateSession('rkpdmurni','filters');
+        
         $roles=$auth->getRoleNames();        
+        $daftar_unitkerja=[];
         switch ($roles[0])
         {
             case 'superadmin' :                 
-                $daftar_opd=\App\Models\DMaster\OrganisasiModel::getDaftarOPD(config('globalsettings.tahun_perencanaan'),false);  
+            case 'bapelitbang' :                 
+                $daftar_opd=\App\Models\DMaster\OrganisasiModel::getDaftarOPD(\HelperKegiatan::getTahunPerencanaan(),false);  
                 $daftar_unitkerja=array();           
                 if ($filters['OrgID'] != 'none'&&$filters['OrgID'] != ''&&$filters['OrgID'] != null)
                 {
-                    $daftar_unitkerja=\App\Models\DMaster\SubOrganisasiModel::getDaftarUnitKerja(config('globalsettings.tahun_perencanaan'),false,$filters['OrgID']);        
+                    $daftar_unitkerja=\App\Models\DMaster\SubOrganisasiModel::getDaftarUnitKerja(\HelperKegiatan::getTahunPerencanaan(),false,$filters['OrgID']);        
                 }    
             break;
             case 'opd' :
-                $daftar_opd=\App\Models\DMaster\OrganisasiModel::getDaftarOPD(config('globalsettings.tahun_perencanaan'),false,NULL,$auth->OrgID);  
-                $filters['OrgID']=$auth->OrgID;                
-                if (empty($auth->SOrgID)) 
-                {
-                    $daftar_unitkerja=\App\Models\DMaster\SubOrganisasiModel::getDaftarUnitKerja(config('globalsettings.tahun_perencanaan'),false,$auth->OrgID);  
-                    $filters['SOrgID']=empty($filters['SOrgID'])?'':$filters['SOrgID'];                    
-                }   
+                $daftar_opd=\App\Models\UserOPD::getOPD();                      
+                if (count($daftar_opd) > 0)
+                {                    
+                    if ($filters['OrgID'] != 'none'&&$filters['OrgID'] != ''&&$filters['OrgID'] != null)
+                    {
+                        $daftar_unitkerja=\App\Models\DMaster\SubOrganisasiModel::getDaftarUnitKerja(\HelperKegiatan::getTahunPerencanaan(),false,$filters['OrgID']);        
+                    }  
+                }      
                 else
                 {
-                    $daftar_unitkerja=\App\Models\DMaster\SubOrganisasiModel::getDaftarUnitKerja(config('globalsettings.tahun_perencanaan'),false,$auth->OrgID,$auth->SOrgID);
-                    $filters['SOrgID']=$auth->SOrgID;
-                }                
-                $this->putControllerStateSession('rkpdmurni','filters',$filters);
+                    $filters['OrgID']='none';
+                    $filters['SOrgID']='none';
+                    $this->putControllerStateSession($this->SessionName,'filters',$filters);
+
+                    return view("pages.$theme.rkpd.rkpdmurni.error")->with(['page_active'=>$this->NameOfPage, 
+                                                                                        'page_title'=>\HelperKegiatan::getPageTitle($this->NameOfPage),
+                                                                                        'errormessage'=>'Anda Tidak Diperkenankan Mengakses Halaman ini, karena Sudah dikunci oleh BAPELITBANG',
+                                                                                        ]);
+                }        
             break;
         }
 
@@ -338,27 +402,24 @@ class RKPDMurniController extends Controller {
             $data = $this->populateData($data->lastPage());
         }
         $this->setCurrentPageInsideSession('rkpdmurni',$data->currentPage());
-
-        return view("pages.$theme.rkpd.rkpdmurni.index")->with(['page_active'=>'rkpdmurni',
-                                                                            'daftar_opd'=>$daftar_opd,
-                                                                            'daftar_unitkerja'=>$daftar_unitkerja,
-                                                                            'filters'=>$filters,
-                                                                            'search'=>$this->getControllerStateSession('rkpdmurni','search'),
-                                                                            'numberRecordPerPage'=>$this->getControllerStateSession('global_controller','numberRecordPerPage'),                                                                    
-                                                                            'column_order'=>$this->getControllerStateSession('rkpdmurni.orderby','column_name'),
-                                                                            'direction'=>$this->getControllerStateSession('rkpdmurni.orderby','order'),
-                                                                            'data'=>$data]);               
-                     
-    }
-    /**
-     * Edit the specified resource.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function edit($id)
-    {
         
+        $paguanggaranopd=\App\Models\DMaster\PaguAnggaranOPDModel::select('Jumlah1')
+                                                                    ->where('OrgID',$filters['OrgID'])                                                    
+                                                                    ->value('Jumlah1');
+        
+        return view("pages.$theme.rkpd.rkpdmurni.index")->with(['page_active'=>'rkpdmurni',
+                                                                'daftar_opd'=>$daftar_opd,
+                                                                'daftar_unitkerja'=>$daftar_unitkerja,
+                                                                'filters'=>$filters,
+                                                                'search'=>$this->getControllerStateSession('rkpdmurni','search'),
+                                                                'numberRecordPerPage'=>$this->getControllerStateSession('global_controller','numberRecordPerPage'),                                                                    
+                                                                'column_order'=>$this->getControllerStateSession('rkpdmurni.orderby','column_name'),
+                                                                'direction'=>$this->getControllerStateSession('rkpdmurni.orderby','order'),
+                                                                'paguanggaranopd'=>$paguanggaranopd,
+                                                                'totalpaguopd'=>RKPDRincianModel::getTotalPaguByOPD(\HelperKegiatan::getTahunPerencanaan(),\HelperKegiatan::getLevelEntriByName($this->NameOfPage),$filters['OrgID']),
+                                                                'totalpaguunitkerja' => RKPDRincianModel::getTotalPaguByUnitKerja(\HelperKegiatan::getTahunPerencanaan(),\HelperKegiatan::getLevelEntriByName($this->NameOfPage),$filters['SOrgID']),            
+                                                                'data'=>$data]);               
+                     
     }
     /**
      * Display the specified resource.
@@ -370,35 +431,106 @@ class RKPDMurniController extends Controller {
     {
         $theme = \Auth::user()->theme;
 
-        $renja = RKPDModel::select(\DB::raw('"trRKPD"."RKPDID",                            
-                            "v_program_kegiatan"."Kd_Urusan",
-                            "v_program_kegiatan"."Nm_Urusan",
-                            "v_program_kegiatan"."Kd_Bidang",
-                            "v_program_kegiatan"."Nm_Bidang",
-                            "v_program_kegiatan"."Kd_Prog",
-                            "v_program_kegiatan"."PrgNm",
-                            "v_program_kegiatan"."kode_kegiatan",
-                            "v_program_kegiatan"."KgtNm",
-                            "trRKPD"."Sasaran_Angka1",
-                            "trRKPD"."Sasaran_Uraian1",
-                            "trRKPD"."Sasaran_AngkaSetelah",
-                            "trRKPD"."Sasaran_UraianSetelah",
-                            "trRKPD"."Target1",
-                            "trRKPD"."NilaiUsulan1",
-                            "trRKPD"."NamaIndikator",
-                            "tmSumberDana"."Nm_SumberDana",
-                            "trRKPD"."created_at",
-                            "trRKPD"."updated_at"'))
-                            ->join('v_program_kegiatan','v_program_kegiatan.KgtID','trRKPD.KgtID')     
-                            ->join('tmSumberDana','tmSumberDana.SumberDanaID','trRKPD.SumberDanaID')   
-                            ->findOrFail($id);            
-        if (!is_null($renja) )  
-        {
+        $rkpd = RKPDViewJudulModel::select(\DB::raw('"RKPDID",
+                                            "Kd_Urusan",
+                                            "Nm_Urusan",
+                                            "Kd_Bidang",
+                                            "Nm_Bidang",
+                                            "kode_organisasi",
+                                            "OrgNm",
+                                            "kode_suborganisasi",
+                                            "SOrgNm",
+                                            "Kd_Prog",
+                                            "PrgNm",
+                                            "Kd_Keg",
+                                            "kode_kegiatan",
+                                            "KgtNm",
+                                            "NamaIndikator",
+                                            "Sasaran_Angka1" AS "Sasaran_Angka",
+                                            "Sasaran_Uraian1" AS "Sasaran_Uraian",
+                                            "Sasaran_AngkaSetelah",
+                                            "Sasaran_UraianSetelah",
+                                            "Target1" AS "Target",
+                                            "NilaiSebelum",
+                                            "NilaiUsulan1" AS "NilaiUsulan",
+                                            "NilaiSetelah",
+                                            "Nm_SumberDana",
+                                            "Privilege",
+                                            "Status",
+                                            "EntryLvl",
+                                            "created_at",
+                                            "updated_at"
+                                            '))                            
+                            ->findOrFail($id);
+        if (!is_null($rkpd) )  
+        {            
             $datarinciankegiatan = $this->populateRincianKegiatan($id);
             return view("pages.$theme.rkpd.rkpdmurni.show")->with(['page_active'=>'rkpdmurni',
-                                                                        'renja'=>$renja,
+                                                                        'rkpd'=>$rkpd,
                                                                         'datarinciankegiatan'=>$datarinciankegiatan
                                                                     ]);
         }        
+    }
+    /**
+     * Print to Excel
+     *    
+     * @return \Illuminate\Http\Response
+     */
+    public function printtoexcel()
+    {       
+        $theme = \Auth::user()->theme;
+
+        $filters=$this->getControllerStateSession('rkpdmurni','filters');    
+        $generate_date=date('Y-m-d_H_m_s');
+        $OrgID=$filters['OrgID'];        
+        $SOrgID=$filters['SOrgID'];   
+        if ($SOrgID != 'none'&&$SOrgID != ''&&$SOrgID != null)       
+        {
+            $unitkerja = \DB::table('v_suborganisasi')
+                        ->where('SOrgID',$SOrgID)->first();  
+            
+            $data_report['OrgID']=$unitkerja->OrgID;
+            $data_report['SOrgID']=$SOrgID;
+            $data_report['Kd_Urusan']=$unitkerja->Kd_Urusan;
+            $data_report['Nm_Urusan']=$unitkerja->Nm_Urusan;
+            $data_report['Kd_Bidang']=$unitkerja->Kd_Bidang;
+            $data_report['Nm_Bidang']=$unitkerja->Nm_Bidang;
+            $data_report['kode_organisasi']=$unitkerja->kode_organisasi;
+            $data_report['OrgNm']=$unitkerja->OrgNm;
+            $data_report['SOrgID']=$SOrgID;
+            $data_report['kode_suborganisasi']=$unitkerja->kode_suborganisasi;
+            $data_report['SOrgNm']=$unitkerja->SOrgNm;
+            $data_report['NamaKepalaSKPD']=$unitkerja->NamaKepalaSKPD;
+            $data_report['NIPKepalaSKPD']=$unitkerja->NIPKepalaSKPD;          
+
+            $report= new \App\Models\Report\ReportRKPDMurniModel ($data_report);
+            return $report->download("rkpd_$generate_date.xlsx");
+        }
+        elseif ($OrgID != 'none'&&$OrgID != ''&&$OrgID != null)       
+        {
+            $opd = \DB::table('v_urusan_organisasi')
+                        ->where('OrgID',$OrgID)->first();  
+            
+            $data_report['OrgID']=$opd->OrgID;
+            $data_report['SOrgID']=$SOrgID;
+            $data_report['Kd_Urusan']=$opd->Kd_Urusan;
+            $data_report['Nm_Urusan']=$opd->Nm_Urusan;
+            $data_report['Kd_Bidang']=$opd->Kd_Bidang;
+            $data_report['Nm_Bidang']=$opd->Nm_Bidang;
+            $data_report['kode_organisasi']=$opd->kode_organisasi;
+            $data_report['OrgNm']=$opd->OrgNm;
+            $data_report['SOrgID']=$SOrgID;
+            $data_report['NamaKepalaSKPD']=$opd->NamaKepalaSKPD;
+            $data_report['NIPKepalaSKPD']=$opd->NIPKepalaSKPD;            
+            $report= new \App\Models\Report\ReportRKPDMurniModel ($data_report);
+            return $report->download("rkpd_$generate_date.xlsx");
+        }
+        else
+        {
+            return view("pages.$theme.rkpd.rkpdmurni.error")->with(['page_active'=>$this->NameOfPage,
+                                                                    'page_title'=>\HelperKegiatan::getPageTitle($this->NameOfPage),
+                                                                    'errormessage'=>'Mohon OPD / SKPD untuk di pilih terlebih dahulu. bila sudah terpilih ternyata tidak bisa, berarti saudara tidak diperkenankan menambah kegiatan karena telah dikunci.'
+                                                                ]);  
+        }
     }
 }

@@ -5,7 +5,7 @@
 @section('page_header')
     <i class="icon-chess-king position-left"></i>
     <span class="text-semibold"> 
-        URUSAN TAHUN PERENCANAAN {{config('globalsettings.tahun_perencanaan')}}
+        URUSAN TAHUN PERENCANAAN {{HelperKegiatan::getRPJMDTahunMulai()}} - {{HelperKegiatan::getRPJMDTahunAkhir()}}
     </span>     
 @endsection
 @section('page_info')
@@ -26,7 +26,10 @@
                     <i class="icon-eye"></i>  DATA URUSAN
                 </h5>
                 <div class="heading-elements">   
-                    <a href="{{route('urusan.edit',['id'=>$data->urusan_id])}}" class="btn btn-primary btn-icon heading-btn btnEdit" title="Ubah Data Urusan">
+                    <a href="{{route('urusan.create')}}" class="btn btn-info btn-icon heading-btn btnTambah" title="Tambah Data Urusan">
+                        <i class="icon-googleplus5"></i>
+                    </a>
+                    <a href="{{route('urusan.edit',['uuid'=>$data->urusan_id])}}" class="btn btn-primary btn-icon heading-btn btnEdit" title="Ubah Data Urusan">
                         <i class="icon-pencil7"></i>
                     </a>
                     <a href="javascript:;" title="Hapus Data Urusan" data-id="{{$data->urusan_id}}" data-url="{{route('urusan.index')}}" class="btn btn-danger btn-icon heading-btn btnDelete">

@@ -5,7 +5,7 @@
 @section('page_header')
     <i class="icon-price-tag position-left"></i>
     <span class="text-semibold"> 
-        REKENINGKELOMPOK TAHUN PERENCANAAN {{config('globalsettings.tahun_perencanaan')}}
+        REKENINGKELOMPOK TAHUN PERENCANAAN {{HelperKegiatan::getTahunPerencanaan()}}
     </span>     
 @endsection
 @section('page_info')

@@ -1,18 +1,19 @@
 <div class="panel panel-flat border-top-lg border-top-info border-bottom-info">
     <div class="panel-heading">
         <div class="panel-title">
-            <div class="row">
-                <div class="col-md-1">                    		
-					{!!Form::select('numberRecordPerPage',['1'=>1,'5'=>5,'10'=>10,'15'=>15,'30'=>30,'50'=>50],$numberRecordPerPage,['id'=>'numberRecordPerPage','class'=>'form-control'])!!}                        
-                </div>
-            </div>
+            <h6 class="panel-title">&nbsp;</h6>
         </div>
         <div class="heading-elements">
-            <div class="heading-btn">
-                <a href="{!!route('suborganisasi.create')!!}" class="btn btn-info btn-xs" title="Tambah ORGANISASI">
-                    <i class="icon-googleplus5"></i>
-                </a>
-            </div>            
+            {!! Form::open(['url'=>'#','method'=>'post','class'=>'heading-form','id'=>'frmheading','name'=>'frmheading'])!!} 
+                <div class="form-group">
+                    {!!Form::select('numberRecordPerPage',['1'=>1,'5'=>5,'10'=>10,'15'=>15,'30'=>30,'50'=>50],$numberRecordPerPage,['id'=>'numberRecordPerPage','class'=>'form-control','style'=>'width:70px'])!!}                        
+                </div> 
+                <div class="form-group">
+                    <a href="{!!route('suborganisasi.create')!!}" class="btn btn-info btn-xs" title="Tambah ORGANISASI">
+                        <i class="icon-googleplus5"></i>
+                    </a>
+                </div>  
+            {!! Form::close()!!}          
         </div>
     </div>
     @if (count($data) > 0)
@@ -32,10 +33,14 @@
                         </a>                                             
                     </th> 
                     <th>
+                        OPD / SKPD
+                    </th> 
+                    <th>
                         <a class="column-sort text-white" id="col-Nm_Urusan" data-order="{{$direction}}" href="#">
                             URUSAN
                         </a>                                             
                     </th>
+                    <th width="70">TA</th>
                     <th width="100">AKSI</th>
                 </tr>
             </thead>
@@ -47,16 +52,18 @@
                     </td>                  
                     <td>{{$item->kode_suborganisasi}}</td>
                     <td>{{$item->SOrgNm}}</td>
+                    <td>{{$item->OrgNm}}</td>
                     <td>{{$item->Nm_Urusan}}</td>
+                    <td>{{$item->TA}}</td>
                     <td>
                         <ul class="icons-list">
                             <li class="text-primary-600">
-                                <a class="btnShow" href="{{route('suborganisasi.show',['id'=>$item->SOrgID])}}" title="Detail Data Unit Kerja">
+                                <a class="btnShow" href="{{route('suborganisasi.show',['uuid'=>$item->SOrgID])}}" title="Detail Data Unit Kerja">
                                     <i class='icon-eye'></i>
                                 </a>  
                             </li>
                             <li class="text-primary-600">
-                                <a class="btnEdit" href="{{route('suborganisasi.edit',['id'=>$item->SOrgID])}}" title="Ubah Data Unit Kerja">
+                                <a class="btnEdit" href="{{route('suborganisasi.edit',['uuid'=>$item->SOrgID])}}" title="Ubah Data Unit Kerja">
                                     <i class='icon-pencil7'></i>
                                 </a>  
                             </li>
@@ -66,6 +73,30 @@
                                 </a> 
                             </li>
                         </ul>
+                    </td>
+                </tr>
+				<tr class="text-center info">
+                    <td colspan="7">
+                        <span class="label label-warning label-rounded" style="text-transform: none">
+                            <strong>SOrgID:</strong>
+                            {{$item->SOrgID}}
+                        </span>
+                        <span class="label label-warning label-rounded" style="text-transform: none">
+                            <strong>ORGID:</strong>
+                            {{$item->OrgID}}
+                        </span> 
+                        <span class="label label-warning label-rounded" style="text-transform: none">
+                            <strong>ORGIDRPJMD:</strong>
+                            {{$item->OrgIDRPJMD}}
+                        </span> 
+                        <span class="label label-warning label-rounded" style="text-transform: none">
+                            <strong>CREATED:</strong>
+                            {{Helper::tanggal('d/m/Y H:m',$item->created_at)}}
+                        </span>
+                        <span class="label label-warning label-rounded" style="text-transform: none">
+                            <strong>UPDATED:</strong>
+                            {{Helper::tanggal('d/m/Y H:m',$item->updated_at)}}
+                        </span>
                     </td>
                 </tr>
             @endforeach                    

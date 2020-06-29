@@ -37,19 +37,27 @@ class RKPDRincianModel extends Model {
         'No',
         'Sasaran_Uraian1',
         'Sasaran_Uraian2',
+        'Sasaran_Uraian3',
+        'Sasaran_Uraian4',
         'Sasaran_Angka1',
         'Sasaran_Angka2',
+        'Sasaran_Angka3',
+        'Sasaran_Angka4',
         'NilaiUsulan1',
         'NilaiUsulan2',
+        'NilaiUsulan3',
+        'NilaiUsulan4',
         'Target1',
         'Target2',    
+        'Target3',    
+        'Target4',    
         'Tgl_Posting', 
         'isReses',
         'isReses_Uraian',
         'isSKPD',
         'Descr',
         'TA',
-        'status',
+        'Status',
         'EntryLvl',
         'Privilege',        
         'RKPDRincID_Src'        
@@ -86,8 +94,62 @@ class RKPDRincianModel extends Model {
     /**
      * log changes to all the $fillable attributes of the model
      */
-    // protected static $logFillable = true;
+    protected static $logFillable = true;
 
     //only the `deleted` event will get logged automatically
     // protected static $recordEvents = ['deleted'];
+
+    public function rkpd()
+    {
+        return $this->belongsTo('\App\Models\RKPD\RKPDModel','RKPDID');
+    }
+
+    /**
+     * digunakan untuk mendapatkan total pagu indikatif berdasarkan status dan opd
+     */
+    public static function getTotalPaguByOPD ($tahun_perencanaan,$EntryLvl,string $OrgID=null)
+    {             
+        $data=\DB::table('trRKPDRinc')
+                ->select(\DB::raw('SUM("trRKPDRinc"."NilaiUsulan1") AS "NilaiUsulan1",SUM("trRKPDRinc"."NilaiUsulan2") AS "NilaiUsulan2",SUM("trRKPDRinc"."NilaiUsulan3") AS "NilaiUsulan3",SUM("trRKPDRinc"."NilaiUsulan4") AS "NilaiUsulan4"'))
+                ->join('trRKPD','trRKPDRinc.RKPDID','trRKPD.RKPDID')
+                ->where('trRKPDRinc.TA',$tahun_perencanaan)
+                ->where('trRKPD.OrgID',$OrgID)
+                ->where('trRKPD.EntryLvl',$EntryLvl)
+                ->get()                
+                ->toArray();
+        
+        $totalpagu['murni']=is_null($data[0]->NilaiUsulan1)?0:$data[0]->NilaiUsulan1;        
+        $totalpagu['pembahasanm']=is_null($data[0]->NilaiUsulan2)?0:$data[0]->NilaiUsulan2;  
+        $totalpagu['selisihm']=$totalpagu['pembahasanm']-$totalpagu['murni'];
+        $totalpagu['perubahan']=is_null($data[0]->NilaiUsulan3)?0:$data[0]->NilaiUsulan3;  
+        $totalpagu['selisihpm']=$totalpagu['perubahan']-$totalpagu['pembahasanm'];
+        $totalpagu['pembahasanp']=is_null($data[0]->NilaiUsulan4)?0:$data[0]->NilaiUsulan4;  
+        $totalpagu['selisihpp']=$totalpagu['pembahasanp']-$totalpagu['perubahan'];
+
+        return $totalpagu;
+    }
+    /**
+     * digunakan untuk mendapatkan total pagu indikatif berdasarkan status dan opd
+     */
+    public static function getTotalPaguByUnitKerja ($tahun_perencanaan,$EntryLvl,string $SOrgID=null)
+    {
+        $data=\DB::table('trRKPDRinc')
+                ->select(\DB::raw('SUM("trRKPDRinc"."NilaiUsulan1") AS "NilaiUsulan1",SUM("trRKPDRinc"."NilaiUsulan2") AS "NilaiUsulan2",SUM("trRKPDRinc"."NilaiUsulan3") AS "NilaiUsulan3",SUM("trRKPDRinc"."NilaiUsulan4") AS "NilaiUsulan4"'))
+                ->join('trRKPD','trRKPDRinc.RKPDID','trRKPD.RKPDID')
+                ->where('trRKPDRinc.TA',$tahun_perencanaan)
+                ->where('trRKPD.EntryLvl',$EntryLvl)
+                ->where('trRKPD.SOrgID',$SOrgID)
+                ->get()                
+                ->toArray();
+        
+        $totalpagu['murni']=is_null($data[0]->NilaiUsulan1)?0:$data[0]->NilaiUsulan1;        
+        $totalpagu['pembahasanm']=is_null($data[0]->NilaiUsulan2)?0:$data[0]->NilaiUsulan2;  
+        $totalpagu['selisihm']=$totalpagu['pembahasanm']-$totalpagu['murni'];
+        $totalpagu['perubahan']=is_null($data[0]->NilaiUsulan3)?0:$data[0]->NilaiUsulan3;  
+        $totalpagu['selisihpm']=$totalpagu['perubahan']-$totalpagu['pembahasanm'];
+        $totalpagu['pembahasanp']=is_null($data[0]->NilaiUsulan4)?0:$data[0]->NilaiUsulan4;  
+        $totalpagu['selisihpp']=$totalpagu['pembahasanp']-$totalpagu['perubahan'];
+          
+        return $totalpagu;
+    }
 }

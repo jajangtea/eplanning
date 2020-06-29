@@ -1,18 +1,20 @@
 @extends('layouts.limitless.l_main')
 @section('page_title')
-    RPJMD STRATEGI TAHUN {{config('globalsettings.rpjmd_tahun_mulai')}} - {{config('globalsettings.rpjmd_tahun_akhir')}}
+    RPJMD STRATEGI  PERIODE {{HelperKegiatan::getRPJMDTahunMulai()}} - {{HelperKegiatan::getRPJMDTahunAkhir()+1}}
 @endsection
 @section('page_header')
     <i class="icon-price-tag position-left"></i>
     <span class="text-semibold">
-        RPJMD STRATEGI TAHUN {{config('globalsettings.rpjmd_tahun_mulai')}} - {{config('globalsettings.rpjmd_tahun_akhir')}}
+        RPJMD STRATEGI PERIODE {{HelperKegiatan::getRPJMDTahunMulai()}} - {{HelperKegiatan::getRPJMDTahunAkhir()+1}}
     </span>
 @endsection
 @section('page_info')
     @include('pages.limitless.rpjmd.rpjmdstrategi.info')
 @endsection
 @section('page_breadcrumb')
-    <li class="active">RPJMD STRATEGI TAHUN {{config('globalsettings.rpjmd_tahun_mulai')}} - {{config('globalsettings.rpjmd_tahun_akhir')}}</li>
+    <li><a href="#">PERENCANAAN</a></li>
+    <li><a href="#">RPJMD</a></li>
+    <li><a href="{!!route('rpjmdstrategi.index')!!}">STRATEGI</a></li>
 @endsection
 @section('page_content')
 <div class="row">
@@ -21,7 +23,7 @@
             <div class="panel-heading">
                 <h5 class="panel-title">
                     <i class="icon-search4 position-left"></i>
-                    Pencarian Data
+                    PENCARIAN DATA
                 </h5>
             </div>
             <div class="panel-body">
@@ -29,7 +31,7 @@
                     <div class="form-group">
                         <label class="col-md-2 control-label">Kriteria :</label> 
                         <div class="col-md-10">
-                            {{Form::select('cmbKriteria', ['Kd_Tujuan'=>'KODE','Nm_Tujuan'=>'NAMA'], isset($search['kriteria'])?$search['kriteria']:'Kd_Tujuan',['class'=>'form-control'])}}
+                            {{Form::select('cmbKriteria', ['Kd_Strategi'=>'KODE','Nm_Strategi'=>'NAMA'], isset($search['kriteria'])?$search['kriteria']:'Kd_Strategi',['class'=>'form-control'])}}
                         </div>
                     </div>
                     <div class="form-group" id="divKriteria">

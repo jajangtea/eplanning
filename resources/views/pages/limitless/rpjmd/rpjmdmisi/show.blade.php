@@ -1,18 +1,20 @@
 @extends('layouts.limitless.l_main')
 @section('page_title')
-    RPJMD MISI TAHUN {{config('globalsettings.rpjmd_tahun_mulai')}} - {{config('globalsettings.rpjmd_tahun_akhir')}}
+    RPJMD MISI  PERIODE {{HelperKegiatan::getRPJMDTahunMulai()}} - {{HelperKegiatan::getRPJMDTahunAkhir()+1}}
 @endsection
 @section('page_header')
     <i class="icon-price-tag position-left"></i>
     <span class="text-semibold"> 
-        RPJMD MISI TAHUN {{config('globalsettings.rpjmd_tahun_mulai')}} - {{config('globalsettings.rpjmd_tahun_akhir')}}
+        RPJMD MISI  PERIODE {{HelperKegiatan::getRPJMDTahunMulai()}} - {{HelperKegiatan::getRPJMDTahunAkhir()+1}}
     </span>     
 @endsection
 @section('page_info')
     @include('pages.limitless.rpjmd.rpjmdmisi.info')
 @endsection
 @section('page_breadcrumb')
-    <li><a href="{!!route('rpjmdmisi.index')!!}">RPJMD MISI TAHUN {{config('globalsettings.rpjmd_tahun_mulai')}} - {{config('globalsettings.rpjmd_tahun_akhir')}}</a></li>
+    <li><a href="#">PERENCANAAN</a></li>
+    <li><a href="#">RPJMD</a></li>
+    <li><a href="{!!route('rpjmdmisi.index')!!}">MISI</a></li>
     <li class="active">DETAIL DATA</li>
 @endsection
 @section('page_content')
@@ -24,11 +26,14 @@
                     <i class="icon-eye"></i>  DATA RPJMD MISI
                 </h5>
                 <div class="heading-elements">   
-                    <a href="{{route('rpjmdmisi.edit',['id'=>$data->PrioritasKabID])}}" class="btn btn-primary btn-icon heading-btn btnEdit" title="Ubah Data RPJMD Misi">
+                    <a href="{{route('rpjmdmisi.edit',['uuid'=>$data->PrioritasKabID])}}" class="btn btn-primary btn-icon heading-btn btnEdit" title="Ubah Data RPJMD Misi">
                         <i class="icon-pencil7"></i>
                     </a>
                     <a href="javascript:;" title="Hapus Data RPJMD Misi" data-id="{{$data->PrioritasKabID}}" data-url="{{route('rpjmdmisi.index')}}" class="btn btn-danger btn-icon heading-btn btnDelete">
                         <i class='icon-trash'></i>
+                    </a>
+                    <a href="{!!route('rpjmdmisi.create')!!}" class="btn btn-primary btn-info heading-btn btnEdit" title="Tambah RPJMD Misi">
+                        <i class="icon-googleplus5"></i>
                     </a>
                     <a href="{!!route('rpjmdmisi.index')!!}" class="btn btn-default btn-icon heading-btn" title="keluar">
                         <i class="icon-close2"></i>
@@ -40,27 +45,39 @@
                     <div class="col-md-6">
                         <div class="form-horizontal">
                             <div class="form-group">
-                                <label class="col-md-4 control-label"><strong>rpjmdmisi id: </strong></label>
+                                <label class="col-md-4 control-label"><strong>RPJMD MISI ID: </strong></label>
                                 <div class="col-md-8">
-                                    <p class="form-control-static">{{$data->rpjmdmisi_id}}</p>
+                                    <p class="form-control-static">{{$data->PrioritasKabID}}</p>
+                                </div>                            
+                            </div>
+                            <div class="form-group">
+                                <label class="col-md-4 control-label"><strong>KODE MISI: </strong></label>
+                                <div class="col-md-8">
+                                    <p class="form-control-static">{{$data->Kd_PrioritasKab}}</p>
                                 </div>                            
                             </div>                            
+                            <div class="form-group">
+                                <label class="col-md-4 control-label"><strong>NAMA MISI: </strong></label>
+                                <div class="col-md-8">
+                                    <p class="form-control-static">{{$data->Nm_PrioritasKab}}</p>
+                                </div>                            
+                            </div>  
+                        </div>                        
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-horizontal">
+                            <div class="form-group">
+                                <label class="col-md-4 control-label"><strong>KETERANGAN: </strong></label>
+                                <div class="col-md-8">
+                                    <p class="form-control-static">{{$data->Descr}}</p>
+                                </div>                            
+                            </div>    
                             <div class="form-group">
                                 <label class="col-md-4 control-label"><strong>TGL. BUAT: </strong></label>
                                 <div class="col-md-8">
                                     <p class="form-control-static">{{Helper::tanggal('d/m/Y H:m',$data->created_at)}}</p>
                                 </div>                            
                             </div>
-                        </div>                        
-                    </div>
-                    <div class="col-md-6">
-                        <div class="form-horizontal">
-                            <div class="form-group">
-                                <label class="col-md-4 control-label"><strong>replaceit: </strong></label>
-                                <div class="col-md-8">
-                                    <p class="form-control-static">replaceit</p>
-                                </div>                            
-                            </div>    
                             <div class="form-group">
                                 <label class="col-md-4 control-label"><strong>TGL. UBAH: </strong></label>
                                 <div class="col-md-8">
@@ -78,7 +95,7 @@
 @section('page_custom_js')
 <script type="text/javascript">
 $(document).ready(function () {
-    $(".btnDelete").click(function(ev) {
+    $(document).on('click',".btnDeleteSasaran", function(ev) {
         if (confirm('Apakah Anda ingin menghapus Data RPJMD Misi ini ?')) {
             let url_ = $(this).attr("data-url");
             let id = $(this).attr("data-id");

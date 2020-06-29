@@ -1,18 +1,19 @@
 <div class="panel panel-flat border-top-lg border-top-info border-bottom-info">
-    <div class="panel-heading">
+    <div class="panel-heading">       
         <div class="panel-title">
-            <div class="row">
-                <div class="col-md-1">                    		
-					{!!Form::select('numberRecordPerPage',['1'=>1,'5'=>5,'10'=>10,'15'=>15,'30'=>30,'50'=>50],$numberRecordPerPage,['id'=>'numberRecordPerPage','class'=>'form-control'])!!}                        
-                </div>
-            </div>
+            <h6 class="panel-title">&nbsp;</h6>
         </div>
         <div class="heading-elements">
-            <div class="heading-btn">
-                <a href="{!!route('rpjmdsasaran.create')!!}" class="btn btn-info btn-xs" title="Tambah RPJMDSASARAN">
-                    <i class="icon-googleplus5"></i>
-                </a>
-            </div>            
+            {!! Form::open(['url'=>'#','method'=>'post','class'=>'heading-form','id'=>'frmheading','name'=>'frmheading'])!!} 
+                <div class="form-group">
+                    {!!Form::select('numberRecordPerPage',['1'=>1,'5'=>5,'10'=>10,'15'=>15,'30'=>30,'50'=>50],$numberRecordPerPage,['id'=>'numberRecordPerPage','class'=>'form-control','style'=>'width:70px'])!!}                        
+                </div> 
+                <div class="form-group">
+                    <a href="{!!route('rpjmdsasaran.create')!!}" class="btn btn-info btn-xs" title="Tambah RPJMD TUJUAN">
+                        <i class="icon-googleplus5"></i>
+                    </a>
+                </div> 
+            {!! Form::close()!!}
         </div>
     </div>
     @if (count($data) > 0)
@@ -21,16 +22,14 @@
             <thead>
                 <tr class="bg-teal-700">
                     <th width="55">NO</th>
-                    <th width="100">
-                        <a class="column-sort text-white" id="col-Kd_Sasaran" data-order="{{$direction}}" href="#">
-                            KODE SASARAN 
-                        </a>                                             
+                    <th width="120">                       
+                        KODE SASARAN
                     </th> 
-                    <th width="100">
-                        <a class="column-sort text-white" id="col-Nm_Sasaran" data-order="{{$direction}}" href="#">
-                            NAMA SASARAN  
-                        </a>                                             
+                    <th>                        
+                        NAMA SASARAN                      
                     </th> 
+                    <th width="100">JUMLAH INDIKATOR</th>
+                    <th width="100">TA</th>
                     <th width="100">AKSI</th>
                 </tr>
             </thead>
@@ -42,15 +41,17 @@
                     </td>                  
                     <td>{{$item->Kd_Sasaran}}</td>
                     <td>{{$item->Nm_Sasaran}}</td>
+                    <td>{{DB::table('tmPrioritasIndikatorSasaran')->where('PrioritasSasaranKabID',$item->PrioritasSasaranKabID)->count()}}</td>
+                    <td>{{$item->TA}}</td>
                     <td>
                         <ul class="icons-list">
                             <li class="text-primary-600">
-                                <a class="btnShow" href="{{route('rpjmdsasaran.show',['id'=>$item->PrioritasSasaranKabID])}}" title="Detail Data RPJMD Sasaran">
+                                <a class="btnShow" href="{{route('rpjmdsasaran.show',['uuid'=>$item->PrioritasSasaranKabID])}}" title="Detail Data RPJMD Sasaran">
                                     <i class='icon-eye'></i>
                                 </a>  
                             </li>
                             <li class="text-primary-600">
-                                <a class="btnEdit" href="{{route('rpjmdsasaran.edit',['id'=>$item->PrioritasSasaranKabID])}}" title="Ubah Data RPJMD Sasaran">
+                                <a class="btnEdit" href="{{route('rpjmdsasaran.edit',['uuid'=>$item->PrioritasSasaranKabID])}}" title="Ubah Data RPJMD Sasaran">
                                     <i class='icon-pencil7'></i>
                                 </a>  
                             </li>
@@ -60,6 +61,26 @@
                                 </a> 
                             </li>
                         </ul>
+                    </td>
+                </tr>
+                <tr class="text-center info">
+                    <td colspan="6">
+                        <span class="label label-warning label-rounded" style="text-transform: none">
+                            <strong>PRIORITASSASARANKABID:</strong>
+                            {{$item->PrioritasSasaranKabID}}
+                        </span>
+                        <span class="label label-warning label-rounded" style="text-transform: none">
+                            <strong>PRIORITASTUJUANKABID:</strong>
+                            {{$item->PrioritasTujuanKabID}}
+                        </span>                       
+                        <span class="label label-warning label-rounded" style="text-transform: none">
+                            <strong>CREATED:</strong>
+                            {{Helper::tanggal('d/m/Y H:m',$item->created_at)}}
+                        </span>
+                        <span class="label label-warning label-rounded" style="text-transform: none">
+                            <strong>UPDATED:</strong>
+                            {{Helper::tanggal('d/m/Y H:m',$item->updated_at)}}
+                        </span>
                     </td>
                 </tr>
             @endforeach                    

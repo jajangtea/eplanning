@@ -21,28 +21,27 @@ class RPJMDIndikatorKinerjaModel extends Model {
      */
     protected $fillable = [
         'IndikatorKinerjaID',
-        'PrioritasKebijakanKabID', 
+        'OrgIDRPJMD', 
         'UrsID', 
-        'PrgID', 
-        'OrgID', 
-        'OrgID2', 
-        'OrgID3', 
-        'NamaIndikator',
-        'TA_N',
-        'TargetN',
+        'PrgID',    
+        'NamaIndikator',    
+        'Satuan',    
+        'KondisiAwal',    
         'TargetN1',
         'TargetN2',
         'TargetN3',
         'TargetN4',
         'TargetN5',
-        'PaguDanaN',
         'PaguDanaN1',
         'PaguDanaN2',
         'PaguDanaN3',
         'PaguDanaN4',
         'PaguDanaN5',
+        'KondisiAkhirTarget',        
+        'KondisiAkhirPaguDana',        
         'Descr',
-        'TA'
+        'TA',
+        'Locked'
     ];
     /**
      * primary key tabel ini.
@@ -72,7 +71,7 @@ class RPJMDIndikatorKinerjaModel extends Model {
     /**
      * log the changed attributes for all these events 
      */
-    protected static $logAttributes = ['IndikatorKinerjaID', 'PrioritasKebijakanKabID', 'NamaIndikator'];
+    protected static $logAttributes = ['IndikatorKinerjaID', 'NamaIndikator'];
     /**
      * log changes to all the $fillable attributes of the model
      */
@@ -84,7 +83,7 @@ class RPJMDIndikatorKinerjaModel extends Model {
     public static function getDaftarIndikatorKinerja($UrsID,$PrgID=null,$OrgID=null,$prepend=true)
     {   
         $data = RPJMDIndikatorKinerjaModel::where('UrsID',$UrsID)
-                                            ->where('TA_N',config('globalsettings.rpjmd_tahun_mulai'));
+                                            ->where('TA_N',config('eplanning.rpjmd_tahun_mulai'));
 
         if ($PrgID != null)
         {
@@ -112,9 +111,9 @@ class RPJMDIndikatorKinerjaModel extends Model {
         $data_indikator=null;
         if (!is_null($data) )  
         {   
-            $tahun_n=($ta-config('globalsettings.rpjmd_tahun_mulai'))+1;
-            $target_n="TargetN$tahun_n";
-            $pagudana_n="PaguDanaN$tahun_n";
+            $tahun_n=($ta-\HelperKegiatan::getRPJMDTahunMulai());
+            $target_n=$tahun_n >0 ?"TargetN$tahun_n":'TargetN1';
+            $pagudana_n=$tahun_n>0?"PaguDanaN$tahun_n":'PaguDanaN1';
             $data_indikator=[
                 'NamaIndikator'=>$data->NamaIndikator,
                 'TargetAngka'=>$data[$target_n],

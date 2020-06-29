@@ -5,7 +5,7 @@
 @section('page_header')
     <i class="icon-code position-left"></i>
     <span class="text-semibold">
-        KEGIATAN TAHUN PERENCANAAN {{config('globalsettings.tahun_perencanaan')}}
+        KEGIATAN TAHUN PERENCANAAN {{HelperKegiatan::getTahunPerencanaan()}}
     </span>
 @endsection
 @section('page_info')
@@ -19,7 +19,7 @@
 @endsection
 @section('page_content')
 <div class="alert alert-danger alert-styled-left alert-bordered">
-    <button type="button" class="close" onclick="location.href='{{route('kelompokurusan.index')}}'">×</button>
+    <button type="button" class="close" onclick="location.href='{{route('programkegiatan.index')}}'">×</button>
     {{$errormessage}}
 </div>
 @endsection

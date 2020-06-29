@@ -40,7 +40,7 @@ class KelompokUrusanController extends Controller {
         }
         $numberRecordPerPage=$this->getControllerStateSession('global_controller','numberRecordPerPage');        
   
-        $data = KelompokUrusanModel::where('TA',config('globalsettings.tahun_perencanaan'))->orderBy($column_order,$direction)->paginate($numberRecordPerPage, $columns, 'page', $currentpage); 
+        $data = KelompokUrusanModel::where('TA',\HelperKegiatan::getRPJMDTahunMulai())->orderBy($column_order,$direction)->paginate($numberRecordPerPage, $columns, 'page', $currentpage); 
         
         $data->setPath(route('kelompokurusan.index'));
         return $data;
@@ -210,7 +210,7 @@ class KelompokUrusanController extends Controller {
     {
         $this->validate($request,
         [
-            'Kd_Urusan'=>[new CheckRecordIsExistValidation('tmKUrs',['where'=>['TA','=',config('globalsettings.tahun_perencanaan')]]),
+            'Kd_Urusan'=>[new CheckRecordIsExistValidation('tmKUrs',['where'=>['TA','=',\HelperKegiatan::getRPJMDTahunMulai()]]),
                             'required',
                             'min:1',
                             'max:4',
@@ -228,10 +228,11 @@ class KelompokUrusanController extends Controller {
 
         $kelompokurusan = KelompokUrusanModel::create ([
             'KUrsID'=> uniqid ('uid'),
+            'RpjmdVisiID'=>config('eplanning.rpjmd_visi_id'),
             'Kd_Urusan'=>$request->input('Kd_Urusan'),
             'Nm_Urusan'=>$request->input('Nm_Urusan'),
             'Descr'=>$request->input('Descr'),
-            'TA'=>config('globalsettings.tahun_perencanaan'),
+            'TA'=>\HelperKegiatan::getRPJMDTahunMulai(),
         ]);
         if ($request->ajax()) 
         {
@@ -242,7 +243,7 @@ class KelompokUrusanController extends Controller {
         }
         else
         {
-            return redirect(route('kelompokurusan.show',['id'=>$kelompokurusan->KUrsID]))->with('success','Data ini telah berhasil disimpan.');
+            return redirect(route('kelompokurusan.show',['uuid'=>$kelompokurusan->KUrsID]))->with('success','Data ini telah berhasil disimpan.');
         }
 
     }
@@ -257,8 +258,7 @@ class KelompokUrusanController extends Controller {
     {
         $theme = \Auth::user()->theme;
 
-        $data = KelompokUrusanModel::where('TA',config('globalsettings.tahun_perencanaan'))
-                                    ->where('KUrsID',$id)
+        $data = KelompokUrusanModel::where('KUrsID',$id)
                                     ->firstOrFail();
         if (!is_null($data) )  
         {
@@ -278,7 +278,7 @@ class KelompokUrusanController extends Controller {
     {        
         $theme = \Auth::user()->theme;
         
-        $data = KelompokUrusanModel::where('TA',config('globalsettings.tahun_perencanaan'))
+        $data = KelompokUrusanModel::where('TA',\HelperKegiatan::getRPJMDTahunMulai())
                                     ->where('KUrsID',$id)
                                     ->firstOrFail();
         if (!is_null($data) ) 
@@ -301,7 +301,7 @@ class KelompokUrusanController extends Controller {
         $kelompokurusan = KelompokUrusanModel::find($id);
         $this->validate($request, 
         [
-            'Kd_Urusan'=>[new IgnoreIfDataIsEqualValidation('tmKUrs',$kelompokurusan->Kd_Urusan,['where'=>['TA','=',config('globalsettings.tahun_perencanaan')]]),
+            'Kd_Urusan'=>[new IgnoreIfDataIsEqualValidation('tmKUrs',$kelompokurusan->Kd_Urusan,['where'=>['TA','=',\HelperKegiatan::getRPJMDTahunMulai()]]),
                             'required',
                             'min:1',
                             'max:4',
@@ -330,7 +330,7 @@ class KelompokUrusanController extends Controller {
         }
         else
         {
-            return redirect(route('kelompokurusan.show',['id'=>$kelompokurusan->KUrsID]))->with('success',"Data dengan id ($id) telah berhasil diubah.");
+            return redirect(route('kelompokurusan.show',['uuid'=>$kelompokurusan->KUrsID]))->with('success',"Data dengan id ($id) telah berhasil diubah.");
         }
     }
 

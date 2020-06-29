@@ -5,6 +5,22 @@ use Carbon\Carbon;
 use URL;
 class Helper {
     /**
+     * digunakan untuk mendapatkan nama halaman yang sedang diakses
+     */
+    public static function getNameOfPage (string $action = null)
+    {
+        $name = explode('.',\Route::currentRouteName());
+        if ($action === null)
+        {
+            return $name[0];
+        }
+        else
+        {
+            return $name[0].'.'.$action;
+        }
+        
+    }
+    /**
      * digunakan controller yang sedang diakses
      */
     public static function getCurrentController() 
@@ -17,9 +33,8 @@ class Helper {
      * digunakan untuk mendapatkan url halaman yang sedang diakses
      */
     public static function getCurrentPageURL() 
-    {        
-        $controller_name=Helper::getCurrentController() ;
-        return (\Route("$controller_name.index"));    
+    {   
+        return route(Helper::getNameOfPage('index'));    
     }
     /**
      * digunakan untuk mendapatkan status aktif menu
@@ -39,6 +54,7 @@ class Helper {
      * @return type date
      */
     public static function tanggal($format, $date=null) {
+        Carbon::setLocale(app()->getLocale());
         if ($date == null){
             $tanggal=Carbon::parse(Carbon::now())->format($format);
         }else{
@@ -49,8 +65,8 @@ class Helper {
     /**
 	* digunakan untuk mem-format uang
 	*/
-	public static function formatUang ($uang=0) {
-		$formatted = number_format((float)$uang,0,'.','.');
+	public static function formatUang ($uang=0,$decimal=2) {
+		$formatted = number_format((float)$uang,$decimal,',','.');
         return $formatted;
     }
     /**

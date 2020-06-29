@@ -8,7 +8,21 @@
             </div>
         </div>
         <div class="heading-elements">
-                   
+            <ul class="icons-list">
+                <li class="dropdown">
+                    <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+                        <i class="icon-printer"></i> 
+                        <span class="caret"></span>
+                    </a>
+                    <ul class="dropdown-menu dropdown-menu-right">
+                        <li>
+                            <a href="{!!route('pembahasanmusrenkecamatan.printtoexcel')!!}" title="Print to Excel" id="btnprintexcel">
+                                <i class="icon-file-excel"></i> Export to Excel
+                            </a>     
+                        </li>                            
+                    </ul>
+                </li>
+            </ul>
         </div>
     </div>
     @if (count($data) > 0)
@@ -87,8 +101,8 @@
                 </tr>
                 <tr class="text-center info">
                     <td colspan="10">
-                        <span class="label label-warning label-rounded">
-                            <strong>UsulanKecID:</strong>
+                        <span class="label label-warning label-rounded" style="text-transform: none">
+                            <strong>USULANKECID:</strong>
                             {{$item->UsulanKecID}}
                         </span>
                         <span class="label label-warning label-rounded">

@@ -5,7 +5,7 @@
 @section('page_header')
     <i class="icon-price-tag position-left"></i>
     <span class="text-semibold"> 
-        PEMBAHASANMUSRENDESA TAHUN PERENCANAAN {{config('globalsettings.tahun_perencanaan')}}
+        PEMBAHASANMUSRENDESA TAHUN PERENCANAAN {{HelperKegiatan::getTahunPerencanaan()}}
     </span>     
 @endsection
 @section('page_info')
@@ -24,7 +24,7 @@
                     <i class="icon-eye"></i>  DATA PEMBAHASANMUSRENDESA
                 </h5>
                 <div class="heading-elements">   
-                    <a href="{{route('pembahasanmusrendesa.edit',['id'=>$data->pembahasanmusrendesa_id])}}" class="btn btn-primary btn-icon heading-btn btnEdit" title="Ubah Data PembahasanMusrenDesa">
+                    <a href="{{route('pembahasanmusrendesa.edit',['uuid'=>$data->pembahasanmusrendesa_id])}}" class="btn btn-primary btn-icon heading-btn btnEdit" title="Ubah Data PembahasanMusrenDesa">
                         <i class="icon-pencil7"></i>
                     </a>
                     <a href="javascript:;" title="Hapus Data PembahasanMusrenDesa" data-id="{{$data->pembahasanmusrendesa_id}}" data-url="{{route('pembahasanmusrendesa.index')}}" class="btn btn-danger btn-icon heading-btn btnDelete">

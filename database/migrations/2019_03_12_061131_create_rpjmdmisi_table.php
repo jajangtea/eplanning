@@ -15,14 +15,23 @@ class CreateRpjmdmisiTable extends Migration
     {
         Schema::create('tmPrioritasKab', function (Blueprint $table) {
             $table->string('PrioritasKabID',19);
+            $table->string('RpjmdVisiID',19);
             $table->string('Kd_PrioritasKab',4);
-            $table->string('Nm_PrioritasKab');           
+            $table->text('Nm_PrioritasKab');           
             $table->string('Descr')->nullable();
             $table->year('TA');
             $table->string('PrioritasKabID_Src',19)->nullable();
             $table->boolean('Locked')->default(0);
 
             $table->primary('PrioritasKabID');
+
+            $table->index('RpjmdVisiID');
+
+            $table->foreign('RpjmdVisiID')
+                    ->references('RpjmdVisiID')
+                    ->on('tmRpjmdVisi')
+                    ->onDelete('cascade')
+                    ->onUpdate('cascade');
 
             $table->timestamps();
         });

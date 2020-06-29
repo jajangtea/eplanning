@@ -4,8 +4,11 @@ namespace App\Controllers\RPJMD;
 
 use Illuminate\Http\Request;
 use App\Controllers\Controller;
-use App\Models\RPJMD\RpjmdStrategiModel;
+use App\Models\RPJMD\RPJMDStrategiModel;
 use App\Models\RPJMD\RPJMDKebijakanModel;
+use App\Models\RPJMD\RPJMDProgramKebijakanModel;
+use App\Rules\CheckRecordIsExistValidation;
+use App\Rules\IgnoreIfDataIsEqualValidation;
 
 class RPJMDKebijakanController extends Controller {
      /**
@@ -16,7 +19,17 @@ class RPJMDKebijakanController extends Controller {
     public function __construct()
     {
         parent::__construct();
-        $this->middleware(['auth']);
+        $this->middleware(['auth','role:superadmin|bapelitbang']);
+    }
+    private function populateProgramKebijakan($PrioritasKebijakanKabID)
+    {
+      
+        $data = RPJMDProgramKebijakanModel::select(\DB::raw('"tmPrioritasProgramKebijakan"."ProgramKebijakanID",v_urusan_program."Nm_Bidang",v_urusan_program."PrgNm","tmPrioritasProgramKebijakan"."TA","tmPrioritasProgramKebijakan".created_at,"tmPrioritasProgramKebijakan".updated_at'))
+                                            ->join('v_urusan_program','v_urusan_program.PrgID','tmPrioritasProgramKebijakan.PrgID')
+                                            ->where('PrioritasKebijakanKabID',$PrioritasKebijakanKabID)
+                                            ->get();
+
+        return $data;
     }
     /**
      * collect data from resources for index view
@@ -43,18 +56,28 @@ class RPJMDKebijakanController extends Controller {
             $search=$this->getControllerStateSession('rpjmdkebijakan','search');
             switch ($search['kriteria']) 
             {
-                case 'replaceit' :
-                    $data = RPJMDKebijakanModel::where(['replaceit'=>$search['isikriteria']])->orderBy($column_order,$direction); 
+                case 'Kd_Kebijakan' :
+                    $data = RPJMDKebijakanModel::where(['Kd_Kebijakan'=>$search['isikriteria']])->orderBy($column_order,$direction); 
                 break;
-                case 'replaceit' :
-                    $data = RPJMDKebijakanModel::where('replaceit', 'ilike', '%' . $search['isikriteria'] . '%')->orderBy($column_order,$direction);                                        
+                case 'Nm_Kebijakan' :
+                    $data = RPJMDKebijakanModel::where('Nm_Kebijakan', 'ilike', '%' . $search['isikriteria'] . '%')->orderBy($column_order,$direction);                                        
                 break;
             }           
             $data = $data->paginate($numberRecordPerPage, $columns, 'page', $currentpage);  
         }
         else
         {
-            $data = RPJMDKebijakanModel::orderBy($column_order,$direction)->paginate($numberRecordPerPage, $columns, 'page', $currentpage); 
+            $data = RPJMDKebijakanModel::select(\DB::raw('"tmPrioritasKebijakanKab"."PrioritasKebijakanKabID","tmPrioritasKebijakanKab"."PrioritasStrategiKabID",CONCAT("tmPrioritasKab"."Kd_PrioritasKab",\'.\',"tmPrioritasTujuanKab"."Kd_Tujuan",\'.\',"tmPrioritasSasaranKab"."Kd_Sasaran",\'.\',"tmPrioritasStrategiKab"."Kd_Strategi",\'.\',"tmPrioritasKebijakanKab"."Kd_Kebijakan") AS "Kd_Kebijakan","tmPrioritasKebijakanKab"."Nm_Kebijakan","tmPrioritasKebijakanKab"."TA"'))
+                                        ->join('tmPrioritasStrategiKab','tmPrioritasKebijakanKab.PrioritasStrategiKabID','tmPrioritasStrategiKab.PrioritasStrategiKabID')
+                                        ->join('tmPrioritasSasaranKab','tmPrioritasSasaranKab.PrioritasSasaranKabID','tmPrioritasStrategiKab.PrioritasSasaranKabID')
+                                        ->join('tmPrioritasTujuanKab','tmPrioritasTujuanKab.PrioritasTujuanKabID','tmPrioritasSasaranKab.PrioritasTujuanKabID')
+                                        ->join('tmPrioritasKab','tmPrioritasKab.PrioritasKabID','tmPrioritasTujuanKab.PrioritasKabID')  
+                                        ->orderBy('Kd_PrioritasKab','ASC')
+                                        ->orderBy('Kd_Tujuan','ASC')
+                                        ->orderBy('Kd_Sasaran','ASC')         
+                                        ->orderBy('Kd_Strategi','ASC')
+                                        ->orderBy('Kd_Kebijakan','ASC')
+                                        ->paginate($numberRecordPerPage, $columns, 'page', $currentpage); 
         }        
         $data->setPath(route('rpjmdkebijakan.index'));
         return $data;
@@ -87,32 +110,14 @@ class RPJMDKebijakanController extends Controller {
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
+    /**
+     * digunakan untuk mengurutkan record 
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */
     public function orderby (Request $request) 
     {
-        $theme = \Auth::user()->theme;
-
-        $orderby = $request->input('orderby') == 'asc'?'desc':'asc';
-        $column=$request->input('column_name');
-        switch($column) 
-        {
-            case 'replace_it' :
-                $column_name = 'replace_it';
-            break;           
-            default :
-                $column_name = 'replace_it';
-        }
-        $this->putControllerStateSession('rpjmdkebijakan','orderby',['column_name'=>$column_name,'order'=>$orderby]);        
-
-        $data=$this->populateData();
-
-        $datatable = view("pages.$theme.rpjmd.rpjmdkebijakan.datatable")->with(['page_active'=>'rpjmdkebijakan',
-                                                            'search'=>$this->getControllerStateSession('rpjmdkebijakan','search'),
-                                                            'numberRecordPerPage'=>$this->getControllerStateSession('global_controller','numberRecordPerPage'),
-                                                            'column_order'=>$this->getControllerStateSession('rpjmdkebijakan.orderby','column_name'),
-                                                            'direction'=>$this->getControllerStateSession('rpjmdkebijakan.orderby','order'),
-                                                            'data'=>$data])->render();     
-
-        return response()->json(['success'=>true,'datatable'=>$datatable],200);
+        return response()->json(['success'=>true,'datatable'=>null],200);
     }
     /**
      * paginate resource in storage called by ajax
@@ -169,6 +174,36 @@ class RPJMDKebijakanController extends Controller {
         return response()->json(['success'=>true,'datatable'=>$datatable],200);        
     }
     /**
+     * filter resource in storage.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */
+    public function filter(Request $request) 
+    {        
+        $json_data = [];
+        //create
+        if ($request->exists('UrsID') && $request->exists('programkebijakan') )
+        {
+            $UrsID = $request->input('UrsID')==''?'none':$request->input('UrsID');   
+            $PrioritasKebijakanKabID=$request->input('PrioritasKebijakanKabID');            
+            $daftar_program = \DB::table('v_urusan_program')
+                                ->select(\DB::raw('"PrgID",CONCAT(kode_program,\' \',"PrgNm") AS "PrgNm"'))
+                                ->where('UrsID',$UrsID)
+                                ->WhereNotIn('PrgID',function($query) use ($PrioritasKebijakanKabID){
+                                    $query->select(\DB::raw('"PrgID"'))
+                                            ->from('tmPrioritasProgramKebijakan')
+                                            ->where('PrioritasKebijakanKabID', $PrioritasKebijakanKabID);
+                                })
+                                ->get()
+                                ->pluck('PrgNm','PrgID')
+                                ->toArray();
+                                
+            $json_data = ['success'=>true,'daftar_program'=>$daftar_program];
+        } 
+        return response()->json($json_data,200);  
+    }
+    /**
      * Show the form for creating a new resource.
      *
      * @return \Illuminate\Http\Response
@@ -193,6 +228,11 @@ class RPJMDKebijakanController extends Controller {
                                                 'direction'=>$this->getControllerStateSession('rpjmdkebijakan.orderby','order'),
                                                 'data'=>$data]);               
     }
+    public function getkodekebijakan($id)
+    {
+        $Kd_Kebijakan = RPJMDKebijakanModel::where('PrioritasStrategiKabID',$id)->count('Kd_Kebijakan')+1;
+        return response()->json(['success'=>true,'Kd_Kebijakan'=>$Kd_Kebijakan],200);
+    }
     /**
      * Show the form for creating a new resource.
      *
@@ -201,9 +241,9 @@ class RPJMDKebijakanController extends Controller {
     public function create()
     {        
         $theme = \Auth::user()->theme;
-        $rpjmd_strategi=RpjmdStrategiModel::getRPJDMStrategi(config('globalsettings.tahun_perencanaan'));
+        $daftar_strategi=RPJMDStrategiModel::getRPJDMStrategi(\HelperKegiatan::getRPJMDTahunMulai(),false);
         return view("pages.$theme.rpjmd.rpjmdkebijakan.create")->with(['page_active'=>'rpjmdkebijakan',
-                                                                    'rpjmd_strategi'=>$rpjmd_strategi
+                                                                    'daftar_strategi'=>$daftar_strategi
                                                                     ]);  
     }
     
@@ -215,28 +255,71 @@ class RPJMDKebijakanController extends Controller {
      */
     public function store(Request $request)
     {
-        // $this->validate($request, [
-        //     'replaceit'=>'required',
-        // ]);
+        $this->validate($request, [
+            'Kd_Kebijakan'=>[new CheckRecordIsExistValidation('tmPrioritasKebijakanKab',['where'=>['PrioritasStrategiKabID','=',$request->input('PrioritasStrategiKabID')]]),
+                            'required'
+                        ],
+            'PrioritasStrategiKabID'=>'required',
+            'Nm_Kebijakan'=>'required',
+        ]);
         
-        // $rpjmdkebijakan = RPJMDKebijakanModel::create([
-        //     'replaceit' => $request->input('replaceit'),
-        // ]);        
-        
-        // if ($request->ajax()) 
-        // {
-        //     return response()->json([
-        //         'success'=>true,
-        //         'message'=>'Data ini telah berhasil disimpan.'
-        //     ]);
-        // }
-        // else
-        // {
-        //     return redirect(route('rpjmdkebijakan.show',['id'=>$rpjmdkebijakan->PrioritasKebijakanKabID]))->with('success','Data ini telah berhasil disimpan.');
-        // }
+        $rpjmdkebijakan = RPJMDKebijakanModel::create([
+            'PrioritasKebijakanKabID'=> uniqid ('uid'),
+            'PrioritasStrategiKabID' => $request->input('PrioritasStrategiKabID'),
+            'Kd_Kebijakan' => $request->input('Kd_Kebijakan'),
+            'Nm_Kebijakan' => $request->input('Nm_Kebijakan'),
+            'Descr' => $request->input('Descr'),
+            'TA' => \HelperKegiatan::getRPJMDTahunMulai()
+        ]);        
+
+        if ($request->ajax()) 
+        {
+            return response()->json([
+                'success'=>true,
+                'message'=>'Data ini telah berhasil disimpan.'
+            ]);
+        }
+        else
+        {
+            return redirect(route('rpjmdkebijakan.show',['uuid'=>$rpjmdkebijakan->PrioritasKebijakanKabID]))->with('success','Data ini telah berhasil disimpan.');
+        }
 
     }
-    
+    /**
+     * Store a newly created resource in storage.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */
+    public function store1(Request $request)
+    {
+        $this->validate($request, [            
+            'UrsID'=>'required',
+            'PrgID'=>'required',           
+        ]);
+        
+        $rpjmdprogramkebijakan = RPJMDProgramKebijakanModel::create([
+            'ProgramKebijakanID' => uniqid ('uid'),
+            'PrioritasKebijakanKabID' => $request->input('PrioritasKebijakanKabID'),
+            'UrsID' => $request->input('UrsID'),
+            'PrgID' => $request->input('PrgID'),            
+            'Descr' => '-',
+            'TA' => \HelperKegiatan::getRPJMDTahunMulai()            
+        ]);            
+        
+        if ($request->ajax()) 
+        {
+            return response()->json([
+                'success'=>true,
+                'message'=>'Data ini telah berhasil disimpan.'
+            ]);
+        }
+        else
+        {
+            return redirect(route('rpjmdkebijakan.show',['uuid'=>$rpjmdprogramkebijakan->PrioritasKebijakanKabID]))->with('success','Data ini telah berhasil disimpan.');
+        }
+
+    }
     /**
      * Display the specified resource.
      *
@@ -248,11 +331,28 @@ class RPJMDKebijakanController extends Controller {
         $theme = \Auth::user()->theme;
 
         $data = RPJMDKebijakanModel::findOrFail($id);
+
+         $data = RPJMDKebijakanModel::select(\DB::raw('"tmPrioritasKebijakanKab"."PrioritasKebijakanKabID",
+                                                    "tmPrioritasStrategiKab"."Kd_Strategi",
+                                                    "tmPrioritasStrategiKab"."Nm_Strategi",
+                                                    "tmPrioritasKebijakanKab"."Kd_Kebijakan",
+                                                    "tmPrioritasKebijakanKab"."Nm_Kebijakan",
+                                                    "tmPrioritasKebijakanKab"."Descr",
+                                                    "tmPrioritasKebijakanKab"."PrioritasKebijakanKabID_Src",
+                                                    "tmPrioritasKebijakanKab"."created_at",
+                                                    "tmPrioritasKebijakanKab"."updated_at"'))
+                                ->join('tmPrioritasStrategiKab','tmPrioritasStrategiKab.PrioritasStrategiKabID','tmPrioritasKebijakanKab.PrioritasStrategiKabID')
+                                ->findOrFail($id);
+
         if (!is_null($data) )  
         {
+            $daftar_urusan=\App\Models\DMaster\UrusanModel::getDaftarUrusan(\HelperKegiatan::getRPJMDTahunMulai(),false);
+            $dataprogramkebijakan=$this->populateProgramKebijakan($id);
             return view("pages.$theme.rpjmd.rpjmdkebijakan.show")->with(['page_active'=>'rpjmdkebijakan',
-                                                    'data'=>$data
-                                                    ]);
+                                                                        'data'=>$data,
+                                                                        'daftar_urusan'=>$daftar_urusan,
+                                                                        'dataprogramkebijakan'=>$dataprogramkebijakan  
+                                                                    ]);
         }        
     }
 
@@ -266,12 +366,14 @@ class RPJMDKebijakanController extends Controller {
     {
         $theme = \Auth::user()->theme;
         
-        $data = RPJMDKebijakanModel::findOrFail($id);
+        $data = RPJMDKebijakanModel::findOrFail($id);                
         if (!is_null($data) ) 
         {
+            $daftar_strategi=RPJMDStrategiModel::getRPJDMStrategi($data->TA,false);
             return view("pages.$theme.rpjmd.rpjmdkebijakan.edit")->with(['page_active'=>'rpjmdkebijakan',
-                                                    'data'=>$data
-                                                    ]);
+                                                                            'data'=>$data,
+                                                                            'daftar_strategi'=>$daftar_strategi
+                                                                        ]);
         }        
     }
 
@@ -286,24 +388,32 @@ class RPJMDKebijakanController extends Controller {
     {
         $rpjmdkebijakan = RPJMDKebijakanModel::find($id);
         
-        // $this->validate($request, [
-        //     'replaceit'=>'required',
-        // ]);
-        
-        // $rpjmdkebijakan->replaceit = $request->input('replaceit');
-        // $rpjmdkebijakan->save();
+        $this->validate($request, [
+            'Kd_Kebijakan'=>['required',new IgnoreIfDataIsEqualValidation('tmPrioritasKebijakanKab',
+                                                                        $rpjmdkebijakan->Kd_Kebijakan,
+                                                                        ['where'=>['PrioritasStrategiKabID','=',$request->input('PrioritasStrategiKabID')]],
+                                                                        'Kode Strategi')],
+            'PrioritasStrategiKabID'=>'required',
+            'Nm_Kebijakan'=>'required',
+        ]);
+               
+        $rpjmdkebijakan->PrioritasStrategiKabID = $request->input('PrioritasStrategiKabID');
+        $rpjmdkebijakan->Kd_Kebijakan = $request->input('Kd_Kebijakan');
+        $rpjmdkebijakan->Nm_Kebijakan = $request->input('Nm_Kebijakan');
+        $rpjmdkebijakan->Descr = $request->input('Descr');
+        $rpjmdkebijakan->save();
 
-        // if ($request->ajax()) 
-        // {
-        //     return response()->json([
-        //         'success'=>true,
-        //         'message'=>'Data ini telah berhasil diubah.'
-        //     ]);
-        // }
-        // else
-        // {
-            return redirect(route('rpjmdkebijakan.show',['id'=>$rpjmdkebijakan->PrioritasKebijakanKabID]))->with('success',"Data dengan id ($id) telah berhasil diubah.");
-        // }
+        if ($request->ajax()) 
+        {
+            return response()->json([
+                'success'=>true,
+                'message'=>'Data ini telah berhasil diubah.'
+            ]);
+        }
+        else
+        {
+            return redirect(route('rpjmdkebijakan.show',['uuid'=>$rpjmdkebijakan->PrioritasKebijakanKabID]))->with('success',"Data dengan id ($id) telah berhasil diubah.");
+        }
     }
 
      /**
@@ -315,29 +425,49 @@ class RPJMDKebijakanController extends Controller {
     public function destroy(Request $request,$id)
     {
         $theme = \Auth::user()->theme;
-        
-        $rpjmdkebijakan = RPJMDKebijakanModel::find($id);
-        $result=$rpjmdkebijakan->delete();
-        if ($request->ajax()) 
+        if ($request->exists('programkebijakan'))
         {
-            $currentpage=$this->getCurrentPageInsideSession('rpjmdkebijakan'); 
-            $data=$this->populateData($currentpage);
-            if ($currentpage > $data->lastPage())
-            {            
-                $data = $this->populateData($data->lastPage());
+            $programkebijakan = RPJMDProgramKebijakanModel::find($id);
+            $PrioritasKebijakanKabID=$programkebijakan->PrioritasKebijakanKabID;
+            $result=$programkebijakan->delete();
+            if ($request->ajax()) 
+            {                
+                $dataprogramkebijakan = $this->populateProgramKebijakan($PrioritasKebijakanKabID);                
+                $datatable = view("pages.$theme.rpjmd.rpjmdkebijakan.datatableprogramkebijakan")->with(['page_active'=>'rpjmdkebijakan',                                                                                    
+                                                                                                    'dataprogramkebijakan'=>$dataprogramkebijakan])->render();      
+                
+                return response()->json(['success'=>true,'datatable'=>$datatable],200); 
             }
-            $datatable = view("pages.$theme.rpjmd.rpjmdkebijakan.datatable")->with(['page_active'=>'rpjmdkebijakan',
-                                                            'search'=>$this->getControllerStateSession('rpjmdkebijakan','search'),
-                                                            'numberRecordPerPage'=>$this->getControllerStateSession('global_controller','numberRecordPerPage'),                                                                    
-                                                            'column_order'=>$this->getControllerStateSession('rpjmdkebijakan.orderby','column_name'),
-                                                            'direction'=>$this->getControllerStateSession('rpjmdkebijakan.orderby','order'),
-                                                            'data'=>$data])->render();      
-            
-            return response()->json(['success'=>true,'datatable'=>$datatable],200); 
+            else
+            {
+                return redirect(route('rpjmdsasaran.show',['uuid'=>$PrioritasSasaranKabID]))->with('success',"Data ini dengan ($id) telah berhasil dihapus.");
+            }                
         }
         else
         {
-            return redirect(route('rpjmdkebijakan.index'))->with('success',"Data ini dengan ($id) telah berhasil dihapus.");
+            $rpjmdkebijakan = RPJMDKebijakanModel::find($id);
+            $result=$rpjmdkebijakan->delete();
+            if ($request->ajax()) 
+            {
+                $currentpage=$this->getCurrentPageInsideSession('rpjmdkebijakan'); 
+                $data=$this->populateData($currentpage);
+                if ($currentpage > $data->lastPage())
+                {            
+                    $data = $this->populateData($data->lastPage());
+                }
+                $datatable = view("pages.$theme.rpjmd.rpjmdkebijakan.datatable")->with(['page_active'=>'rpjmdkebijakan',
+                                                                'search'=>$this->getControllerStateSession('rpjmdkebijakan','search'),
+                                                                'numberRecordPerPage'=>$this->getControllerStateSession('global_controller','numberRecordPerPage'),                                                                    
+                                                                'column_order'=>$this->getControllerStateSession('rpjmdkebijakan.orderby','column_name'),
+                                                                'direction'=>$this->getControllerStateSession('rpjmdkebijakan.orderby','order'),
+                                                                'data'=>$data])->render();      
+                
+                return response()->json(['success'=>true,'datatable'=>$datatable],200); 
+            }
+            else
+            {
+                return redirect(route('rpjmdkebijakan.index'))->with('success',"Data ini dengan ($id) telah berhasil dihapus.");
+            }
         }        
     }
 }

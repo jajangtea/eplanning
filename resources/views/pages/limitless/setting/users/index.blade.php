@@ -1,18 +1,18 @@
 @extends('layouts.limitless.l_main')
 @section('page_title')
-    USERS BAPELITBANG (SUPER ADMIN)
+    USERS SUPER ADMIN
 @endsection
 @section('page_header')
     <i class="icon-users position-left"></i>
     <span class="text-semibold">
-        USERS BAPELITBANG (SUPER ADMIN)
+        USERS SUPER ADMIN
     </span>
 @endsection
 @section('page_info')
     @include('pages.limitless.setting.users.info')
 @endsection
 @section('page_breadcrumb')
-    <li class="active">USERS BAPELITBANG (SUPER ADMIN)</li>
+    <li class="active">USERS SUPER ADMIN</li>
 @endsection
 @section('page_content')
 <div class="row">
@@ -21,7 +21,7 @@
             <div class="panel-heading">
                 <h5 class="panel-title">
                     <i class="icon-search4 position-left"></i>
-                    Pencarian Data
+                    PENCARIAN DATA
                 </h5>
             </div>
             <div class="panel-body">
@@ -59,7 +59,7 @@
 <script type="text/javascript">
 $(document).ready(function () {  
     $("#divdatatable").on("click",".btnDelete", function(){
-        if (confirm('Apakah Anda ingin menghapus Data Users ini ?')) {
+        if (confirm('Apakah Anda ingin menghapus Data User ini ?')) {
             let url_ = $(this).attr("data-url");
             let id = $(this).attr("data-id");
             $.ajax({            

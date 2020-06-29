@@ -18,7 +18,7 @@ class UrusanController extends Controller {
     public function __construct()
     {
         parent::__construct();
-        $this->middleware(['auth']);
+        $this->middleware(['auth','role:superadmin|bapelitbang']);
     }
     /**
      * collect data from resources for index view
@@ -47,14 +47,16 @@ class UrusanController extends Controller {
             {
                 case 'Kode_Bidang' :
                     $data = UrusanModel::join('v_urusan','v_urusan.UrsID','tmUrs.UrsID')
-                                        ->where('tmUrs.TA',config('globalsettings.tahun_perencanaan'))
+                                        ->select(\DB::raw('"tmUrs"."UrsID","tmUrs"."KUrsID",v_urusan."Nm_Urusan",v_urusan."Kode_Bidang","tmUrs"."Nm_Bidang","tmUrs"."Descr","tmUrs"."TA","tmUrs"."created_at","tmUrs"."updated_at"'))
+                                        ->where('tmUrs.TA',\HelperKegiatan::getRPJMDTahunMulai())
                                         ->where(['Kode_Bidang'=>$search['isikriteria']])
                                         ->orderBy($column_order,$direction); 
                 break;
                 case 'Nm_Bidang' :
                     $data = UrusanModel::join('v_urusan','v_urusan.UrsID','tmUrs.UrsID')
-                                        ->where('tmUrs.TA',config('globalsettings.tahun_perencanaan'))
-                                        ->where('tmUrs.Nm_Bidang', SQL::like(), '%' . $search['isikriteria'] . '%')
+                                        ->select(\DB::raw('"tmUrs"."UrsID","tmUrs"."KUrsID",v_urusan."Nm_Urusan",v_urusan."Kode_Bidang","tmUrs"."Nm_Bidang","tmUrs"."Descr","tmUrs"."TA","tmUrs"."created_at","tmUrs"."updated_at"'))
+                                        ->where('tmUrs.TA',\HelperKegiatan::getRPJMDTahunMulai())
+                                        ->where('tmUrs.Nm_Bidang', 'ILIKE', '%' . $search['isikriteria'] . '%')
                                         ->orderBy($column_order,$direction);                                        
                 break;
             }           
@@ -63,9 +65,11 @@ class UrusanController extends Controller {
         else
         {
             $data = UrusanModel::join('v_urusan','v_urusan.UrsID','tmUrs.UrsID')
-                                ->where('tmUrs.TA',config('globalsettings.tahun_perencanaan'))
+                                ->select(\DB::raw('"tmUrs"."UrsID","tmUrs"."KUrsID",v_urusan."Nm_Urusan",v_urusan."Kode_Bidang","tmUrs"."Nm_Bidang","tmUrs"."Descr","tmUrs"."TA","tmUrs"."created_at","tmUrs"."updated_at"'))
+                                ->where('tmUrs.TA',\HelperKegiatan::getRPJMDTahunMulai())
                                 ->orderBy($column_order,$direction)
                                 ->paginate($numberRecordPerPage, $columns, 'page', $currentpage); 
+            
         }
         $data->setPath(route('urusan.index'));
         return $data;
@@ -220,7 +224,7 @@ class UrusanController extends Controller {
     public function create()
     {        
         $theme = \Auth::user()->theme;
-        $kelompok_urusan=KelompokUrusanModel::getKelompokUrusan(config('globalsettings.tahun_perencanaan'));
+        $kelompok_urusan=KelompokUrusanModel::getKelompokUrusan(\HelperKegiatan::getRPJMDTahunMulai());
         return view("pages.$theme.dmaster.urusan.create")->with(['page_active'=>'urusan',
                                                                 'kelompok_urusan'=>$kelompok_urusan
                                                             ]);  
@@ -243,7 +247,7 @@ class UrusanController extends Controller {
             'Kd_Bidang'=>'required|min:1|max:4|regex:/^[0-9]+$/', 
             'Kode_Bidang'=>['required',new IgnoreIfDataIsEqualValidation('v_urusan',
                                                                         null,
-                                                                        ['where'=>['TA','=',config('globalsettings.tahun_perencanaan')]                                                                                
+                                                                        ['where'=>['TA','=',\HelperKegiatan::getRPJMDTahunMulai()]                                                                                
                                                                         ],
                                                                         'Kode Urusan')],   
             'KUrsID'=>'required|not_in:none', 
@@ -269,7 +273,7 @@ class UrusanController extends Controller {
             'Kd_Bidang'=>$request->input('Kd_Bidang'),        
             'Nm_Bidang'=>$request->input('Nm_Bidang'),
             'Descr'=>$request->input('Descr'),
-            'TA'=>config('globalsettings.tahun_perencanaan'),
+            'TA'=>\HelperKegiatan::getRPJMDTahunMulai(),
         ]);
 
         if ($request->ajax()) 
@@ -281,7 +285,7 @@ class UrusanController extends Controller {
         }
         else
         {
-            return redirect(route('urusan.index'))->with('success','Data ini telah berhasil disimpan.');
+            return redirect(route('urusan.show',['uuid'=>$urusan->UrsID]))->with('success','Data ini telah berhasil disimpan.');
         }
 
     }
@@ -319,7 +323,7 @@ class UrusanController extends Controller {
         $data = UrusanModel::with('kelompokurusan')->findOrFail($id);
         if (!is_null($data) ) 
         {   
-            $kelompok_urusan=KelompokUrusanModel::getKelompokUrusan(config('globalsettings.tahun_perencanaan'),false);
+            $kelompok_urusan=KelompokUrusanModel::getKelompokUrusan(\HelperKegiatan::getRPJMDTahunMulai(),false);
             return view("pages.$theme.dmaster.urusan.edit")->with(['page_active'=>'urusan',
                                                                     'kelompok_urusan'=>$kelompok_urusan,
                                                                     'data'=>$data                                                                    
@@ -347,8 +351,7 @@ class UrusanController extends Controller {
             'Kd_Bidang'=>'required|min:1|max:4|regex:/^[0-9]+$/', 
             'Kode_Bidang'=>['required',new IgnoreIfDataIsEqualValidation('v_urusan',
                                                                         $urusan->kelompokurusan->Kd_Urusan.'.'.$urusan->Kd_Bidang,
-                                                                        ['where'=>['TA','=',config('globalsettings.tahun_perencanaan')]                                                                                
-                                                                        ],
+                                                                        ['where'=>['TA','=',\HelperKegiatan::getRPJMDTahunMulai()]],
                                                                         'Kode Urusan')],   
             'KUrsID'=>'required|not_in:none', 
             'Nm_Bidang'=>'required|min:5', 
@@ -383,7 +386,7 @@ class UrusanController extends Controller {
         }
         else
         {
-            return redirect(route('urusan.index'))->with('success',"Data dengan id ($id) telah berhasil diubah.");
+            return redirect(route('urusan.show',['uuid'=>$urusan->UrsID]))->with('success',"Data dengan id ($id) telah berhasil diubah.");
         }
     }
 

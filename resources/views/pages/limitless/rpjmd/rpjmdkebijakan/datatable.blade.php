@@ -1,19 +1,20 @@
 <div class="panel panel-flat border-top-lg border-top-info border-bottom-info">
     <div class="panel-heading">
         <div class="panel-title">
-            <div class="row">
-                <div class="col-md-1">                    		
-					{!!Form::select('numberRecordPerPage',['1'=>1,'5'=>5,'10'=>10,'15'=>15,'30'=>30,'50'=>50],$numberRecordPerPage,['id'=>'numberRecordPerPage','class'=>'form-control'])!!}                        
-                </div>
-            </div>
+            <h6 class="panel-title">&nbsp;</h6>
         </div>
         <div class="heading-elements">
-            <div class="heading-btn">
-                <a href="{!!route('rpjmdkebijakan.create')!!}" class="btn btn-info btn-xs" title="Tambah RPJMDKEBIJAKAN">
-                    <i class="icon-googleplus5"></i>
-                </a>
-            </div>            
-        </div>
+            {!! Form::open(['url'=>'#','method'=>'post','class'=>'heading-form','id'=>'frmheading','name'=>'frmheading'])!!} 
+                <div class="form-group">
+                    {!!Form::select('numberRecordPerPage',['1'=>1,'5'=>5,'10'=>10,'15'=>15,'30'=>30,'50'=>50],$numberRecordPerPage,['id'=>'numberRecordPerPage','class'=>'form-control','style'=>'width:70px'])!!}                        
+                </div> 
+                <div class="form-group">
+                    <a href="{!!route('rpjmdkebijakan.create')!!}" class="btn btn-info btn-xs" title="Tambah RPJMD Misi">
+                        <i class="icon-googleplus5"></i>
+                    </a>
+                </div> 
+            {!! Form::close()!!}
+        </div>       
     </div>
     @if (count($data) > 0)
     <div class="table-responsive"> 
@@ -21,16 +22,14 @@
             <thead>
                 <tr class="bg-teal-700">
                     <th width="55">NO</th>
-                    <th width="100">
-                        <a class="column-sort text-white" id="col-Kode_Kebijakan" data-order="{{$direction}}" href="#">
-                            KODE KEBIJAKAN  
-                        </a>                                             
+                    <th width="150">
+                        KODE KEBIJAKAN  
                     </th> 
-                    <th width="100">
-                        <a class="column-sort text-white" id="col-Nm_Kebijakan" data-order="{{$direction}}" href="#">
-                            NAMA KEBIJAKAN  
-                        </a>                                             
+                    <th>
+                        NAMA KEBIJAKAN  
                     </th> 
+                    <th width="100">JUMLAH PROGRAM</th>
+                    <th width="100">TA</th>
                     <th width="100">AKSI</th>
                 </tr>
             </thead>
@@ -42,15 +41,17 @@
                     </td>                  
                     <td>{{$item->Kd_Kebijakan}}</td>
                     <td>{{$item->Nm_Kebijakan}}</td>
+                    <td>{{DB::table('tmPrioritasProgramKebijakan')->where('PrioritasKebijakanKabID',$item->PrioritasKebijakanKabID)->count()}}</td>
+                    <td>{{$item->TA}}</td>
                     <td>
                         <ul class="icons-list">
                             <li class="text-primary-600">
-                                <a class="btnShow" href="{{route('rpjmdkebijakan.show',['id'=>$item->PrioritasKebijakanKabID])}}" title="Detail Data RPJMD Kebijakan">
+                                <a class="btnShow" href="{{route('rpjmdkebijakan.show',['uuid'=>$item->PrioritasKebijakanKabID])}}" title="Detail Data RPJMD Kebijakan">
                                     <i class='icon-eye'></i>
                                 </a>  
                             </li>
                             <li class="text-primary-600">
-                                <a class="btnEdit" href="{{route('rpjmdkebijakan.edit',['id'=>$item->PrioritasKebijakanKabID])}}" title="Ubah Data RPJMD Kebijakan">
+                                <a class="btnEdit" href="{{route('rpjmdkebijakan.edit',['uuid'=>$item->PrioritasKebijakanKabID])}}" title="Ubah Data RPJMD Kebijakan">
                                     <i class='icon-pencil7'></i>
                                 </a>  
                             </li>
@@ -60,6 +61,26 @@
                                 </a> 
                             </li>
                         </ul>
+                    </td>
+                </tr>
+                <tr class="text-center info">
+                    <td colspan="6">
+                        <span class="label label-warning label-rounded" style="text-transform: none">
+                            <strong>PRIORITASKEBIJAKANKABID:</strong>
+                            {{$item->PrioritasKebijakanKabID}}
+                        </span> 
+                        <span class="label label-warning label-rounded" style="text-transform: none">
+                            <strong>PRIORITASSTRATEGIKABID:</strong>
+                            {{$item->PrioritasStrategiKabID}}
+                        </span>                                                                      
+                        <span class="label label-warning label-rounded" style="text-transform: none">
+                            <strong>CREATED:</strong>
+                            {{Helper::tanggal('d/m/Y H:m',$item->created_at)}}
+                        </span>
+                        <span class="label label-warning label-rounded" style="text-transform: none">
+                            <strong>UPDATED:</strong>
+                            {{Helper::tanggal('d/m/Y H:m',$item->updated_at)}}
+                        </span>
                     </td>
                 </tr>
             @endforeach                    

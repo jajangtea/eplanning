@@ -6,6 +6,8 @@ use Illuminate\Http\Request;
 use App\Controllers\Controller;
 use App\Models\DMaster\ProgramModel;
 use App\Models\DMaster\ProgramKegiatanModel;
+use App\Rules\CheckRecordIsExistValidation;
+use App\Rules\IgnoreIfDataIsEqualValidation;
 
 class ProgramKegiatanController extends Controller {
      /**
@@ -16,7 +18,7 @@ class ProgramKegiatanController extends Controller {
     public function __construct()
     {
         parent::__construct();
-        $this->middleware(['auth']);
+        $this->middleware(['auth','role:superadmin|bapelitbang']);
     }
     /**
      * collect data from resources for index view
@@ -28,7 +30,7 @@ class ProgramKegiatanController extends Controller {
         $columns=['*'];       
         if (!$this->checkStateIsExistSession('programkegiatan','orderby')) 
         {            
-           $this->putControllerStateSession('programkegiatan','orderby',['column_name'=>'Kd_Keg','order'=>'asc']);
+           $this->putControllerStateSession('programkegiatan','orderby',['column_name'=>'kode_kegiatan','order'=>'asc']);
         }
         $column_order=$this->getControllerStateSession('programkegiatan.orderby','column_name'); 
         $direction=$this->getControllerStateSession('programkegiatan.orderby','order'); 
@@ -52,15 +54,23 @@ class ProgramKegiatanController extends Controller {
             {
                 case 'kode_kegiatan' :
                     $data = \DB::table('v_program_kegiatan')
-                            ->where('TA',config('globalsettings.tahun_perencanaan'))
+                    ->select(\DB::raw('"KgtID","PrgID","kode_kegiatan","KgtNm","PrgNm","TA","created_at","updated_at"'))
+                            ->where('TA',\HelperKegiatan::getTahunPerencanaan())
                             ->where(['kode_kegiatan'=>$search['isikriteria']])
-                            ->orderBy($column_order,$direction); 
+                            ->orderByRaw('"Kd_Urusan" ASC NULLS FIRST')
+                            ->orderByRaw('"Kd_Bidang" ASC NULLS FIRST')
+                            ->orderByRaw('"Kd_Prog" ASC NULLS FIRST')
+                            ->orderByRaw('"Kd_Keg" ASC NULLS FIRST');
                 break;
                 case 'KgtNm' :
                     $data = \DB::table('v_program_kegiatan')
-                            ->where('TA',config('globalsettings.tahun_perencanaan'))
+                            ->select(\DB::raw('"KgtID","PrgID","kode_kegiatan","KgtNm","PrgNm","TA","created_at","updated_at"'))
+                            ->where('TA',\HelperKegiatan::getTahunPerencanaan())
                             ->where('KgtNm', 'ilike', '%' . $search['isikriteria'] . '%')
-                            ->orderBy($column_order,$direction);                                        
+                            ->orderByRaw('"Kd_Urusan" ASC NULLS FIRST')
+                            ->orderByRaw('"Kd_Bidang" ASC NULLS FIRST')
+                            ->orderByRaw('"Kd_Prog" ASC NULLS FIRST')
+                            ->orderByRaw('"Kd_Keg" ASC NULLS FIRST');     
                 break;
             }           
             $data = $data->paginate($numberRecordPerPage, $columns, 'page', $currentpage);  
@@ -69,17 +79,25 @@ class ProgramKegiatanController extends Controller {
         {
             $data =$filter_prgid == 'none' ? 
                                             \DB::table('v_program_kegiatan')
-                                                        ->orderBy($column_order,$direction)
-                                                        ->where('TA',config('globalsettings.tahun_perencanaan'))
-                                                        ->paginate($numberRecordPerPage, $columns, 'page', $currentpage)
+                                                    ->select(\DB::raw('"KgtID","PrgID","kode_kegiatan","KgtNm","PrgNm","TA","created_at","updated_at"'))
+                                                    ->orderByRaw('"Kd_Urusan" ASC NULLS FIRST')
+                                                    ->orderByRaw('"Kd_Bidang" ASC NULLS FIRST')
+                                                    ->orderByRaw('"Kd_Prog" ASC NULLS FIRST')
+                                                    ->orderByRaw('"Kd_Keg" ASC NULLS FIRST')
+                                                    ->where('TA',\HelperKegiatan::getTahunPerencanaan())
+                                                    ->paginate($numberRecordPerPage, $columns, 'page', $currentpage)
                                             :
                                             \DB::table('v_program_kegiatan')
-                                                        ->orderBy($column_order,$direction)
-                                                        ->where('TA',config('globalsettings.tahun_perencanaan'))
-                                                        ->where('PrgID',$filter_prgid)
-                                                        ->orWhereNull('UrsID')
-                                                        ->paginate($numberRecordPerPage, $columns, 'page', $currentpage);
+                                                    ->select(\DB::raw('"KgtID","PrgID","kode_kegiatan","KgtNm","PrgNm","TA","created_at","updated_at"'))
+                                                    ->orderByRaw('"Kd_Urusan" ASC NULLS FIRST')
+                                                    ->orderByRaw('"Kd_Bidang" ASC NULLS FIRST')
+                                                    ->orderByRaw('"Kd_Prog" ASC NULLS FIRST')
+                                                    ->orderByRaw('"Kd_Keg" ASC NULLS FIRST')
+                                                    ->where('TA',\HelperKegiatan::getTahunPerencanaan())
+                                                    ->where('PrgID',$filter_prgid)                                                
+                                                    ->paginate($numberRecordPerPage, $columns, 'page', $currentpage);
         }        
+        
         $data->setPath(route('programkegiatan.index'));
         return $data;
     }
@@ -91,7 +109,7 @@ class ProgramKegiatanController extends Controller {
     public function changenumberrecordperpage (Request $request) 
     {
         $theme = \Auth::user()->theme;
-        $daftar_program=ProgramModel::getDaftarProgram(config('globalsettings.tahun_perencanaan'));
+        $daftar_program=ProgramModel::getDaftarProgram(\HelperKegiatan::getTahunPerencanaan());
         $daftar_program['none']='SELURUH PROGRAM';
         $filter_kode_program_selected=ProgramModel::getKodeProgramByPrgID($this->getControllerStateSession('programkegiatan.filters','PrgID'));
         
@@ -120,7 +138,7 @@ class ProgramKegiatanController extends Controller {
     public function orderby (Request $request) 
     {
         $theme = \Auth::user()->theme;
-        $daftar_program=ProgramModel::getDaftarProgram(config('globalsettings.tahun_perencanaan'));
+        $daftar_program=ProgramModel::getDaftarProgram(\HelperKegiatan::getTahunPerencanaan());
         $daftar_program['none']='SELURUH PROGRAM';
         $filter_kode_program_selected=ProgramModel::getKodeProgramByPrgID($this->getControllerStateSession('programkegiatan.filters','PrgID'));
 
@@ -135,7 +153,7 @@ class ProgramKegiatanController extends Controller {
                 $column_name = 'KgtNm';
             break;
             case 'col-PrgNm' :
-                $column_name = 'PrgNm';
+                $column_name = 'v_program_kegiatan.PrgNm';
             break;          
             default :
                 $column_name = 'Kd_Keg';
@@ -165,7 +183,7 @@ class ProgramKegiatanController extends Controller {
     public function paginate ($id) 
     {
         $theme = \Auth::user()->theme;
-        $daftar_program=ProgramModel::getDaftarProgram(config('globalsettings.tahun_perencanaan'));
+        $daftar_program=ProgramModel::getDaftarProgram(\HelperKegiatan::getTahunPerencanaan());
         $daftar_program['none']='SELURUH PROGRAM';
         $filter_kode_program_selected=ProgramModel::getKodeProgramByPrgID($this->getControllerStateSession('programkegiatan.filters','PrgID'));
 
@@ -192,7 +210,7 @@ class ProgramKegiatanController extends Controller {
     public function search (Request $request) 
     {
         $theme = \Auth::user()->theme;
-        $daftar_program=ProgramModel::getDaftarProgram(config('globalsettings.tahun_perencanaan'));
+        $daftar_program=ProgramModel::getDaftarProgram(\HelperKegiatan::getTahunPerencanaan());
         $daftar_program['none']='SELURUH PROGRAM';
         $filter_kode_program_selected=ProgramModel::getKodeProgramByPrgID($this->getControllerStateSession('programkegiatan.filters','PrgID'));
 
@@ -223,6 +241,50 @@ class ProgramKegiatanController extends Controller {
         return response()->json(['success'=>true,'datatable'=>$datatable],200);        
     }
     /**
+     * filter resource in storage.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */
+    public function filter(Request $request) 
+    {
+        $auth = \Auth::user();    
+        $theme = $auth->theme;
+
+        $json_data = [];
+        
+        //index
+        if ($request->exists('PrgID') && $request->exists('index'))
+        {
+            $PrgID = $request->input('PrgID')==''?'none':$request->input('PrgID');
+            $filters['PrgID']=$PrgID;
+            $this->putControllerStateSession('programkegiatan','filters',$filters);
+            $this->setCurrentPageInsideSession('programkegiatan',1);
+
+            $data = $this->populateData();            
+            $filter_kode_program_selected=ProgramModel::getKodeProgramByPrgID($this->getControllerStateSession('programkegiatan.filters','PrgID'));
+            $datatable = view("pages.$theme.dmaster.programkegiatan.datatable")->with(['page_active'=>'programkegiatan',   
+                                                                                'search'=>$this->getControllerStateSession('programkegiatan','search'),                                                                                
+                                                                                'filter_prgid_selected'=>$this->getControllerStateSession('programkegiatan.filters','PrgID'), 
+                                                                                'filter_kode_program_selected'=>$filter_kode_program_selected,
+                                                                                'numberRecordPerPage'=>$this->getControllerStateSession('global_controller','numberRecordPerPage'),
+                                                                                'column_order'=>$this->getControllerStateSession(\Helper::getNameOfPage('orderby'),'column_name'),
+                                                                                'direction'=>$this->getControllerStateSession(\Helper::getNameOfPage('orderby'),'order'),
+                                                                                'data'=>$data])->render();                                                                                       
+                        
+            
+            $json_data = ['success'=>true,'datatable'=>$datatable];            
+        }
+        //create
+        if ($request->exists('PrgID') && $request->exists('create'))
+        {
+            $PrgID = $request->input('PrgID');
+            $Kd_Keg = ProgramKegiatanModel::where('PrgID',$PrgID)->count('Kd_Keg')+1;
+            $json_data = ['success'=>true,'Kd_Keg'=>$Kd_Keg];
+        }
+        return response()->json($json_data,200);  
+    }
+    /**
      * Show the form for creating a new resource.
      *
      * @return \Illuminate\Http\Response
@@ -230,7 +292,7 @@ class ProgramKegiatanController extends Controller {
     public function index(Request $request)
     {                
         $theme = \Auth::user()->theme;
-        $daftar_program=ProgramModel::getDaftarProgram(config('globalsettings.tahun_perencanaan'));
+        $daftar_program=ProgramModel::getDaftarProgram(\HelperKegiatan::getRPJMDTahunMulai());
         $daftar_program['none']='SELURUH PROGRAM';
 
         $search=$this->getControllerStateSession('programkegiatan','search');
@@ -261,7 +323,7 @@ class ProgramKegiatanController extends Controller {
     public function create()
     {        
         $theme = \Auth::user()->theme;
-        $daftar_program=ProgramModel::getDaftarProgram(config('globalsettings.tahun_perencanaan'),false);
+        $daftar_program=ProgramModel::getDaftarProgram(\HelperKegiatan::getRPJMDTahunMulai(),false);
         return view("pages.$theme.dmaster.programkegiatan.create")->with(['page_active'=>'programkegiatan',
                                                                           'daftar_program'=>$daftar_program
                                                                         ]);  
@@ -275,8 +337,14 @@ class ProgramKegiatanController extends Controller {
      */
     public function store(Request $request)
     {
-        $this->validate($request, [            
-            'Kd_Keg'=>'required|min:1|max:4|regex:/^[0-9]+$/',
+        $this->validate($request, [      
+            'Kd_Keg'=>[new CheckRecordIsExistValidation('tmKgt',['where'=>['PrgID','=',$request->input('PrgID')]]),
+                            'required',
+                            'min:1',
+                            'max:4',
+                            'regex:/^[0-9]+$/'
+                        ],         
+            'PrgID'=>'required',
             'KgtNm'=>'required|min:5',
         ]);
         
@@ -286,7 +354,7 @@ class ProgramKegiatanController extends Controller {
             'Kd_Keg' => $request->input('Kd_Keg'),
             'KgtNm' => $request->input('KgtNm'),
             'Descr' => $request->input('Descr'),
-            'TA'=>config('globalsettings.tahun_perencanaan'),
+            'TA'=>\HelperKegiatan::getTahunPerencanaan(),
         ]);        
         
         if ($request->ajax()) 
@@ -298,7 +366,7 @@ class ProgramKegiatanController extends Controller {
         }
         else
         {
-            return redirect(route('programkegiatan.show',['id'=>$programkegiatan->KgtID]))->with('success','Data ini telah berhasil disimpan.');
+            return redirect(route('programkegiatan.show',['uuid'=>$programkegiatan->KgtID]))->with('success','Data ini telah berhasil disimpan.');
         }
 
     }
@@ -312,19 +380,24 @@ class ProgramKegiatanController extends Controller {
     public function show($id)
     {
         $theme = \Auth::user()->theme;
-
-        $data = ProgramKegiatanModel::findOrFail($id);
-
-        $data = ProgramKegiatanModel::leftJoin('v_program_kegiatan','v_program_kegiatan.KgtID','tmKgt.KgtID')
-                            ->where('tmKgt.KgtID',$id)
-                            ->firstOrFail(['tmKgt.KgtID','tmKgt.KgtNm','v_program_kegiatan.kode_kegiatan','v_program_kegiatan.PrgNm','tmKgt.Descr','tmKgt.TA','tmKgt.created_at','tmKgt.updated_at']);
-        
-        if (!is_null($data) )  
+        $data = \DB::table('v_program_kegiatan')
+                    ->select(\DB::raw('"KgtID","Kd_Urusan","Nm_Urusan","Kd_Bidang","Nm_Bidang","KgtID","Kd_Prog","Kd_Keg","KgtNm","kode_kegiatan","PrgNm","Descr","TA","created_at","updated_at"'))
+                    ->where('KgtID',$id)
+                    ->get();   
+                    
+        if (count($data) > 0)  
         {
+            $data = $data[0];
             return view("pages.$theme.dmaster.programkegiatan.show")->with(['page_active'=>'programkegiatan',
-                                                    'data'=>$data
-                                                    ]);
-        }        
+                                                                            'data'=>$data
+                                                                        ]);
+        }  
+        else
+        {
+            return view("pages.$theme.dmaster.programkegiatan.error")->with(['page_active'=>'programkegiatan',
+                                                                            'errormessage'=>"ID Kegiatan ($id) tidak ditemukan di database"
+                                                                        ]);
+        }
     }
 
     /**
@@ -340,7 +413,7 @@ class ProgramKegiatanController extends Controller {
         $data = ProgramKegiatanModel::findOrFail($id);
         if (!is_null($data) ) 
         {
-            $daftar_program=ProgramModel::getDaftarProgram(config('globalsettings.tahun_perencanaan'),false);
+            $daftar_program=ProgramModel::getDaftarProgram(\HelperKegiatan::getRPJMDTahunMulai(),false);
             return view("pages.$theme.dmaster.programkegiatan.edit")->with(['page_active'=>'programkegiatan',
                                                                                 'daftar_program'=>$daftar_program,
                                                                                 'data'=>$data
@@ -357,12 +430,19 @@ class ProgramKegiatanController extends Controller {
      */
     public function update(Request $request, $id)
     {
-        $this->validate($request, [            
-            'Kd_Keg'=>'required|min:1|max:4|regex:/^[0-9]+$/',
-            'KgtNm'=>'required|min:5',
-        ]);
-        
         $programkegiatan = ProgramKegiatanModel::find($id);
+
+        $this->validate($request, [            
+            'Kd_Keg'=>[new IgnoreIfDataIsEqualValidation('tmKgt',$programkegiatan->Kd_Keg,['where'=>['PrgID','=',$programkegiatan->PrgID]]),
+                            'required',
+                            'min:1',
+                            'max:4',
+                            'regex:/^[0-9]+$/'
+                        ],   
+            'PrgID'=>'required',
+            'KgtNm'=>'required|min:5',
+        ]);        
+        
         $programkegiatan->PrgID = $request->input('PrgID');
         $programkegiatan->Kd_Keg = $request->input('Kd_Keg');
         $programkegiatan->KgtNm = $request->input('KgtNm');
@@ -378,7 +458,7 @@ class ProgramKegiatanController extends Controller {
         }
         else
         {
-            return redirect(route('programkegiatan.show',['id'=>$programkegiatan->KgtID]))->with('success',"Data dengan id ($id) telah berhasil diubah.");
+            return redirect(route('programkegiatan.show',['uuid'=>$programkegiatan->KgtID]))->with('success',"Data dengan id ($id) telah berhasil diubah.");
         }
     }
 

@@ -1,18 +1,19 @@
 <div class="panel panel-flat border-top-lg border-top-info border-bottom-info">
     <div class="panel-heading">
         <div class="panel-title">
-            <div class="row">
-                <div class="col-md-1">                    		
-					{!!Form::select('numberRecordPerPage',['1'=>1,'5'=>5,'10'=>10,'15'=>15,'30'=>30,'50'=>50],$numberRecordPerPage,['id'=>'numberRecordPerPage','class'=>'form-control'])!!}                        
-                </div>
-            </div>
+            <h6 class="panel-title">&nbsp;</h6>
         </div>
         <div class="heading-elements">
-            <div class="heading-btn">
-                <a href="{!!route('aspirasimusrenkecamatan.pilihusulankegiatan')!!}" class="btn btn-info btn-xs" title="Tambah Usulan Kegiatan">
-                    <i class="icon-googleplus5"></i>
-                </a>
-            </div>            
+            {!! Form::open(['url'=>'#','method'=>'post','class'=>'heading-form','id'=>'frmheading','name'=>'frmheading'])!!} 
+                <div class="form-group">
+                    {!!Form::select('numberRecordPerPage',['1'=>1,'5'=>5,'10'=>10,'15'=>15,'30'=>30,'50'=>50],$numberRecordPerPage,['id'=>'numberRecordPerPage','class'=>'form-control','style'=>'width:70px'])!!}                        
+                </div> 
+                <div class="form-group">
+                    <a href="{!!route('aspirasimusrenkecamatan.pilihusulankegiatan')!!}" class="btn btn-info btn-xs" title="Tambah Usulan Kegiatan">
+                        <i class="icon-googleplus5"></i>
+                    </a>
+                </div>
+            {!! Form::close()!!}                      
         </div>
     </div>
     @if (count($data) > 0)
@@ -104,13 +105,13 @@
                 <td>
                     <ul class="icons-list">
                         <li class="text-primary-600">
-                            <a class="btnShow" href="{{route('aspirasimusrenkecamatan.show',['id'=>$item->UsulanKecID])}}" title="Detail Data Kegiatan">
+                            <a class="btnShow" href="{{route('aspirasimusrenkecamatan.show',['uuid'=>$item->UsulanKecID])}}" title="Detail Data Kegiatan">
                                 <i class='icon-eye'></i>
                             </a>  
                         </li>
                         @if (!isset($daftar_usulan_kec_id[$item->UsulanKecID]))
                         <li class="text-primary-600">
-                            <a class="btnEdit" href="{{route('aspirasimusrenkecamatan.edit',['id'=>$item->UsulanKecID])}}" title="Ubah Data Kegiatan">
+                            <a class="btnEdit" href="{{route('aspirasimusrenkecamatan.edit',['uuid'=>$item->UsulanKecID])}}" title="Ubah Data Kegiatan">
                                 <i class='icon-pencil7'></i>
                             </a>  
                         </li>
@@ -127,13 +128,17 @@
             </tr>
             <tr class="text-center info">
                 <td colspan="10">
-                    <span class="label label-warning label-rounded">
-                        <strong>UsulanKecID:</strong>
+                    <span class="label label-warning label-rounded" style="text-transform: none">
+                        <strong>USULANKECID:</strong>
                         {{$item->UsulanKecID}}
                     </span>
                     <span class="label label-warning label-rounded">
                         <strong>OPD/SKPD:</strong>
                         {{$item->OrgNm}}
+                    </span>
+                    <span class="label label-warning label-rounded">
+                        <strong>TA:</strong>
+                        {{$item->TA}}
                     </span>
                     <span class="label label-warning label-rounded">
                         <strong>KET:</strong>

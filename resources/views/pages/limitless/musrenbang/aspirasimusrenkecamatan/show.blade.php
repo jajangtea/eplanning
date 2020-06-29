@@ -5,7 +5,7 @@
 @section('page_header')
     <i class="icon-price-tag position-left"></i>
     <span class="text-semibold"> 
-        USULAN KECAMATAN TAHUN PERENCANAAN {{config('globalsettings.tahun_perencanaan')}}
+        USULAN KECAMATAN TAHUN PERENCANAAN {{HelperKegiatan::getTahunPerencanaan()}}
     </span>     
 @endsection
 @section('page_info')
@@ -25,8 +25,14 @@
                 <h5 class="panel-title"> 
                     <i class="icon-eye"></i>  DATA USULAN KECAMATAN
                 </h5>
-                <div class="heading-elements">   
-                    <a href="{{route('aspirasimusrenkecamatan.edit',['id'=>$data->UsulanKecID])}}" class="btn btn-primary btn-icon heading-btn btnEdit" title="Ubah Data Kegiatan">
+                <div class="heading-elements"> 
+                    <a href="{!!route('aspirasimusrenkecamatan.pilihusulankegiatan')!!}" class="btn btn-success btn-icon heading-btn" title="Tambah Usulan Kegiatan">
+                        <i class="icon-googleplus5"></i>
+                    </a>
+                    <a href="{!!route('aspirasimusrenkecamatan.create')!!}" class="btn btn-info btn-icon heading-btn" title="Tambah Usulan Kegiatan">
+                        <i class="icon-googleplus5"></i>
+                    </a> 
+                    <a href="{{route('aspirasimusrenkecamatan.edit',['uuid'=>$data->UsulanKecID])}}" class="btn btn-primary btn-icon heading-btn btnEdit" title="Ubah Data Kegiatan">
                         <i class="icon-pencil7"></i>
                     </a>
                     <a href="javascript:;" title="Hapus Data Kegiatan" data-id="{{$data->UsulanKecID}}" data-url="{{route('aspirasimusrenkecamatan.index')}}" class="btn btn-danger btn-icon heading-btn btnDelete">
@@ -131,7 +137,7 @@
 <script type="text/javascript">
 $(document).ready(function () {
     $(".btnDelete").click(function(ev) {
-        if (confirm('Apakah Anda ingin menghapus Data AspirasiMusrenKecamatan ini ?')) {
+        if (confirm('Apakah Anda ingin menghapus Data Aspirasi Musren Kecamatan ini ?')) {
             let url_ = $(this).attr("data-url");
             let id = $(this).attr("data-id");
             let token = $('meta[name="csrf-token"]').attr('content');

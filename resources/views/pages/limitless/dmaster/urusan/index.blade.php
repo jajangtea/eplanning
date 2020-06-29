@@ -5,7 +5,7 @@
 @section('page_header')
     <i class="icon-chess-king position-left"></i>
     <span class="text-semibold">
-        URUSAN TAHUN PERENCANAAN {{config('globalsettings.tahun_perencanaan')}}  
+        URUSAN TAHUN PERENCANAAN {{HelperKegiatan::getRPJMDTahunMulai()}} - {{HelperKegiatan::getRPJMDTahunAkhir()}}  
     </span>
 @endsection
 @section('page_info')
@@ -23,7 +23,7 @@
             <div class="panel-heading">
                 <h5 class="panel-title">
                     <i class="icon-search4 position-left"></i>
-                    Pencarian Data
+                    PENCARIAN DATA
                 </h5>
             </div>
             <div class="panel-body">

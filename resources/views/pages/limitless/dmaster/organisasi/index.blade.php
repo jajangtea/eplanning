@@ -5,7 +5,7 @@
 @section('page_header')
     <i class="icon-office position-left"></i>
     <span class="text-semibold">
-        ORGANISASI TAHUN {{config('globalsettings.tahun_perencanaan')}}  
+        ORGANISASI TAHUN {{HelperKegiatan::getTahunPerencanaan()}}  
     </span>
 @endsection
 @section('page_info')
@@ -23,7 +23,7 @@
             <div class="panel-heading">
                 <h5 class="panel-title">
                     <i class="icon-search4 position-left"></i>
-                    Pencarian Data
+                    PENCARIAN DATA
                 </h5>
             </div>
             <div class="panel-body">
@@ -31,7 +31,7 @@
                     <div class="form-group">
                         <label class="col-md-2 control-label">Kriteria :</label> 
                         <div class="col-md-10">
-                            {{Form::select('cmbKriteria', ['kode_organisasi'=>'KODE ORGANISASI','OrgNm'=>'NAMA ORGANISASI'], isset($search['kriteria'])?$search['kriteria']:'kode_organisasi',['class'=>'form-control'])}}
+                            {{Form::select('cmbKriteria', ['OrgID'=>'ID ORGANISASI','kode_organisasi'=>'KODE ORGANISASI','OrgNm'=>'NAMA ORGANISASI'], isset($search['kriteria'])?$search['kriteria']:'kode_organisasi',['class'=>'form-control'])}}
                         </div>
                     </div>
                     <div class="form-group" id="divKriteria">

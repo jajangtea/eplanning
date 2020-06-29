@@ -1,23 +1,25 @@
 @extends('layouts.limitless.l_main')
 @section('page_title')
-    RENSTRATUJUAN
+    RENSTRA TUJUAN
 @endsection
 @section('page_header')
     <i class="icon-price-tag position-left"></i>
     <span class="text-semibold">
-        RENSTRATUJUAN TAHUN PERENCANAAN {{config('globalsettings.tahun_perencanaan')}}
+        RENSTRA TUJUAN TAHUN {{HelperKegiatan::getRENSTRATahunMulai()}} - {{HelperKegiatan::getRENSTRATahunAkhir()}}
     </span>
 @endsection
 @section('page_info')
     @include('pages.limitless.renstra.renstratujuan.info')
 @endsection
 @section('page_breadcrumb')
-    <li><a href="{!!route('renstratujuan.index')!!}">RENSTRATUJUAN</a></li>
+    <li><a href="#">PERENCANAAN</a></li>
+    <li><a href="#">RENSTRA</a></li>
+    <li><a href="{!!route('renstratujuan.index')!!}">TUJUAN</a></li>
     <li class="active">ERROR</li>
 @endsection
 @section('page_content')
 <div class="alert alert-danger alert-styled-left alert-bordered">
-    <button type="button" class="close" onclick="location.href='{{route('kelompokurusan.index')}}'">×</button>
+    <button type="button" class="close" onclick="location.href='{{route('renstratujuan.index')}}'">×</button>
     {{$errormessage}}
 </div>
 @endsection

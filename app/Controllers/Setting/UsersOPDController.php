@@ -17,7 +17,20 @@ class UsersOPDController extends Controller {
     public function __construct()
     {
         parent::__construct();
-        $this->middleware(['auth','role:superadmin']);  
+        $this->middleware(['auth','role:superadmin|bapelitbang']);  
+    }
+    /**
+     * collect data from resources for index view
+     *
+     * @return resources
+     */
+    public function populateDataOPD ($userid) 
+    {        
+        $data = \App\Models\UserOPD::where('id',$userid)
+                                    ->where('ta',\HelperKegiatan::getTahunPerencanaan())
+                                    ->orderBy('OrgNm','ASC')
+                                    ->get();
+        return $data;
     }
     /**
      * collect data from resources for index view
@@ -113,13 +126,7 @@ class UsersOPDController extends Controller {
             break; 
             case 'col-email' :
                 $column_name = 'email';
-            break;  
-            case 'col-OrgNm' :
-                $column_name = 'OrgNm';
-            break;
-            case 'col-SOrgNm' :
-                $column_name = 'SOrgNm';
-            break;  
+            break;              
             default :
                 $column_name = 'id';
         }
@@ -204,7 +211,7 @@ class UsersOPDController extends Controller {
         if ($request->exists('OrgID'))
         {
             $OrgID = $request->input('OrgID')==''?'none':$request->input('OrgID');            
-            $daftar_unitkerja=\App\Models\DMaster\SubOrganisasiModel::getDaftarUnitKerja(config('globalsettings.tahun_perencanaan'),false,$OrgID);  
+            $daftar_unitkerja=\App\Models\DMaster\SubOrganisasiModel::getDaftarUnitKerja(\HelperKegiatan::getTahunPerencanaan(),false,$OrgID);  
             
             $json_data = ['success'=>true,'daftar_unitkerja'=>$daftar_unitkerja];
         } 
@@ -244,11 +251,8 @@ class UsersOPDController extends Controller {
     public function create()
     {        
         $theme = \Auth::user()->theme;
-        $daftar_opd=\App\Models\DMaster\OrganisasiModel::getDaftarOPD(config('globalsettings.tahun_perencanaan'),false);
-
         $daftar_theme = $this->listOfthemes;             
         return view("pages.$theme.setting.usersopd.create")->with(['page_active'=>'usersopd',
-                                                                    'daftar_opd'=>$daftar_opd,
                                                                     'daftar_theme'=>$daftar_theme
                                                                 ]);  
     }
@@ -265,8 +269,7 @@ class UsersOPDController extends Controller {
             'name'=>'required',
             'email'=>'required|string|email|unique:users',
             'username'=>'required|string|unique:users',
-            'password'=>'required',            
-            'OrgID'=>'required',
+            'password'=>'required',    
         ]);
         $OrgID=$request->input('OrgID');
         $SOrgID=$request->input('SOrgID');
@@ -275,11 +278,7 @@ class UsersOPDController extends Controller {
             'name'=>$request->input('name'),
             'email'=>$request->input('email'),
             'username'=> $request->input('username'),
-            'password'=>\Hash::make($request->input('password')),
-            'OrgID'=> $OrgID,
-            'OrgNm'=> \App\Models\DMaster\OrganisasiModel::find($OrgID)->OrgNm,
-            'SOrgID'=> $SOrgID,
-            'SOrgNm'=> \App\Models\DMaster\SubOrganisasiModel::getNamaUnitKerjaByID($request->input('SOrgID')),
+            'password'=>\Hash::make($request->input('password')),            
             'email_verified_at'=>\Carbon\Carbon::now(),
             'theme'=> $request->input('theme'),
             'created_at'=>$now, 
@@ -318,10 +317,86 @@ class UsersOPDController extends Controller {
         $data = User::findOrFail($id);
         if (!is_null($data) )  
         {
+            $dataopd=$this->populateDataOPD($data->id);
+            $daftar_opd=\App\Models\DMaster\OrganisasiModel::getDaftarOPD(\HelperKegiatan::getTahunPerencanaan(),false);
             return view("pages.$theme.setting.usersopd.show")->with(['page_active'=>'usersopd',
-                                                    'data'=>$data
-                                                    ]);
+                                                                    'daftar_opd'=>$daftar_opd,
+                                                                    'dataopd'=>$dataopd,
+                                                                    'data'=>$data
+                                                                ]);
         }        
+    }
+    public function changelocked (Request $request, $id)
+    {
+        $theme = \Auth::user()->theme;
+
+        $json_data = [];
+        if ($request->exists('locked'))
+        {
+            $locked = $request->input('locked');
+            $user=\App\Models\UserOPD::find($id);
+            $user->locked=$locked;
+            $user->save();
+            $dataopd=$this->populateDataOPD($user->id);
+
+            $datatable=view("pages.$theme.setting.usersopd.datatableopd")->with(['page_active'=>'usersopd',
+                                                                            'dataopd'=>$dataopd
+                                                                        ])->render();
+            $json_data = ['success'=>true,'datatable'=>$datatable];
+        } 
+        else if ($request->exists('lockall'))
+        {
+            $json_data=\DB::table('usersopd')
+                            ->where('ta',\HelperKegiatan::getTahunPerencanaan())
+                            ->update(['locked'=>1]);
+        }
+        else if ($request->exists('unlockall'))
+        {
+            $json_data=\DB::table('usersopd')
+                            ->where('ta',\HelperKegiatan::getTahunPerencanaan())
+                            ->update(['locked'=>0]);
+        }
+        return response()->json($json_data,200);
+    }
+    /**
+     * Store a newly created resource in storage.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */
+    public function store1(Request $request, $id)
+    {
+        $this->validate($request, [              
+            'OrgID'=>'required',
+        ]);        
+        $OrgID=$request->input('OrgID');
+        $SOrgID=$request->input('SOrgID');
+        $locked=$request->input('locked')==1?true:false;
+        $now = \Carbon\Carbon::now()->toDateTimeString();        
+        $user=\App\Models\UserOPD::create([
+            'id'=>$id,            
+            'ta'=>\HelperKegiatan::getTahunPerencanaan(),            
+            'OrgID'=> $OrgID,
+            'OrgNm'=> \App\Models\DMaster\OrganisasiModel::find($OrgID)->OrgNm,
+            'SOrgID'=> $SOrgID,
+            'SOrgNm'=> \App\Models\DMaster\SubOrganisasiModel::getNamaUnitKerjaByID($request->input('SOrgID')),            
+            'locked'=> $locked,
+            'created_at'=>$now, 
+            'updated_at'=>$now
+        ]); 
+        
+        if ($request->ajax()) 
+        {
+            return response()->json([
+                'success'=>true,
+                'message'=>'Data ini telah berhasil disimpan.'
+            ]);
+        }
+        else
+        {
+            return redirect(route('usersopd.show',['id'=>$user->id]))->with('success','Data ini telah berhasil disimpan.');
+        }
+
     }
 
     /**
@@ -337,12 +412,8 @@ class UsersOPDController extends Controller {
         $data = User::findOrFail($id);
         if (!is_null($data) ) 
         {
-            $daftar_opd=\App\Models\DMaster\OrganisasiModel::getDaftarOPD(config('globalsettings.tahun_perencanaan'),false);
-            $daftar_unitkerja=\App\Models\DMaster\SubOrganisasiModel::getDaftarUnitKerja(config('globalsettings.tahun_perencanaan'),false,$data->OrgID);
             $daftar_theme = $this->listOfthemes;   
-            return view("pages.$theme.setting.usersopd.edit")->with(['page_active'=>'usersopd',
-                                                                    'daftar_opd'=>$daftar_opd,
-                                                                    'daftar_unitkerja'=>$daftar_unitkerja,
+            return view("pages.$theme.setting.usersopd.edit")->with(['page_active'=>'usersopd',                                                                   
                                                                     'daftar_theme'=>$daftar_theme,
                                                                     'data'=>$data
                                                                 ]);
@@ -364,7 +435,6 @@ class UsersOPDController extends Controller {
             'username'=>['required',new IgnoreIfDataIsEqualValidation('users',$user->username)],           
             'name'=>'required',            
             'email'=>'required|string|email|unique:users,email,'.$id,              
-            'OrgID'=>'required',
         ]);        
         
         $user->name = $request->input('name');
@@ -372,11 +442,7 @@ class UsersOPDController extends Controller {
         $user->username = $request->input('username');
         if (!empty(trim($request->input('password')))) {
             $user->password = \Hash::make($request->input('password'));
-        }    
-        $user->OrgID = $request->input('OrgID');
-        $user->OrgNm =\App\Models\DMaster\OrganisasiModel::find($request->input('OrgID'))->OrgNm;
-        $user->SOrgID = $request->input('SOrgID');
-        $user->SOrgNm = \App\Models\DMaster\SubOrganisasiModel::getNamaUnitKerjaByID($request->input('SOrgID'));
+        }  
         $user->theme = $request->input('theme');
         $user->updated_at = \Carbon\Carbon::now()->toDateTimeString();        
         $user->save();
@@ -408,29 +474,52 @@ class UsersOPDController extends Controller {
     public function destroy(Request $request,$id)
     {
         $theme = \Auth::user()->theme;
-        
-        $usersopd = User::find($id);
-        $result=$usersopd->delete();
-        if ($request->ajax()) 
+        if ($request->exists('useropd'))
         {
-            $currentpage=$this->getCurrentPageInsideSession('usersopd'); 
-            $data=$this->populateData($currentpage);
-            if ($currentpage > $data->lastPage())
-            {            
-                $data = $this->populateData($data->lastPage());
+            $user=\App\Models\UserOPD::find($id);
+            $userid=$user->id;
+            $result=$user->delete();
+            if ($request->ajax()) 
+            {
+                $dataopd=$this->populateDataOPD($userid);
+                $datatable = view("pages.$theme.setting.usersopd.datatableopd")->with(['page_active'=>'usersopd',                                                                                
+                                                                                'dataopd'=>$dataopd])->render(); 
+                
+                return response()->json(['success'=>true,'datatable'=>$datatable],200); 
             }
-            $datatable = view("pages.$theme.setting.usersopd.datatable")->with(['page_active'=>'usersopd',
-                                                            'search'=>$this->getControllerStateSession('usersopd','search'),
-                                                            'numberRecordPerPage'=>$this->getControllerStateSession('global_controller','numberRecordPerPage'),                                                                    
-                                                            'column_order'=>$this->getControllerStateSession('usersopd.orderby','column_name'),
-                                                            'direction'=>$this->getControllerStateSession('usersopd.orderby','order'),
-                                                            'data'=>$data])->render();      
-            
-            return response()->json(['success'=>true,'datatable'=>$datatable],200); 
+            else
+            {
+                return redirect(route('usersopd.show',['id'=>$userid]))->with('success',"Data ini dengan ($id) telah berhasil dihapus.");
+            }
         }
         else
         {
-            return redirect(route('usersopd.index'))->with('success',"Data ini dengan ($id) telah berhasil dihapus.");
-        }        
+            $usersopd = User::find($id);
+            $result=$usersopd->delete();
+            if ($request->ajax()) 
+            {
+            
+                $currentpage=$this->getCurrentPageInsideSession('usersopd'); 
+                $data=$this->populateData($currentpage);
+                if ($currentpage > $data->lastPage())
+                {            
+                    $data = $this->populateData($data->lastPage());
+                }
+                $datatable = view("pages.$theme.setting.usersopd.datatable")->with(['page_active'=>'usersopd',
+                                                                                    'search'=>$this->getControllerStateSession('usersopd','search'),
+                                                                                    'numberRecordPerPage'=>$this->getControllerStateSession('global_controller','numberRecordPerPage'),                                                                    
+                                                                                    'column_order'=>$this->getControllerStateSession('usersopd.orderby','column_name'),
+                                                                                    'direction'=>$this->getControllerStateSession('usersopd.orderby','order'),
+                                                                                    'data'=>$data])->render();      
+                
+                return response()->json(['success'=>true,'datatable'=>$datatable],200); 
+            }
+            else
+            {
+                return redirect(route('usersopd.index'))->with('success',"Data ini dengan ($id) telah berhasil dihapus.");
+            }    
+
+        }
+           
     }
 }

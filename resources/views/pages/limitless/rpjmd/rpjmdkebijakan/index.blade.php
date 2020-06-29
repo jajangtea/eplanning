@@ -1,19 +1,20 @@
 @extends('layouts.limitless.l_main')
 @section('page_title')
-    RPJMD KEBIJAKAN TAHUN {{config('globalsettings.rpjmd_tahun_mulai')}} - {{config('globalsettings.rpjmd_tahun_akhir')}}
+    RPJMD ARAH KEBIJAKAN PERIODE {{HelperKegiatan::getRPJMDTahunMulai()}} - {{HelperKegiatan::getRPJMDTahunAkhir()+1}}
 @endsection
 @section('page_header')
     <i class="icon-price-tag position-left"></i>
     <span class="text-semibold">
-        RPJMD KEBIJAKAN  TAHUN {{config('globalsettings.rpjmd_tahun_mulai')}} - {{config('globalsettings.rpjmd_tahun_akhir')}}
+        RPJMD ARAH KEBIJAKAN PERIODE {{HelperKegiatan::getRPJMDTahunMulai()}} - {{HelperKegiatan::getRPJMDTahunAkhir()+1}}
     </span>
 @endsection
 @section('page_info')
     @include('pages.limitless.rpjmd.rpjmdkebijakan.info')
 @endsection
 @section('page_breadcrumb')
+    <li><a href="#">PERENCANAAN</a></li>
     <li><a href="#">RPJMD</a></li>
-    <li class="active">RPJMD KEBIJAKAN  TAHUN {{config('globalsettings.rpjmd_tahun_mulai')}} - {{config('globalsettings.rpjmd_tahun_akhir')}}</li>
+    <li><a href="{!!route('rpjmdkebijakan.index')!!}">PRIORITAS / ARAH KEBIJAKAN</a></li>
 @endsection
 @section('page_content')
 <div class="row">
@@ -22,15 +23,15 @@
             <div class="panel-heading">
                 <h5 class="panel-title">
                     <i class="icon-search4 position-left"></i>
-                    Pencarian Data
+                    PENCARIAN DATA
                 </h5>
             </div>
             <div class="panel-body">
                 {!! Form::open(['action'=>'RPJMD\RPJMDKebijakanController@search','method'=>'post','class'=>'form-horizontal','id'=>'frmsearch','name'=>'frmsearch'])!!}                                
                     <div class="form-group">
                         <label class="col-md-2 control-label">Kriteria :</label> 
-                        <div class="col-md-10">
-                            {{Form::select('cmbKriteria', ['replaceit'=>'replaceit','nama'=>'replaceit'], isset($search['kriteria'])?$search['kriteria']:'replaceit',['class'=>'form-control'])}}
+                        <div class="col-md-10">                            
+                            {{Form::select('cmbKriteria', ['Kd_Kebijakan'=>'KODE','Nm_Kebijakan'=>'NAMA'], isset($search['kriteria'])?$search['kriteria']:'Kd_Kebijakan',['class'=>'form-control'])}}
                         </div>
                     </div>
                     <div class="form-group" id="divKriteria">

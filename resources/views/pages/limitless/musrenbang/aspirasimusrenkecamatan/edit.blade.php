@@ -5,7 +5,7 @@
 @section('page_header')
     <i class="icon-price-tag position-left"></i>
     <span class="text-semibold"> 
-        USULAN KECAMATAN TAHUN PERENCANAAN {{config('globalsettings.tahun_perencanaan')}}
+        USULAN KECAMATAN TAHUN PERENCANAAN {{HelperKegiatan::getTahunPerencanaan()}}
     </span>     
 @endsection
 @section('page_info')
@@ -77,9 +77,9 @@
                     </div>
                 </div>
                 <div class="form-group">
-                    {{Form::label('Output','OUTPUT / HASIL',['class'=>'control-label col-md-2'])}}
+                    {{Form::label('Output','OUTPUT / KELUARAN',['class'=>'control-label col-md-2'])}}
                     <div class="col-md-10">
-                        {{Form::text('Output',$data->Output,['class'=>'form-control','placeholder'=>'OUTPUT / HASIL'])}}
+                        {{Form::text('Output',$data->Output,['class'=>'form-control','placeholder'=>'OUTPUT / KELUARAN'])}}
                     </div>
                 </div>
                 <div class="form-group">
@@ -110,7 +110,7 @@
                     </div>
                 </div>
                 <div class="form-group">
-                    {{Form::label('Output','OUTPUT / HASIL',['class'=>'control-label col-md-2'])}}
+                    {{Form::label('Output','OUTPUT / KELUARAN',['class'=>'control-label col-md-2'])}}
                     <div class="col-md-10">
                         <p class="form-control-static">{{$data->Output}}</p>
                         {{Form::hidden('Output',$data->Output)}}                         
@@ -127,7 +127,7 @@
                 <div class="form-group">
                     {{Form::label('NilaiUsulan','NILAI USULAN ANGGARAN',['class'=>'control-label col-md-2'])}}
                     <div class="col-md-10">
-                        {{Form::text('NilaiUsulan',Helper::formatUang($data->NilaiUsulan),['class'=>'form-control','placeholder'=>'NILAI USULAN ANGGARAN'])}}
+                        {{Form::text('NilaiUsulan',$data->NilaiUsulan,['class'=>'form-control','placeholder'=>'NILAI USULAN ANGGARAN'])}}
                     </div>
                 </div>
                 <div class="form-group">

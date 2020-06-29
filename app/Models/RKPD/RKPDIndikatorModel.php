@@ -24,8 +24,8 @@ class RKPDIndikatorModel extends Model {
        'IndikatorKinerjaID',       
        'Target_Angka',
        'Target_Uraian',  
-       'Tahun',      
        'Descr',
+       'TA',
        'Privilege',
        'RKPDIndikatorID_Src'
    ];
@@ -57,4 +57,16 @@ class RKPDIndikatorModel extends Model {
      * log the changed attributes for all these events 
      */
     protected static $logAttributes = ['RKPDIndikatorID', 'IndikatorKinerjaID', 'RKPDID','Target_Angka','Target_Uraian'];
+    /**
+     * log changes to all the $fillable attributes of the model
+     */
+    protected static $logFillable = true;
+
+    //only the `deleted` event will get logged automatically
+    // protected static $recordEvents = ['deleted'];
+
+    public function rkpd()
+    {
+        return $this->belongsTo('\App\Models\RKPD\RKPDModel','RKPDID');
+    }
 }

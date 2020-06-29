@@ -15,7 +15,7 @@ class RekeningKelompokController extends Controller {
     public function __construct()
     {
         parent::__construct();
-        $this->middleware(['auth']);
+        $this->middleware(['auth','role:superadmin|bapelitbang']);
     }
     /**
      * collect data from resources for index view
@@ -231,7 +231,7 @@ class RekeningKelompokController extends Controller {
         }
         else
         {
-            return redirect(route('rekeningkelompok.show',['id'=>$rekeningkelompok->replaceit]))->with('success','Data ini telah berhasil disimpan.');
+            return redirect(route('rekeningkelompok.show',['uuid'=>$rekeningkelompok->replaceit]))->with('success','Data ini telah berhasil disimpan.');
         }
 
     }
@@ -301,7 +301,7 @@ class RekeningKelompokController extends Controller {
         }
         else
         {
-            return redirect(route('rekeningkelompok.show',['id'=>$rekeningkelompok->replaceit]))->with('success','Data ini telah berhasil disimpan.');
+            return redirect(route('rekeningkelompok.show',['uuid'=>$rekeningkelompok->replaceit]))->with('success','Data ini telah berhasil disimpan.');
         }
     }
 

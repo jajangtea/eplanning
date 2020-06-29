@@ -1,18 +1,19 @@
 <div class="panel panel-flat border-top-lg border-top-info border-bottom-info">
-    <div class="panel-heading">
+    <div class="panel-heading">     
         <div class="panel-title">
-            <div class="row">
-                <div class="col-md-1">                    		
-					{!!Form::select('numberRecordPerPage',['1'=>1,'5'=>5,'10'=>10,'15'=>15,'30'=>30,'50'=>50],$numberRecordPerPage,['id'=>'numberRecordPerPage','class'=>'form-control'])!!}                        
-                </div>
-            </div>
+            <h6 class="panel-title">&nbsp;</h6>
         </div>
         <div class="heading-elements">
-            <div class="heading-btn">
-                <a href="{!!route('rpjmdtujuan.create')!!}" class="btn btn-info btn-xs" title="Tambah RPJMD TUJUAN">
-                    <i class="icon-googleplus5"></i>
-                </a>
-            </div>            
+            {!! Form::open(['url'=>'#','method'=>'post','class'=>'heading-form','id'=>'frmheading','name'=>'frmheading'])!!} 
+                <div class="form-group">
+                    {!!Form::select('numberRecordPerPage',['1'=>1,'5'=>5,'10'=>10,'15'=>15,'30'=>30,'50'=>50],$numberRecordPerPage,['id'=>'numberRecordPerPage','class'=>'form-control','style'=>'width:70px'])!!}                        
+                </div> 
+                <div class="form-group">
+                    <a href="{!!route('rpjmdtujuan.create')!!}" class="btn btn-info btn-xs" title="Tambah RPJMD TUJUAN">
+                        <i class="icon-googleplus5"></i>
+                    </a>
+                </div> 
+            {!! Form::close()!!}
         </div>
     </div>
     @if (count($data) > 0)
@@ -21,16 +22,14 @@
             <thead>
                 <tr class="bg-teal-700">
                     <th width="55">NO</th>
-                    <th width="100">
-                        <a class="column-sort text-white" id="col-Kd_Tujuan" data-order="{{$direction}}" href="#">
-                            KODE TUJUAN 
-                        </a>                                             
+                    <th width="160">
+                        KODE TUJUAN 
                     </th> 
-                    <th width="100">
-                        <a class="column-sort text-white" id="col-Nm_Tujuan" data-order="{{$direction}}" href="#">
-                            NAMA TUJUAN  
-                        </a>                                             
+                    <th>
+                        NAMA TUJUAN  
                     </th> 
+                    <th width="100">JUMLAH INDIKATOR</th>
+                    <th width="100">TA</th>
                     <th width="100">AKSI</th>
                 </tr>
             </thead>
@@ -42,15 +41,17 @@
                     </td>                  
                     <td>{{$item->Kd_Tujuan}}</td>
                     <td>{{$item->Nm_Tujuan}}</td>
+                    <td>{{DB::table('tmPrioritasIndikatorTujuan')->where('PrioritasTujuanKabID',$item->PrioritasTujuanKabID)->count()}}</td>
+                    <td>{{$item->TA}}</td>
                     <td>
                         <ul class="icons-list">
                             <li class="text-primary-600">
-                                <a class="btnShow" href="{{route('rpjmdtujuan.show',['id'=>$item->PrioritasTujuanKabID])}}" title="Detail Data RpjmdTujuan">
+                                <a class="btnShow" href="{{route('rpjmdtujuan.show',['uuid'=>$item->PrioritasTujuanKabID])}}" title="Detail Data RpjmdTujuan">
                                     <i class='icon-eye'></i>
                                 </a>  
                             </li>
                             <li class="text-primary-600">
-                                <a class="btnEdit" href="{{route('rpjmdtujuan.edit',['id'=>$item->PrioritasTujuanKabID])}}" title="Ubah Data RpjmdTujuan">
+                                <a class="btnEdit" href="{{route('rpjmdtujuan.edit',['uuid'=>$item->PrioritasTujuanKabID])}}" title="Ubah Data RpjmdTujuan">
                                     <i class='icon-pencil7'></i>
                                 </a>  
                             </li>
@@ -60,6 +61,26 @@
                                 </a> 
                             </li>
                         </ul>
+                    </td>
+                </tr>
+                <tr class="text-center info">
+                    <td colspan="11">
+                        <span class="label label-warning label-rounded" style="text-transform: none">
+                            <strong>PRIORITASTUJUANKABID:</strong>
+                            {{$item->PrioritasTujuanKabID}}
+                        </span>                        
+                        <span class="label label-warning label-rounded" style="text-transform: none">
+                            <strong>PRIORITASKABID:</strong>
+                            {{$item->PrioritasKabID}}
+                        </span>                        
+                        <span class="label label-warning label-rounded" style="text-transform: none">
+                            <strong>CREATED:</strong>
+                            {{Helper::tanggal('d/m/Y H:m',$item->created_at)}}
+                        </span>
+                        <span class="label label-warning label-rounded" style="text-transform: none">
+                            <strong>UPDATED:</strong>
+                            {{Helper::tanggal('d/m/Y H:m',$item->updated_at)}}
+                        </span>
                     </td>
                 </tr>
             @endforeach                    

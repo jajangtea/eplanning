@@ -29,18 +29,29 @@ class RKPDModel extends Model {
         'NamaIndikator',
         'Sasaran_Uraian1',
         'Sasaran_Uraian2',
+        'Sasaran_Uraian3',
+        'Sasaran_Uraian4',
         'Sasaran_Angka1',
         'Sasaran_Angka2',
+        'Sasaran_Angka3',
+        'Sasaran_Angka4',
         'NilaiUsulan1',
         'NilaiUsulan2',
+        'NilaiUsulan3',
+        'NilaiUsulan4',
         'Target1',
         'Target2',
+        'Target3',
+        'Target4',
         'Sasaran_AngkaSetelah',
         'Sasaran_UraianSetelah',
+        'NilaiSetelah',
+        'NilaiSebelum',
         'Tgl_Posting',
         'Descr',
         'TA',
-        'status',
+        'Status',
+        'Status_Indikator',
         'EntryLvl',
         'Privilege',
         'RKPDID_Src'
@@ -77,8 +88,31 @@ class RKPDModel extends Model {
     /**
      * log changes to all the $fillable attributes of the model
      */
-    // protected static $logFillable = true;
+    protected static $logFillable = true;
 
     //only the `deleted` event will get logged automatically
     // protected static $recordEvents = ['deleted'];
+
+    public static function getDaftarKegiatanRKPD ($OrgID,$ta,$EntryLvl)
+    {
+        $data = \DB::table('v_rkpd')
+                    ->select(\DB::raw('"RKPDID",
+                                        "KgtID",
+                                        "OrgID",
+                                        kode_kegiatan,
+                                        "KgtNm",
+                                        (SELECT COUNT("RKPDRincID") FROM "trRKPDRinc" B WHERE v_rkpd."RKPDID"=B."RKPDID") AS jumlah_rincian'
+                    ))
+                    ->where('OrgID',$OrgID)
+                    ->where('TA',$ta)
+                    ->where('EntryLvl',$EntryLvl)
+                    ->get();
+        
+        $daftar_kegiatan = [''=>''];
+        foreach ($data as $v)
+        {
+            $daftar_kegiatan[$v->RKPDID]='['.$v->kode_kegiatan.'] '.$v->KgtNm.' ('.$v->jumlah_rincian.') [RKPDID='.$v->RKPDID.']';
+        }
+        return $daftar_kegiatan;
+    }
 }

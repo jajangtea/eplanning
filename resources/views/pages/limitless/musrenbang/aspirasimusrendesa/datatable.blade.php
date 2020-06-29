@@ -1,18 +1,19 @@
 <div class="panel panel-flat border-top-lg border-top-info border-bottom-info">
     <div class="panel-heading">
         <div class="panel-title">
-            <div class="row">
-                <div class="col-md-1">                    		
-					{!!Form::select('numberRecordPerPage',['1'=>1,'5'=>5,'10'=>10,'15'=>15,'30'=>30,'50'=>50],$numberRecordPerPage,['id'=>'numberRecordPerPage','class'=>'form-control'])!!}                        
-                </div>
-            </div>
+            <h6 class="panel-title">&nbsp;</h6>
         </div>
-        <div class="heading-elements">
-            <div class="heading-btn">
-                <a href="{!!route('aspirasimusrendesa.create')!!}" class="btn btn-info btn-xs" title="Tambah Kegiatan">
-                    <i class="icon-googleplus5"></i>
-                </a>
-            </div>            
+        <div class="heading-elements">           
+            {!! Form::open(['url'=>'#','method'=>'post','class'=>'heading-form','id'=>'frmheading','name'=>'frmheading'])!!} 
+                <div class="form-group">
+                    {!!Form::select('numberRecordPerPage',['1'=>1,'5'=>5,'10'=>10,'15'=>15,'30'=>30,'50'=>50],$numberRecordPerPage,['id'=>'numberRecordPerPage','class'=>'form-control','style'=>'width:70px'])!!}                        
+                </div> 
+                <div class="form-group">
+                    <a href="{!!route('aspirasimusrendesa.create')!!}" class="btn btn-info btn-xs heading-btn" title="Tambah Kegiatan">
+                        <i class="icon-googleplus5"></i>
+                    </a>
+                </div>
+            {!! Form::close()!!}
         </div>
     </div>
     @if (count($data) > 0)
@@ -96,17 +97,17 @@
                     <td>
                         <ul class="icons-list">   
                             <li class="text-primary-600">
-                                <a class="btnShow" href="{{route('aspirasimusrendesa.show',['id'=>$item->UsulanDesaID])}}" title="Detail Data Kegiatan">
+                                <a class="btnShow" href="{{route('aspirasimusrendesa.show',['uuid'=>$item->UsulanDesaID])}}" title="Detail Data Kegiatan">
                                 <i class='icon-eye'></i>
                             </a>  
                             </li>          
-                        @if (empty($item->UsulanKecID))                                
+                        @if (empty($item->UsulanKecID))   
+                            @if ($item->Privilege==0)
                             <li class="text-primary-600">
-                                <a class="btnEdit" href="{{route('aspirasimusrendesa.edit',['id'=>$item->UsulanDesaID])}}" title="Ubah Data Kegiatan">
+                                <a class="btnEdit" href="{{route('aspirasimusrendesa.edit',['uuid'=>$item->UsulanDesaID])}}" title="Ubah Data Kegiatan">
                                     <i class='icon-pencil7'></i>
                                 </a>  
                             </li>
-                            @if ($item->Privilege==0)
                             <li class="text-danger-600">
                                 <a class="btnDelete" href="javascript:;" title="Hapus Data Kegiatan" data-id="{{$item->UsulanDesaID}}" data-url="{{route('aspirasimusrendesa.index')}}">
                                     <i class='icon-trash'></i>
@@ -119,16 +120,20 @@
                 </tr>
                 <tr class="text-center info">
                     <td colspan="10">
-                        <span class="label label-warning label-rounded">
-                            <strong>UsulanDesaID:</strong>
+                        <span class="label label-warning label-rounded" style="text-transform: none">
+                            <strong>USULANDESAID:</strong>
                             {{$item->UsulanDesaID}}
                         </span>
                         @if (!empty($item->UsulanKecID))
-                        <span class="label label-warning label-rounded">
-                            <strong>UsulanKecID:</strong>
+                        <span class="label label-warning label-rounded" style="text-transform: none">
+                            <strong>USULANKECID:</strong>
                             {{$item->UsulanKecID}}
                         </span>
                         @endif
+                        <span class="label label-warning label-rounded">
+                            <strong>TA:</strong>
+                            {{$item->TA}}
+                        </span>                        
                         <span class="label label-warning label-rounded">
                             <strong>KET:</strong>
                             {{empty($item->Descr)?'-':$item->Descr}}

@@ -5,7 +5,7 @@
 @section('page_header')
     <i class="icon-price-tag position-left"></i>
     <span class="text-semibold"> 
-        REKENINGSTRUKTUR TAHUN PERENCANAAN {{config('globalsettings.tahun_perencanaan')}}
+        REKENINGSTRUKTUR TAHUN PERENCANAAN {{HelperKegiatan::getTahunPerencanaan()}}
     </span>     
 @endsection
 @section('page_info')
@@ -24,7 +24,7 @@
                     <i class="icon-eye"></i>  DATA REKENINGSTRUKTUR
                 </h5>
                 <div class="heading-elements">   
-                    <a href="{{route('rekeningstruktur.edit',['id'=>$data->rekeningstruktur_id])}}" class="btn btn-primary btn-icon heading-btn btnEdit" title="Ubah Data RekeningStruktur">
+                    <a href="{{route('rekeningstruktur.edit',['uuid'=>$data->rekeningstruktur_id])}}" class="btn btn-primary btn-icon heading-btn btnEdit" title="Ubah Data RekeningStruktur">
                         <i class="icon-pencil7"></i>
                     </a>
                     <a href="javascript:;" title="Hapus Data RekeningStruktur" data-id="{{$data->rekeningstruktur_id}}" data-url="{{route('rekeningstruktur.index')}}" class="btn btn-danger btn-icon heading-btn btnDelete">

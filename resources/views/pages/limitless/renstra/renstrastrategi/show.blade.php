@@ -1,18 +1,20 @@
 @extends('layouts.limitless.l_main')
 @section('page_title')
-    RENSTRASTRATEGI
+    RENSTRA STRATEGI
 @endsection
 @section('page_header')
     <i class="icon-price-tag position-left"></i>
     <span class="text-semibold"> 
-        RENSTRASTRATEGI TAHUN PERENCANAAN {{config('globalsettings.tahun_perencanaan')}}
+        RENSTRA STRATEGI TAHUN {{HelperKegiatan::getRENSTRATahunMulai()}} - {{HelperKegiatan::getRENSTRATahunAkhir()}}
     </span>     
 @endsection
 @section('page_info')
     @include('pages.limitless.renstra.renstrastrategi.info')
 @endsection
 @section('page_breadcrumb')
-    <li><a href="{!!route('renstrastrategi.index')!!}">RENSTRASTRATEGI</a></li>
+    <li><a href="#">PERENCANAAN</a></li>
+    <li><a href="#">RENSTRA</a></li>
+    <li><a href="{!!route('renstrastrategi.index')!!}">STRATEGI</a></li>
     <li class="active">DETAIL DATA</li>
 @endsection
 @section('page_content')
@@ -21,14 +23,17 @@
         <div class="panel panel-flat border-top-info border-bottom-info">
             <div class="panel-heading">
                 <h5 class="panel-title"> 
-                    <i class="icon-eye"></i>  DATA RENSTRASTRATEGI
+                    <i class="icon-eye"></i>  DATA RENSTRA STRATEGI
                 </h5>
                 <div class="heading-elements">   
-                    <a href="{{route('renstrastrategi.edit',['id'=>$data->renstrastrategi_id])}}" class="btn btn-primary btn-icon heading-btn btnEdit" title="Ubah Data RenstraStrategi">
+                    <a href="{{route('renstrastrategi.edit',['uuid'=>$data->RenstraStrategiID])}}" class="btn btn-primary btn-icon heading-btn btnEdit" title="Ubah Data RENSTRA Strategi">
                         <i class="icon-pencil7"></i>
                     </a>
-                    <a href="javascript:;" title="Hapus Data RenstraStrategi" data-id="{{$data->renstrastrategi_id}}" data-url="{{route('renstrastrategi.index')}}" class="btn btn-danger btn-icon heading-btn btnDelete">
+                    <a href="javascript:;" title="Hapus Data RENSTRA Strategi" data-id="{{$data->RenstraStrategiID}}" data-url="{{route('renstrastrategi.index')}}" class="btn btn-danger btn-icon heading-btn btnDelete">
                         <i class='icon-trash'></i>
+                    </a>
+                    <a href="{!!route('renstrastrategi.create')!!}" class="btn btn-primary btn-info heading-btn btnEdit" title="Tambah RENSTRA Strategi">
+                        <i class="icon-googleplus5"></i>
                     </a>
                     <a href="{!!route('renstrastrategi.index')!!}" class="btn btn-default btn-icon heading-btn" title="keluar">
                         <i class="icon-close2"></i>
@@ -40,31 +45,43 @@
                     <div class="col-md-6">
                         <div class="form-horizontal">
                             <div class="form-group">
-                                <label class="col-md-4 control-label"><strong>renstrastrategi id: </strong></label>
+                                <label class="col-md-4 control-label"><strong>RENSTRASTRATEGIID: </strong></label>
                                 <div class="col-md-8">
-                                    <p class="form-control-static">{{$data->renstrastrategi_id}}</p>
+                                    <p class="form-control-static">{{$data->RenstraStrategiID}}</p>
+                                </div>                            
+                            </div>                        
+                            <div class="form-group">
+                                <label class="col-md-4 control-label"><strong>KODE STRATEGI : </strong></label>
+                                <div class="col-md-8">
+                                    <p class="form-control-static">{{$data->Kd_RenstraStrategi}}</p>
                                 </div>                            
                             </div>                            
                             <div class="form-group">
-                                <label class="col-md-4 control-label"><strong>TGL. BUAT: </strong></label>
+                                <label class="col-md-4 control-label"><strong>NAMA STRATEGI: </strong></label>
                                 <div class="col-md-8">
-                                    <p class="form-control-static">{{Helper::tanggal('d/m/Y H:m',$data->created_at)}}</p>
+                                    <p class="form-control-static">{{$data->Nm_RenstraStrategi}}</p>
                                 </div>                            
-                            </div>
+                            </div>  
                         </div>                        
                     </div>
                     <div class="col-md-6">
                         <div class="form-horizontal">
                             <div class="form-group">
-                                <label class="col-md-4 control-label"><strong>replaceit: </strong></label>
+                                <label class="col-md-4 control-label"><strong>KODE SASARAN : </strong></label>
                                 <div class="col-md-8">
-                                    <p class="form-control-static">replaceit</p>
+                                    <p class="form-control-static">{{$data->Kd_RenstraSasaran}}</p>
                                 </div>                            
-                            </div>    
+                            </div>                            
                             <div class="form-group">
-                                <label class="col-md-4 control-label"><strong>TGL. UBAH: </strong></label>
+                                <label class="col-md-4 control-label"><strong>NAMA SASARAN: </strong></label>
                                 <div class="col-md-8">
-                                    <p class="form-control-static">{{Helper::tanggal('d/m/Y H:m',$data->updated_at)}}</p>
+                                    <p class="form-control-static">{{$data->Nm_RenstraSasaran}}</p>
+                                </div>                            
+                            </div>     
+                            <div class="form-group">
+                                <label class="col-md-4 control-label"><strong>TGL. BUAT / TGL. UBAH: </strong></label>
+                                <div class="col-md-8">
+                                    <p class="form-control-static">{{Helper::tanggal('d/m/Y H:m',$data->created_at)}} / {{Helper::tanggal('d/m/Y H:m',$data->updated_at)}}</p>
                                 </div>                            
                             </div>                         
                         </div>
@@ -79,7 +96,7 @@
 <script type="text/javascript">
 $(document).ready(function () {
     $(".btnDelete").click(function(ev) {
-        if (confirm('Apakah Anda ingin menghapus Data RenstraStrategi ini ?')) {
+        if (confirm('Apakah Anda ingin menghapus Data RENSTRA Strategi ini ?')) {
             let url_ = $(this).attr("data-url");
             let id = $(this).attr("data-id");
             let token = $('meta[name="csrf-token"]').attr('content');

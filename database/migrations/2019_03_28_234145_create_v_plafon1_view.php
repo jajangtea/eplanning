@@ -15,7 +15,7 @@ class CreateVPlafon1View extends Migration
     {
         \DB::statement('CREATE VIEW v_plafon1 AS
             SELECT 
-		        a."RenjaID" as "transid", 
+		        a."RenjaID", 
                 c3."Kd_Urusan" as "Kd_UrusanUnit", 
                 c2."Kd_Bidang" as "Kd_BidangUnit", 
                 c."OrgCd", 
@@ -38,14 +38,17 @@ class CreateVPlafon1View extends Migration
                 AS "Jumlah1", 
                 a."Descr", 
                 a."TA",		 		
-                (SELECT 
-                    CASE WHEN "Status"=0 THEN
-                        \'Dum\'
-                    ELSE	
-                        \'ACC\'
-                    END AS "Status"
-                FROM 
-                "trRenjaRinc" WHERE "trRenjaRinc"."RenjaID"=a."RenjaID" LIMIT 1) as Status,
+                a."Status" AS "Kode_Status",
+                CASE 
+                    WHEN b."Status"=0 THEN
+                        \'DRAFT\'
+                    WHEN b."Status"=1 THEN
+                        \'STATUS\'
+                    WHEN b."Status"=2 THEN
+                        \'STATUS DGN. CATATAN\'
+                    WHEN b."Status"=3 THEN
+                        \'PENDING\'
+                END AS "Status",      
 	            a."EntryLvl" 	
             FROM "trRenja" a  
                 JOIN "trRenjaRinc" b ON b."RenjaID" = a."RenjaID" AND b."TA" = a."TA"   
@@ -61,6 +64,7 @@ class CreateVPlafon1View extends Migration
                 WHERE a."EntryLvl"=1 		
                 GROUP BY 
                     a."RenjaID", 
+                    b."Status", 
                     c3."Kd_Urusan", 
                     c2."Kd_Bidang", 
                     c."OrgCd", 

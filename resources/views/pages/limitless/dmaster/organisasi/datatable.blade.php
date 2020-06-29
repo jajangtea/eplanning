@@ -1,18 +1,19 @@
 <div class="panel panel-flat border-top-lg border-top-info border-bottom-info">
     <div class="panel-heading">
         <div class="panel-title">
-            <div class="row">
-                <div class="col-md-1">                    		
-					{!!Form::select('numberRecordPerPage',['1'=>1,'5'=>5,'10'=>10,'15'=>15,'30'=>30,'50'=>50],$numberRecordPerPage,['id'=>'numberRecordPerPage','class'=>'form-control'])!!}                        
-                </div>
-            </div>
+            <h6 class="panel-title">&nbsp;</h6>
         </div>
         <div class="heading-elements">
-            <div class="heading-btn">
-                <a href="{!!route('organisasi.create')!!}" class="btn btn-info btn-xs" title="Tambah ORGANISASI">
-                    <i class="icon-googleplus5"></i>
-                </a>
-            </div>            
+            {!! Form::open(['url'=>'#','method'=>'post','class'=>'heading-form','id'=>'frmheading','name'=>'frmheading'])!!} 
+                <div class="form-group">
+                    {!!Form::select('numberRecordPerPage',['1'=>1,'5'=>5,'10'=>10,'15'=>15,'30'=>30,'50'=>50],$numberRecordPerPage,['id'=>'numberRecordPerPage','class'=>'form-control','style'=>'width:70px'])!!}                        
+                </div> 
+                <div class="form-group">
+                    <a href="{!!route('organisasi.create')!!}" class="btn btn-info btn-xs" title="Tambah ORGANISASI">
+                        <i class="icon-googleplus5"></i>
+                    </a>
+                </div>
+            {!! Form::close()!!}
         </div>
     </div>
     @if (count($data) > 0)
@@ -21,12 +22,12 @@
             <thead>
                 <tr class="bg-teal-700">
                     <th width="55">NO</th>
-                    <th>
+                    <th width="170">
                         <a class="column-sort text-white" id="col-kode_organisasi" data-order="{{$direction}}" href="#">
                             KODE SKPD / OPD
                         </a>                                             
                     </th> 
-                    <th>
+                    <th width="350">
                         <a class="column-sort text-white" id="col-NmOrg" data-order="{{$direction}}" href="#">
                             NAMA SKPD / OPD
                         </a>                                             
@@ -36,6 +37,14 @@
                             URUSAN
                         </a>                                             
                     </th>
+                    <th>
+                        NIP KEPALA OPD / SKPD
+                    </th>
+                    <th>
+                        NAMA KEPALA OPD / SKPD
+                    </th>
+
+                    <th width="70">TA</th>
                     <th width="100">AKSI</th>
                 </tr>
             </thead>
@@ -48,15 +57,18 @@
                     <td>{{$item->kode_organisasi}}</td>
                     <td>{{$item->OrgNm}}</td>
                     <td>{{$item->Nm_Urusan}}</td>
+                    <td>{{$item->NIPKepalaSKPD}}</td>
+                    <td>{{$item->NamaKepalaSKPD}}</td>
+                    <td>{{$item->TA}}</td>
                     <td>
                         <ul class="icons-list">
                             <li class="text-primary-600">
-                                <a class="btnShow" href="{{route('organisasi.show',['id'=>$item->OrgID])}}" title="Detail Data Organisasi">
+                                <a class="btnShow" href="{{route('organisasi.show',['uuid'=>$item->OrgID])}}" title="Detail Data Organisasi">
                                     <i class='icon-eye'></i>
                                 </a>  
                             </li>
                             <li class="text-primary-600">
-                                <a class="btnEdit" href="{{route('organisasi.edit',['id'=>$item->OrgID])}}" title="Ubah Data Organisasi">
+                                <a class="btnEdit" href="{{route('organisasi.edit',['uuid'=>$item->OrgID])}}" title="Ubah Data Organisasi">
                                     <i class='icon-pencil7'></i>
                                 </a>  
                             </li>
@@ -66,6 +78,30 @@
                                 </a> 
                             </li>
                         </ul>
+                    </td>
+                </tr>
+                <tr class="text-center info">
+                    <td colspan="8">
+                        <span class="label label-warning label-rounded" style="text-transform: none">
+                            <strong>SINGKATAN:</strong>
+                            {{$item->OrgAlias}}
+                        </span>                            
+                        <span class="label label-warning label-rounded" style="text-transform: none">
+                            <strong>ORGID:</strong>
+                            {{$item->OrgID}}
+                        </span>                            
+                        <span class="label label-warning label-rounded" style="text-transform: none">
+                            <strong>UrsID:</strong>
+                            {{$item->UrsID}}
+                        </span>
+                        <span class="label label-warning label-rounded" style="text-transform: none">
+                            <strong>CREATED:</strong>
+                            {{Helper::tanggal('d/m/Y H:m',$item->created_at)}}
+                        </span>
+                        <span class="label label-warning label-rounded" style="text-transform: none">
+                            <strong>UPDATED:</strong>
+                            {{Helper::tanggal('d/m/Y H:m',$item->updated_at)}}
+                        </span>
                     </td>
                 </tr>
             @endforeach                    

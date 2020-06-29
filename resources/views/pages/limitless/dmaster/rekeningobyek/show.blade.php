@@ -5,7 +5,7 @@
 @section('page_header')
     <i class="icon-price-tag position-left"></i>
     <span class="text-semibold"> 
-        REKENINGOBYEK TAHUN PERENCANAAN {{config('globalsettings.tahun_perencanaan')}}
+        REKENINGOBYEK TAHUN PERENCANAAN {{HelperKegiatan::getTahunPerencanaan()}}
     </span>     
 @endsection
 @section('page_info')
@@ -24,7 +24,7 @@
                     <i class="icon-eye"></i>  DATA REKENINGOBYEK
                 </h5>
                 <div class="heading-elements">   
-                    <a href="{{route('rekeningobyek.edit',['id'=>$data->rekeningobyek_id])}}" class="btn btn-primary btn-icon heading-btn btnEdit" title="Ubah Data RekeningObyek">
+                    <a href="{{route('rekeningobyek.edit',['uuid'=>$data->rekeningobyek_id])}}" class="btn btn-primary btn-icon heading-btn btnEdit" title="Ubah Data RekeningObyek">
                         <i class="icon-pencil7"></i>
                     </a>
                     <a href="javascript:;" title="Hapus Data RekeningObyek" data-id="{{$data->rekeningobyek_id}}" data-url="{{route('rekeningobyek.index')}}" class="btn btn-danger btn-icon heading-btn btnDelete">

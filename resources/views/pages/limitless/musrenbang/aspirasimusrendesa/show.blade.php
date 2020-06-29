@@ -5,7 +5,7 @@
 @section('page_header')
     <i class="icon-cube position-left"></i>
     <span class="text-semibold">
-        USULAN DESA / KELURAHAN (MUSREN DESA) TAHUN PERENCANAAN {{config('globalsettings.tahun_perencanaan')}}  
+        USULAN DESA / KELURAHAN (MUSREN DESA) TAHUN PERENCANAAN {{HelperKegiatan::getTahunPerencanaan()}}  
     </span>
 @endsection
 @section('page_info')
@@ -26,15 +26,20 @@
                     <i class="icon-eye"></i>  DATA USULAN KEGIATAN
                 </h5>
                 <div class="heading-elements">   
-                    <a href="{{route('aspirasimusrendesa.edit',['id'=>$data->UsulanDesaID])}}" class="btn btn-primary btn-icon heading-btn btnEdit" title="Ubah Data Kegiatan">
+                    <a href="{!!route('aspirasimusrendesa.create')!!}" class="btn btn-info btn-icon heading-btn" title="Tambah Kegiatan">
+                        <i class="icon-googleplus5"></i>
+                    </a>
+                    @if ($data->Privilege==0)
+                    <a href="{{route('aspirasimusrendesa.edit',['uuid'=>$data->UsulanDesaID])}}" class="btn btn-primary btn-icon heading-btn btnEdit" title="Ubah Data Kegiatan">
                         <i class="icon-pencil7"></i>
                     </a>
                     <a href="javascript:;" title="Hapus Data Kegiatan" data-id="{{$data->UsulanDesaID}}" data-url="{{route('aspirasimusrendesa.index')}}" class="btn btn-danger btn-icon heading-btn btnDelete">
                         <i class='icon-trash'></i>
-                    </a>
+                    </a>        
+                    @endif
                     <a href="{!!route('aspirasimusrendesa.index')!!}" class="btn btn-default btn-icon heading-btn" title="keluar">
                         <i class="icon-close2"></i>
-                    </a>            
+                    </a>
                 </div>
             </div>
             <div class="panel-body">

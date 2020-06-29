@@ -5,7 +5,7 @@
 @section('page_header')
     <i class="icon-price-tag position-left"></i>
     <span class="text-semibold"> 
-        FUNGSI TAHUN PERENCANAAN {{config('globalsettings.tahun_perencanaan')}}
+        FUNGSI TAHUN PERENCANAAN {{HelperKegiatan::getTahunPerencanaan()}}
     </span>     
 @endsection
 @section('page_info')
@@ -23,8 +23,11 @@
                 <h5 class="panel-title"> 
                     <i class="icon-eye"></i>  DATA FUNGSI
                 </h5>
-                <div class="heading-elements">   
-                    <a href="{{route('fungsi.edit',['id'=>$data->fungsi_id])}}" class="btn btn-primary btn-icon heading-btn btnEdit" title="Ubah Data Fungsi">
+                <div class="heading-elements">
+                    <a href="{!!route('fungsi.create')!!}" class="btn btn-primary btn-icon heading-btn btnTambah" title="Tambah FUNGSI">
+                        <i class="icon-googleplus5"></i>
+                    </a>   
+                    <a href="{{route('fungsi.edit',['uuid'=>$data->fungsi_id])}}" class="btn btn-primary btn-icon heading-btn btnEdit" title="Ubah Data Fungsi">
                         <i class="icon-pencil7"></i>
                     </a>
                     <a href="javascript:;" title="Hapus Data Fungsi" data-id="{{$data->fungsi_id}}" data-url="{{route('fungsi.index')}}" class="btn btn-danger btn-icon heading-btn btnDelete">

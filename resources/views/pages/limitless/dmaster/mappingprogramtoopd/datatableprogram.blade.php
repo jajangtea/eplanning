@@ -30,20 +30,15 @@
                 <tr class="bg-teal-700">
                     <th width="55">NO</th>
                     <th>
-                        <a class="column-sort text-white" id="col-Kode_Program" data-order="{{$direction}}" href="#">
-                            KODE PROGRAM  
-                        </a>                                             
+                        KODE PROGRAM  
                     </th> 
                     <th>
-                        <a class="column-sort text-white" id="col-PrgNm" data-order="{{$direction}}" href="#">
-                            NAMA PROGRAM  
-                        </a>                                             
+                        NAMA PROGRAM  
                     </th> 
                     <th>
-                        <a class="column-sort text-white" id="col-Nm_Urusan" data-order="{{$direction}}" href="#">
-                            URUSAN  
-                        </a>                                             
+                        URUSAN  
                     </th>
+                    <th width="70">TA</th>
                     <th width="100">AKSI</th>
                 </tr>
             </thead>
@@ -55,15 +50,12 @@
                     </td>                  
                     <td>
                         @php
-                            if ($item->Jns==false && $filter_ursid_selected=='none')
+                            if (($item->Jns==false && $filter_ursid_selected=='none') || ($item->Jns==false && $filter_ursid_selected!='none'))
                             {
                                 echo 'n.nn.'.$item->Kd_Prog;
-                            } 
-                            elseif ($item->Jns==false && $filter_ursid_selected!='none') 
+                            }                             
+                            else 
                             {
-                                echo $filter_kode_urusan_selected.'.'.$item->Kd_Prog;
-                            }
-                            else {
                                 echo $item->kode_program;
                             }   
                         @endphp
@@ -80,10 +72,27 @@
                             }   
                         @endphp
                     </td>
+                    <td>{{$item->TA}}</td>
                     <td>
                         <div class="checkbox">
                             {{Form::checkbox("chkprgid[]", $item->PrgID,0,['class'=>'switch'])}}  
                         </div>
+                    </td>
+                </tr>
+                <tr class="text-center info">
+                    <td colspan="6">                     
+                        <span class="label label-warning label-rounded" style="text-transform: none">
+                            <strong>PRGID:</strong>
+                            {{$item->PrgID}}
+                        </span> 
+                        <span class="label label-warning label-rounded" style="text-transform: none">
+                            <strong>CREATED:</strong>
+                            {{Helper::tanggal('d/m/Y H:m',$item->created_at)}}
+                        </span>
+                        <span class="label label-warning label-rounded" style="text-transform: none">
+                            <strong>UPDATED:</strong>
+                            {{Helper::tanggal('d/m/Y H:m',$item->updated_at)}}
+                        </span>
                     </td>
                 </tr>
             @endforeach                    

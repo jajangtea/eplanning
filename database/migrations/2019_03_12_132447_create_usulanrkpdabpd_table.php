@@ -14,47 +14,61 @@ class CreateUsulanrkpdabpdTable extends Migration
     public function up()
     {
         Schema::create('trRKPD', function (Blueprint $table) {
-        
-        
             $table->string('RKPDID',19);
+            $table->string('RenjaID',19)->nullable();
             $table->string('OrgID',19);
             $table->string('SOrgID',19);
             $table->string('KgtID',19);
             $table->string('SumberDanaID',19);                
-            $table->string('NamaIndikator');
+            $table->text('NamaIndikator');
 
-            $table->string('Sasaran_Uraian1');
-            $table->string('Sasaran_Uraian2')->nullable();
-            $table->decimal('Sasaran_Angka1',15,2);
-            $table->decimal('Sasaran_Angka2',15,2)->nullable();
+            $table->text('Sasaran_Uraian1');
+            $table->text('Sasaran_Uraian2')->nullable();
+            $table->text('Sasaran_Uraian3')->nullable();
+            $table->text('Sasaran_Uraian4')->nullable();
 
-            $table->decimal('NilaiUsulan1',15,2);
-            $table->decimal('NilaiUsulan2',15,2)->nullable();
+            $table->decimal('Sasaran_Angka1',15,2); //RKPD Murni
+            $table->decimal('Sasaran_Angka2',15,2)->nullable(); //PEMBAHASAN RKPD
+            $table->decimal('Sasaran_Angka3',15,2)->nullable(); // RKPD PERUBAHAN
+            $table->decimal('Sasaran_Angka4',15,2)->nullable(); // PEMBAHASAN RKPD PERUBAHAN
 
-            $table->decimal('Target1',10,2);
-            $table->decimal('Target2',10,2)->nullable();
+            $table->decimal('NilaiUsulan1',15,2); //RKPD Murni
+            $table->decimal('NilaiUsulan2',15,2)->nullable();//PEMBAHASAN RKPD
+            $table->decimal('NilaiUsulan3',15,2)->nullable(); // RKPD PERUBAHAN
+            $table->decimal('NilaiUsulan4',15,2)->nullable(); // PEMBAHASAN RKPD PERUBAHAN
+
+            $table->decimal('Target1',15,2); //RKPD Murni
+            $table->decimal('Target2',15,2)->nullable(); //PEMBAHASAN RKPD
+            $table->decimal('Target3',15,2)->nullable(); // RKPD PERUBAHAN
+            $table->decimal('Target4',15,2)->nullable(); // PEMBAHASAN RKPD PERUBAHAN
 
             $table->decimal('Sasaran_AngkaSetelah',15,2);
-            $table->string('Sasaran_UraianSetelah');
+            $table->text('Sasaran_UraianSetelah');
+
+            $table->decimal('NilaiSebelum',15,2)->nullable();
+            $table->decimal('NilaiSetelah',15,2)->nullable();
 
             $table->date('Tgl_Posting');
 
-            $table->string('Descr')->nullable();
+            $table->text('Descr')->nullable();
             $table->year('TA'); 
-            $table->tinyInteger('status')->default(0);
+            $table->tinyInteger('Status')->default(0);
+            $table->tinyInteger('Status_Indikator')->default(0);
             $table->tinyInteger('EntryLvl')->default(0);
             $table->tinyInteger('Privilege')->default(0);
+            $table->boolean('Locked')->default(0);
             $table->string('RKPDID_Src',19)->nullable();                    
             $table->timestamps();
 
             $table->primary('RKPDID');
+            $table->index('RenjaID');
             $table->index('OrgID');
             $table->index('SOrgID');
             $table->index('KgtID');
             $table->index('SumberDanaID');
             $table->index('RKPDID_Src');
 
-            $table->foreign('RKPDID')
+            $table->foreign('RenjaID')
                         ->references('RenjaID')
                         ->on('trRenja')
                         ->onDelete('cascade')
@@ -97,13 +111,13 @@ class CreateUsulanrkpdabpdTable extends Migration
             $table->string('RKPDID',19);
             $table->string('IndikatorKinerjaID',19);
             
-            $table->decimal('Target_Angka',10,2);
-            $table->string('Target_Uraian');
-            $table->year('Tahun');
+            $table->decimal('Target_Angka',15,2);
+            $table->text('Target_Uraian');
             $table->string('Descr')->nullable();
             $table->year('TA');
 
             $table->tinyInteger('Privilege')->default(0);                        
+            $table->boolean('Locked')->default(0);
             $table->string('RKPDIndikatorID_Src',19)->nullable(); 
             $table->timestamps();
 
@@ -136,6 +150,7 @@ class CreateUsulanrkpdabpdTable extends Migration
         Schema::create('trRKPDRinc', function (Blueprint $table) {
                 $table->string('RKPDRincID',19);
                 $table->string('RKPDID',19);
+                $table->string('RenjaRincID',19)->nullable();
                 $table->string('PMProvID',19)->nullable();
                 $table->string('PmKotaID',19)->nullable();
                 $table->string('PmKecamatanID',19)->nullable();
@@ -145,31 +160,46 @@ class CreateUsulanrkpdabpdTable extends Migration
 
                 $table->text('Uraian');
                 $table->string('No',4);
-                $table->string('Sasaran_Uraian1');
-                $table->string('Sasaran_Uraian2')->nullable();
+                $table->text('Sasaran_Uraian1');
+                $table->text('Sasaran_Uraian2')->nullable();
+                $table->text('Sasaran_Uraian3')->nullable();
+                $table->text('Sasaran_Uraian4')->nullable();
+
                 $table->decimal('Sasaran_Angka1',15,2);
                 $table->decimal('Sasaran_Angka2',15,2)->nullable();
+                $table->decimal('Sasaran_Angka3',15,2)->nullable();
+                $table->decimal('Sasaran_Angka4',15,2)->nullable();
 
                 $table->decimal('NilaiUsulan1',15,2);
                 $table->decimal('NilaiUsulan2',15,2)->nullable();
+                $table->decimal('NilaiUsulan3',15,2)->nullable();
+                $table->decimal('NilaiUsulan4',15,2)->nullable();
 
-                $table->decimal('Target1',10,2);
-                $table->decimal('Target2',10,2)->nullable();
+                $table->decimal('Target1',15,2);
+                $table->decimal('Target2',15,2)->nullable();
+                $table->decimal('Target3',15,2)->nullable();
+                $table->decimal('Target4',15,2)->nullable();
 
+                $table->string('Lokasi')->nullable();
+                $table->string('Latitude')->nullable();
+                $table->string('Longitude')->nullable();
+                
                 $table->date('Tgl_Posting');
                 $table->boolean('isReses')->nullable();
                 $table->string('isReses_Uraian',255)->nullable();
                 $table->boolean('isSKPD')->nullable();
-                $table->string('Descr')->nullable();
+                $table->text('Descr')->nullable();
                 $table->year('TA'); 
-                $table->tinyInteger('status')->default(0);
+                $table->tinyInteger('Status')->default(0);
                 $table->tinyInteger('EntryLvl')->default(0);
                 $table->tinyInteger('Privilege')->default(0);                
+                $table->boolean('Locked')->default(0);
                 $table->string('RKPDRincID_Src',19)->nullable();
                 $table->timestamps();
 
                 $table->primary('RKPDRincID');
                 $table->index('RKPDID');
+                $table->index('RenjaRincID');
                 $table->index('PmKecamatanID');
                 $table->index('PmDesaID');
                 $table->index('UsulanKecID');
@@ -188,7 +218,7 @@ class CreateUsulanrkpdabpdTable extends Migration
                         ->onDelete('cascade')
                         ->onUpdate('cascade');
 
-                $table->foreign('RKPDRincID')
+                $table->foreign('RenjaRincID')
                         ->references('RenjaRincID')
                         ->on('trRenjaRinc')
                         ->onDelete('cascade')

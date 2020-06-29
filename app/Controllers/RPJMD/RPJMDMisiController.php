@@ -5,6 +5,8 @@ namespace App\Controllers\RPJMD;
 use Illuminate\Http\Request;
 use App\Controllers\Controller;
 use App\Models\RPJMD\RPJMDMisiModel;
+use App\Rules\CheckRecordIsExistValidation;
+use App\Rules\IgnoreIfDataIsEqualValidation;
 
 class RPJMDMisiController extends Controller {
      /**
@@ -15,7 +17,7 @@ class RPJMDMisiController extends Controller {
     public function __construct()
     {
         parent::__construct();
-        $this->middleware(['auth']);
+        $this->middleware(['auth','role:superadmin|bapelitbang']);
     }
     /**
      * collect data from resources for index view
@@ -25,9 +27,9 @@ class RPJMDMisiController extends Controller {
     public function populateData ($currentpage=1) 
     {        
         $columns=['*'];       
-        if (!$this->checkStateIsExistSession('rpjmdmisi','Nm_PrioritasKab')) 
+        if (!$this->checkStateIsExistSession('rpjmdmisi','orderby')) 
         {            
-           $this->putControllerStateSession('rpjmdmisi','orderby',['column_name'=>'Nm_PrioritasKab','order'=>'asc']);
+           $this->putControllerStateSession('rpjmdmisi','orderby',['column_name'=>'Kd_PrioritasKab','order'=>'asc']);
         }
         $column_order=$this->getControllerStateSession('rpjmdmisi.orderby','column_name'); 
         $direction=$this->getControllerStateSession('rpjmdmisi.orderby','order'); 
@@ -43,17 +45,21 @@ class RPJMDMisiController extends Controller {
             switch ($search['kriteria']) 
             {
                 case 'Kd_PrioritasKab' :
-                    $data = RPJMDMisiModel::where(['Kd_PrioritasKab'=>$search['isikriteria']])->orderBy($column_order,$direction); 
+                    $data = RPJMDMisiModel::where(['Kd_PrioritasKab'=>$search['isikriteria']])
+                    ->orderBy('Kd_PrioritasKab','ASC'); 
                 break;
                 case 'Nm_PrioritasKab' :
-                    $data = RPJMDMisiModel::where('Nm_PrioritasKab', 'ilike', '%' . $search['isikriteria'] . '%')->orderBy($column_order,$direction);                                        
+                    $data = RPJMDMisiModel::where('Nm_PrioritasKab', 'ilike', '%' . $search['isikriteria'] . '%')
+                    ->orderBy('Kd_PrioritasKab','ASC');                                        
                 break;
             }           
             $data = $data->paginate($numberRecordPerPage, $columns, 'page', $currentpage);  
         }
         else
         {
-            $data = RPJMDMisiModel::orderBy($column_order,$direction)->paginate($numberRecordPerPage, $columns, 'page', $currentpage); 
+            $data = RPJMDMisiModel::where('TA',\HelperKegiatan::getRPJMDTahunMulai())
+                                    ->orderBy('Kd_PrioritasKab','ASC')
+                                    ->paginate($numberRecordPerPage, $columns, 'page', $currentpage); 
         }        
         $data->setPath(route('rpjmdmisi.index'));
         return $data;
@@ -86,32 +92,14 @@ class RPJMDMisiController extends Controller {
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
+    /**
+     * digunakan untuk mengurutkan record 
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */
     public function orderby (Request $request) 
     {
-        $theme = \Auth::user()->theme;
-
-        $orderby = $request->input('orderby') == 'asc'?'desc':'asc';
-        $column=$request->input('column_name');
-        switch($column) 
-        {
-            case 'col-Nm_PrioritasKab' :
-                $column_name = 'Nm_PrioritasKab';
-            break;           
-            default :
-                $column_name = 'Nm_PrioritasKab';
-        }
-        $this->putControllerStateSession('rpjmdmisi','orderby',['column_name'=>$column_name,'order'=>$orderby]);        
-
-        $data=$this->populateData();
-
-        $datatable = view("pages.$theme.rpjmd.rpjmdmisi.datatable")->with(['page_active'=>'rpjmdmisi',
-                                                            'search'=>$this->getControllerStateSession('rpjmdmisi','search'),
-                                                            'numberRecordPerPage'=>$this->getControllerStateSession('global_controller','numberRecordPerPage'),
-                                                            'column_order'=>$this->getControllerStateSession('rpjmdmisi.orderby','column_name'),
-                                                            'direction'=>$this->getControllerStateSession('rpjmdmisi.orderby','order'),
-                                                            'data'=>$data])->render();     
-
-        return response()->json(['success'=>true,'datatable'=>$datatable],200);
+        return response()->json(['success'=>true,'datatable'=>null],200);
     }
     /**
      * paginate resource in storage called by ajax
@@ -192,6 +180,11 @@ class RPJMDMisiController extends Controller {
                                                 'direction'=>$this->getControllerStateSession('rpjmdmisi.orderby','order'),
                                                 'data'=>$data]);               
     }
+    public function getkodemisi($id)
+    {
+        $Kd_PrioritasKab = RPJMDMisiModel::where('RpjmdVisiID',$id)->count('Kd_PrioritasKab')+1;
+        return response()->json(['success'=>true,'Kd_PrioritasKab'=>$Kd_PrioritasKab],200);
+    }  
     /**
      * Show the form for creating a new resource.
      *
@@ -200,10 +193,15 @@ class RPJMDMisiController extends Controller {
     public function create()
     {        
         $theme = \Auth::user()->theme;
-
+        $daftar_visi = \App\Models\RPJMD\RPJMDVisiModel::select(\DB::raw('"RpjmdVisiID","Nm_RpjmdVisi"'))
+                                                                ->get()
+                                                                ->pluck('Nm_RpjmdVisi','RpjmdVisiID')
+                                                                ->prepend('','')
+                                                                ->toArray();
+        
         return view("pages.$theme.rpjmd.rpjmdmisi.create")->with(['page_active'=>'rpjmdmisi',
-                                                                    
-                                                ]);  
+                                                                    'daftar_visi'=>$daftar_visi,
+                                                                ]);  
     }
     
     /**
@@ -214,12 +212,23 @@ class RPJMDMisiController extends Controller {
      */
     public function store(Request $request)
     {
+        $RpjmdVisiID = $request->input('RpjmdVisiID');
+
         $this->validate($request, [
-            'replaceit'=>'required',
-        ]);
+            'Kd_PrioritasKab'=>[new CheckRecordIsExistValidation('tmPrioritasKab',['where'=>['RpjmdVisiID','=',$RpjmdVisiID]]),
+                        'required'
+                    ],
+            'RpjmdVisiID'=>'required',
+            'Nm_PrioritasKab'=>'required',
+        ]);        
         
         $rpjmdmisi = RPJMDMisiModel::create([
-            'replaceit' => $request->input('replaceit'),
+            'PrioritasKabID'=> uniqid ('uid'),
+            'RpjmdVisiID' => $RpjmdVisiID,
+            'Kd_PrioritasKab' => $request->input('Kd_PrioritasKab'),
+            'Nm_PrioritasKab' => $request->input('Nm_PrioritasKab'),
+            'Descr' => $request->input('Descr'),
+            'TA' => \HelperKegiatan::getRPJMDTahunMulai()
         ]);        
         
         if ($request->ajax()) 
@@ -231,7 +240,7 @@ class RPJMDMisiController extends Controller {
         }
         else
         {
-            return redirect(route('rpjmdmisi.index'))->with('success','Data ini telah berhasil disimpan.');
+            return redirect(route('rpjmdmisi.show',['uuid'=>$rpjmdmisi->PrioritasKabID]))->with('success','Data ini telah berhasil disimpan.');
         }
 
     }
@@ -249,9 +258,10 @@ class RPJMDMisiController extends Controller {
         $data = RPJMDMisiModel::findOrFail($id);
         if (!is_null($data) )  
         {
+            
             return view("pages.$theme.rpjmd.rpjmdmisi.show")->with(['page_active'=>'rpjmdmisi',
-                                                    'data'=>$data
-                                                    ]);
+                                                                    'data'=>$data,
+                                                                ]);
         }        
     }
 
@@ -268,9 +278,15 @@ class RPJMDMisiController extends Controller {
         $data = RPJMDMisiModel::findOrFail($id);
         if (!is_null($data) ) 
         {
+             $daftar_visi = \App\Models\RPJMD\RPJMDVisiModel::select(\DB::raw('"RpjmdVisiID","Nm_RpjmdVisi"'))
+                                                                ->get()
+                                                                ->pluck('Nm_RpjmdVisi','RpjmdVisiID')
+                                                                ->prepend('','')
+                                                                ->toArray();
             return view("pages.$theme.rpjmd.rpjmdmisi.edit")->with(['page_active'=>'rpjmdmisi',
-                                                    'data'=>$data
-                                                    ]);
+                                                                    'data'=>$data,
+                                                                    'daftar_visi'=>$daftar_visi
+                                                                ]);
         }        
     }
 
@@ -284,12 +300,19 @@ class RPJMDMisiController extends Controller {
     public function update(Request $request, $id)
     {
         $rpjmdmisi = RPJMDMisiModel::find($id);
-        
+        $RpjmdVisiID=$request->input('RpjmdVisiID');
         $this->validate($request, [
-            'replaceit'=>'required',
+            'Kd_PrioritasKab'=>[new IgnoreIfDataIsEqualValidation('tmPrioritasKab',$rpjmdmisi->Kd_PrioritasKab,['where'=>['RpjmdVisiID','=',$RpjmdVisiID]]),
+                        'required'
+                    ],
+            'RpjmdVisiID'=>'required',
+            'Nm_PrioritasKab'=>'required|min:2'
         ]);
         
-        $rpjmdmisi->replaceit = $request->input('replaceit');
+        $rpjmdmisi->RpjmdVisiID = $RpjmdVisiID;
+        $rpjmdmisi->Kd_PrioritasKab = $request->input('Kd_PrioritasKab');
+        $rpjmdmisi->Nm_PrioritasKab = $request->input('Nm_PrioritasKab');
+        $rpjmdmisi->Descr = $request->input('Descr');
         $rpjmdmisi->save();
 
         if ($request->ajax()) 
@@ -301,7 +324,7 @@ class RPJMDMisiController extends Controller {
         }
         else
         {
-            return redirect(route('rpjmdmisi.index'))->with('success',"Data dengan id ($id) telah berhasil diubah.");
+            return redirect(route('rpjmdmisi.show',['uuid'=>$rpjmdmisi->PrioritasKabID]))->with('success',"Data dengan id ($id) telah berhasil diubah.");
         }
     }
 

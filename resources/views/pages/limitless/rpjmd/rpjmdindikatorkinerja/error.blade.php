@@ -1,11 +1,11 @@
 @extends('layouts.limitless.l_main')
 @section('page_title')
-    INDIKASI RENCANA PROGRAM
+    RPJMD INDIKASI RENCANA PROGRAM
 @endsection
 @section('page_header')
     <i class="icon-price-tag position-left"></i>
     <span class="text-semibold">
-        INDIKASI RENCANA PROGRAM TAHUN PERENCANAAN {{config('globalsettings.tahun_perencanaan')}}
+        RPJMD INDIKASI RENCANA PROGRAM PERIODE {{HelperKegiatan::getRPJMDTahunMulai()}} - {{HelperKegiatan::getRPJMDTahunAkhir()+1}}
     </span>
 @endsection
 @section('page_info')

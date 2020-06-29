@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="id">
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
@@ -11,7 +11,7 @@
     <!-- Custom fonts for this template -->
     <link href="{!!asset('/themes/frontend/fontawesome-free/css/all.min.css')!!}" rel="stylesheet">  
     <link href="{!!asset('/themes/frontend/simple-line-icons/css/simple-line-icons.css')!!}" rel="stylesheet" type="text/css">  
-    <link href="https:/fonts.googleapis.com/css?family=Lato:300,400,700,300italic,400italic,700italic" rel="stylesheet" type="text/css">  
+    <link href="https://fonts.googleapis.com/css?family=Lato:300,400,700,300italic,400italic,700italic" rel="stylesheet" type="text/css">  
     <!-- Custom styles for this template -->
     <link href="{!!asset('/themes/frontend/css/landing-page.min.css')!!}" rel="stylesheet"> 
     <style>
@@ -68,34 +68,34 @@
                         </i>
                         <h3 class="h4 mb-2">e-Planning</h3>
                     </a>           
-                    <p class="text-muted mb-0">Deskripsi e-Planning</p>						
+                    <p class="text-muted mb-0">Permendagri No. 86 Tahun 2017</p>						
                 </div>			   		
             </div>         
             <div class="col-lg-3 col-md-6 text-center">
                 <div class="mt-5">
-                    <a href="https:/ebudgeting-bintan.id">
+                    <a href="https://ebudgeting-bintan.id">
                         <i class="fas fa-4x fa-usd text-primary mb-4">
                             <img src="{!!asset('/themes/frontend/img/portfolio/money.png')!!}" alt="">
                         </i>
                         <h3 class="h4 mb-2">e-Budgeting</h3>
                     </a>            
-                    <p class="text-muted mb-0">Deskripsi e-Budgeting</p>
+                    <p class="text-muted mb-0">Sistem Informasi Penganggaran</p>
                 </div>
             </div>  
             <div class="col-lg-3 col-md-6 text-center">
                 <div class="mt-5">
-                    <a href="#">
+                    <a href="https://simdaperencanaan.bintankab.go.id">
                         <i class="fas fa-4x fa-a text-primary mb-4">
                             <img src="{!!asset('/themes/frontend/img/portfolio/handshake.png')!!}" alt="">
                         </i>
-                        <h3 class="h4 mb-2">e-Simda</h3>
+                        <h3 class="h4 mb-2">SIMDA INTEGRATED</h3>
                     </a>            
-                    <p class="text-muted mb-0">Deskripsi e-Simda</p>
+                    <p class="text-muted mb-0">Simda Integrated</p>
                 </div>
             </div>  
             <div class="col-lg-3 col-md-6 text-center">						
                 <div class="mt-5">
-                    <a href="https:/simonev.bintankab.go.id">
+                    <a href="https://simonev.bintankab.go.id">
                         <i class="fas fa-4x fa-a text-primary mb-4">
                             <img src="{!!asset('/themes/frontend/img/portfolio/magni.png')!!}" alt="">
                         </i>
@@ -114,23 +114,23 @@
         <div class="row">
             <div class="col-lg-4">
                 <div class="testimonial-item mx-auto mb-5 mb-lg-0">            
-                    <img class="img-fluid rounded-circle mb-3" src="{!!asset('/themes/frontend/img/luki.png')!!}" alt="">                                
-                    <h5>Kepala Bapelitbang Bintan</h5>            
-                    <p class="font-weight-light mb-0">"Kata Sambutan "</p>
+                    <img class="img-fluid rounded-circle mb-3" src="{!!asset('/themes/frontend/img/bupati.jpg')!!}" alt="">                                
+                    <h5>Bupati Kab. Bintan</h5>            
+                    <p class="font-weight-light mb-0">H. Apri Sujadi S.Sos.</p>
                 </div>
             </div>
             <div class="col-lg-4">
                 <div class="testimonial-item mx-auto mb-5 mb-lg-0">                        
-                    <img class="img-fluid rounded-circle mb-3" src="{!!asset('/themes/frontend/img/dahlia.png')!!}" alt="">                        
-                    <h5>Sekretaris Bapelitbang Bintan</h5>                        
-                    <p class="font-weight-light mb-0">"Kata Sambutan "</p>
+                    <img class="img-fluid rounded-circle mb-3" src="{!!asset('/themes/frontend/img/wabup.jpg')!!}" alt="">                        
+                    <h5>Wakil Bupati Kab. Bintan</h5>                        
+                    <p class="font-weight-light mb-0">Drs. H. Dalmasri Syam, MM</p>
                 </div>
             </div>
             <div class="col-lg-4">
                 <div class="testimonial-item mx-auto mb-5 mb-lg-0">
-                    <img class="img-fluid rounded-circle mb-3" src="{!!asset('/themes/frontend/img/testimonials-3.jpg')!!}" alt="">
-                    <h5>Nama Orang 3</h5>
-                    <p class="font-weight-light mb-0">"Sambutan 3"</p>
+                    <img class="img-fluid rounded-circle mb-3" src="{!!asset('/themes/frontend/img/sekda.jpg')!!}" alt="">
+                    <h5>Sekretaris Daerah Kab. Bintan</h5>
+                    <p class="font-weight-light mb-0">Drs. Adi Prihantara, MM</p>
                 </div>
             </div>
         </div>

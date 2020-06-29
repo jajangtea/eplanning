@@ -17,10 +17,11 @@
             <tr class="bg-teal-700">
                 <th width="55">NO</th>     
                 <th>NAMA URAIAN</th>                
-                <th>SASARAN KEGIATAN</th>  
+                <th>SASARAN URAIAN</th>  
                 <th>TARGET (%)</th> 
-                <th>NILAI USULAN</th>                                      
-                <th>STATUS</th> 
+                <th class="text-right">PAGU INDIKATIF</th>                                      
+                <th width="70">STATUS</th> 
+                <th width="70">VER.</th>
             </tr>
         </thead>
         <tbody>                    
@@ -41,7 +42,7 @@
                                 <strong>Usulan dari: </strong>POKIR [{{$item->isReses_Uraian}}]
                             </a>
                         @else
-                            <a href="{{route('aspirasimusrenkecamatan.show',['id'=>$item->UsulanKecID])}}">
+                            <a href="{{route('aspirasimusrenkecamatan.show',['uuid'=>$item->UsulanKecID])}}">
                                 <strong>Usulan dari: MUSREN. KEC. {{$item->Nm_Kecamatan}}
                             </a>
                         @endif
@@ -49,19 +50,30 @@
                 </td>                
                 <td>{{Helper::formatAngka($item->Sasaran_Angka1)}} {{ucwords($item->Sasaran_Uraian1)}}</td>
                 <td>{{$item->Target1}}</td>               
-                <td>{{Helper::formatUang($item->NilaiUsulan1)}}</td>                       
+                <td class="text-right">{{Helper::formatUang($item->NilaiUsulan1)}}</td>                       
                 <td>
                     @include('layouts.limitless.l_status_kegiatan')
                 </td>               
+                <td>                    
+                    @if ($item->Privilege==0)
+                    <span class="label label-flat border-grey text-grey-600 label-icon">
+                        <i class="icon-cross2"></i>
+                    </span>
+                    @else
+                        <span class="label label-flat border-success text-success-600 label-icon">
+                            <i class="icon-checkmark"></i>
+                        </span>                            
+                    @endif                    
+                </td>
             </tr>
             <tr class="text-center info">
-                <td colspan="10">
-                    <span class="label label-warning label-rounded">
+                <td colspan="7">
+                    <span class="label label-warning label-rounded" style="text-transform: none">
                         <strong>RKPDID:</strong>
                         {{$item->RKPDID}}
                     </span>
-                    <span class="label label-warning label-rounded">
-                        <strong>RKPDRincID:</strong>
+                    <span class="label label-warning label-rounded" style="text-transform: none">
+                        <strong>RKPDRINCID:</strong>
                         {{$item->RKPDRincID}}
                     </span>
                     <span class="label label-warning label-rounded">
@@ -72,6 +84,13 @@
             </tr>
         @endforeach                    
         </tbody>
+        <tfoot>
+            <tr class="bg-grey-300" style="font-weight:bold">
+                <td colspan="4" class="text-right">TOTAL</td>
+                <td class="text-right">{{Helper::formatUang($datarinciankegiatan->sum('NilaiUsulan1'))}}</td> 
+                <td colspan="3"></td>
+            </tr>
+        </tfoot>
     </table>       
 </div>       
 @else

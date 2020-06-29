@@ -1,18 +1,18 @@
 @extends('layouts.limitless.l_main')
 @section('page_title')
-    USERS BAPELITBANG (SUPER ADMIN)
+    USERS SUPER ADMIN
 @endsection 
 @section('page_header')
     <i class="icon-users position-left"></i>
     <span class="text-semibold"> 
-        USERS BAPELITBANG (SUPER ADMIN)
+        USERS SUPER ADMIN
     </span>     
 @endsection
 @section('page_info')
     @include('pages.limitless.setting.users.info')
 @endsection
 @section('page_breadcrumb')
-    <li><a href="{!!route('users.index')!!}">USERS BAPELITBANG (SUPER ADMIN)</a></li>
+    <li><a href="{!!route('users.index')!!}">USERS SUPER ADMIN</a></li>
     <li class="active">DETAIL DATA</li>
 @endsection
 @section('page_content')
@@ -24,6 +24,9 @@
                     <i class="icon-eye"></i>  DATA USER
                 </h5>
                 <div class="heading-elements">   
+                    <a href="{{route('users.create')}}" class="btn btn-info btn-icon heading-btn btnTambah" title="Tambah Data Kelompok Urusan">
+                        <i class="icon-googleplus5"></i>
+                    </a>
                     <a href="{{route('users.edit',['id'=>$data->id])}}" class="btn btn-primary btn-icon heading-btn btnEdit" title="Ubah Data User">
                         <i class="icon-pencil7"></i>
                     </a>
@@ -51,7 +54,7 @@
                                 <div class="form-group">
                                     <label class="col-md-4 control-label"><strong>USERNAME: </strong></label>
                                     <div class="col-md-8">
-                                        <p class="form-control-static">{{$data->username}}</p>
+                                        <p class="form-control-static">{{$data->username}} [superadmin]</p>
                                     </div>                            
                                 </div> 
                                 <div class="form-group">

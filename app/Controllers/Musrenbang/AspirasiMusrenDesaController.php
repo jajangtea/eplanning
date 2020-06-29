@@ -4,6 +4,7 @@ namespace App\Controllers\Musrenbang;
 
 use Illuminate\Http\Request;
 use App\Controllers\Controller;
+use App\Models\DMaster\KecamatanModel;
 use App\Models\DMaster\DesaModel;
 use App\Models\DMaster\SumberDanaModel;
 use App\Models\Musrenbang\AspirasiMusrenDesaModel;
@@ -17,7 +18,7 @@ class AspirasiMusrenDesaController extends Controller {
     public function __construct()
     {
         parent::__construct();
-        $this->middleware(['auth','role:superadmin|desa']);
+        $this->middleware(['auth','role:superadmin|bapelitbang|kecamatan|desa']);
     }
     /**
      * collect data from resources for index view
@@ -38,26 +39,33 @@ class AspirasiMusrenDesaController extends Controller {
         {            
             $this->putControllerStateSession('global_controller','numberRecordPerPage',10);
         }
-        $numberRecordPerPage=$this->getControllerStateSession('global_controller','numberRecordPerPage');        
+        $numberRecordPerPage=$this->getControllerStateSession('global_controller','numberRecordPerPage');   
+        $filters=$this->getControllerStateSession('aspirasimusrendesa','filters');
         if ($this->checkStateIsExistSession('aspirasimusrendesa','search')) 
         {
             $search=$this->getControllerStateSession('aspirasimusrendesa','search');
             switch ($search['kriteria']) 
             {
                 case 'No_usulan' :                    
-                    $data = AspirasiMusrenDesaModel::join('tmPmDesa','tmPmDesa.PmDesaID','trUsulanDesa.PmDesaID')
+                    $data = AspirasiMusrenDesaModel::select(\DB::raw('"trUsulanDesa"."UsulanDesaID","tmPmDesa"."Nm_Desa","tmPmKecamatan"."Nm_Kecamatan","trUsulanDesa"."No_usulan","trUsulanDesa"."NamaKegiatan","trUsulanDesa"."Output","trUsulanDesa"."NilaiUsulan","trUsulanDesa"."Target_Angka","trUsulanDesa"."Target_Uraian","trUsulanDesa"."Jeniskeg","trUsulanDesa"."Prioritas","trUsulanDesa"."Bobot","trUsulanDesa"."Privilege","trUsulanKec"."UsulanKecID","trUsulanDesa"."TA"'))
+                                                    ->leftJoin('trUsulanKec','trUsulanKec.UsulanDesaID','trUsulanDesa.UsulanDesaID')
+                                                    ->join('tmPmDesa','tmPmDesa.PmDesaID','trUsulanDesa.PmDesaID')
                                                     ->join('tmPmKecamatan','tmPmDesa.PmKecamatanID','tmPmKecamatan.PmKecamatanID')
-                                                    ->where('trUsulanDesa.TA', config('globalsettings.tahun_perencanaan'))
-                                                    ->where(['No_usulan'=>(int)$search['isikriteria']])
-                                                    ->orderBy('Prioritas','ASC')
+                                                    ->where('tmPmDesa.PmKecamatanID',$filters['PmKecamatanID'])
+                                                    ->where('trUsulanDesa.TA', \HelperKegiatan::getTahunPerencanaan())
+                                                    ->where(['trUsulanDesa.No_usulan'=>(int)$search['isikriteria']])
+                                                    ->orderBy('trUsulanDesa.Prioritas','ASC')
                                                     ->orderBy($column_order,$direction);
                 break;
                 case 'NamaKegiatan' :
-                    $data = AspirasiMusrenDesaModel::join('tmPmDesa','tmPmDesa.PmDesaID','trUsulanDesa.PmDesaID')
+                    $data = AspirasiMusrenDesaModel::select(\DB::raw('"trUsulanDesa"."UsulanDesaID","tmPmDesa"."Nm_Desa","tmPmKecamatan"."Nm_Kecamatan","trUsulanDesa"."No_usulan","trUsulanDesa"."NamaKegiatan","trUsulanDesa"."Output","trUsulanDesa"."NilaiUsulan","trUsulanDesa"."Target_Angka","trUsulanDesa"."Target_Uraian","trUsulanDesa"."Jeniskeg","trUsulanDesa"."Prioritas","trUsulanDesa"."Bobot","trUsulanDesa"."Privilege","trUsulanKec"."UsulanKecID","trUsulanDesa"."TA"'))
+                                                    ->leftJoin('trUsulanKec','trUsulanKec.UsulanDesaID','trUsulanDesa.UsulanDesaID')
+                                                    ->join('tmPmDesa','tmPmDesa.PmDesaID','trUsulanDesa.PmDesaID')
                                                     ->join('tmPmKecamatan','tmPmDesa.PmKecamatanID','tmPmKecamatan.PmKecamatanID')
-                                                    ->where('trUsulanDesa.TA', config('globalsettings.tahun_perencanaan'))
-                                                    ->where('NamaKegiatan', 'ilike', '%' . $search['isikriteria'] . '%')
-                                                    ->orderBy('Prioritas','ASC')                                        
+                                                    ->where('tmPmDesa.PmKecamatanID',$filters['PmKecamatanID'])
+                                                    ->where('trUsulanDesa.TA', \HelperKegiatan::getTahunPerencanaan())
+                                                    ->where('trUsulanDesa.NamaKegiatan', 'ilike', '%' . $search['isikriteria'] . '%')
+                                                    ->orderBy('trUsulanDesa.Prioritas','ASC')                                        
                                                     ->orderBy($column_order,$direction);                                        
                 break;
             }           
@@ -65,11 +73,12 @@ class AspirasiMusrenDesaController extends Controller {
         }
         else
         {
-            $data = AspirasiMusrenDesaModel::select(\DB::raw('"trUsulanDesa"."UsulanDesaID","tmPmDesa"."Nm_Desa","tmPmKecamatan"."Nm_Kecamatan","trUsulanDesa"."No_usulan","trUsulanDesa"."NamaKegiatan","trUsulanDesa"."Output","trUsulanDesa"."NilaiUsulan","trUsulanDesa"."Target_Angka","trUsulanDesa"."Target_Uraian","trUsulanDesa"."Jeniskeg","trUsulanDesa"."Prioritas","trUsulanDesa"."Bobot","trUsulanDesa"."Privilege","trUsulanKec"."UsulanKecID"'))
+            $data = AspirasiMusrenDesaModel::select(\DB::raw('"trUsulanDesa"."UsulanDesaID","tmPmDesa"."Nm_Desa","tmPmKecamatan"."Nm_Kecamatan","trUsulanDesa"."No_usulan","trUsulanDesa"."NamaKegiatan","trUsulanDesa"."Output","trUsulanDesa"."NilaiUsulan","trUsulanDesa"."Target_Angka","trUsulanDesa"."Target_Uraian","trUsulanDesa"."Jeniskeg","trUsulanDesa"."Prioritas","trUsulanDesa"."Bobot","trUsulanDesa"."Privilege","trUsulanKec"."UsulanKecID","trUsulanDesa"."TA"'))
                                             ->leftJoin('trUsulanKec','trUsulanKec.UsulanDesaID','trUsulanDesa.UsulanDesaID')
                                             ->join('tmPmDesa','tmPmDesa.PmDesaID','trUsulanDesa.PmDesaID')
                                             ->join('tmPmKecamatan','tmPmDesa.PmKecamatanID','tmPmKecamatan.PmKecamatanID')
-                                            ->where('trUsulanDesa.TA', config('globalsettings.tahun_perencanaan'))
+                                            ->where('tmPmDesa.PmKecamatanID',$filters['PmKecamatanID'])
+                                            ->where('trUsulanDesa.TA', \HelperKegiatan::getTahunPerencanaan())
                                             ->orderBy('trUsulanDesa.Prioritas','ASC')
                                             ->orderBy($column_order,$direction)                                            
                                             ->paginate($numberRecordPerPage, $columns, 'page', $currentpage); 
@@ -172,6 +181,39 @@ class AspirasiMusrenDesaController extends Controller {
         return response()->json(['success'=>true,'datatable'=>$datatable],200);        
     }
     /**
+     * filter resource in storage.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */
+    public function filter (Request $request) 
+    {
+        $theme = \Auth::user()->theme;
+
+        $filters=$this->getControllerStateSession('aspirasimusrendesa','filters');
+
+        if ($request->exists('PmKecamatanID'))
+        {
+            $PmKecamatanID = $request->input('PmKecamatanID')==''?'none':$request->input('PmKecamatanID');
+            $filters['PmKecamatanID']=$PmKecamatanID;
+        }   
+
+        $this->putControllerStateSession('aspirasimusrendesa','filters',$filters);   
+        $this->setCurrentPageInsideSession('aspirasimusrendesa',1);
+
+        $data=$this->populateData();        
+        $datatable = view("pages.$theme.musrenbang.aspirasimusrendesa.datatable")->with(['page_active'=>'aspirasimusrendesa',                                                            
+                                                                                        'search'=>$this->getControllerStateSession('aspirasimusrendesa','search'),
+                                                                                        'numberRecordPerPage'=>$this->getControllerStateSession('global_controller','numberRecordPerPage'),
+                                                                                        'column_order'=>$this->getControllerStateSession('aspirasimusrendesa.orderby','column_name'),
+                                                                                        'direction'=>$this->getControllerStateSession('aspirasimusrendesa.orderby','order'),
+                                                                                        'filters'=>$filters,
+                                                                                        'data'=>$data])->render();      
+
+        return response()->json(['success'=>true,'datatable'=>$datatable],200);         
+
+    }
+    /**
      * search resource in storage.
      *
      * @param  \Illuminate\Http\Request  $request
@@ -211,8 +253,41 @@ class AspirasiMusrenDesaController extends Controller {
      */
     public function index(Request $request)
     {                
-        $theme = \Auth::user()->theme;
+        $auth=\Auth::user();
+        $theme = $auth->theme;
 
+        //filter
+        if (!$this->checkStateIsExistSession('aspirasimusrendesa','filters')) 
+        {            
+            $this->putControllerStateSession('aspirasimusrendesa','filters',[
+                                                                            'PmKecamatanID'=>'none',
+                                                                        ]);
+        }        
+        $filters=$this->getControllerStateSession('aspirasimusrendesa','filters');
+        
+        $roles=$auth->getRoleNames();
+        $daftar_kecamatan=[];
+        switch ($roles[0])
+        {
+            case 'superadmin' :     
+            case 'bapelitbang' :     
+            case 'tapd' :
+                $daftar_kecamatan=KecamatanModel::getDaftarKecamatan(\HelperKegiatan::getTahunPerencanaan(),false);
+            break;
+            case 'kecamatan':
+                $daftar_kecamatan=\App\Models\UserKecamatan::getKecamatan();                      
+                if (!count($daftar_kecamatan) > 0)
+                {
+                    $filters['PmKecamatanID']='none';
+                    $this->putControllerStateSession('aspirasimusrendesa','filters',$filters);
+
+                    return view("pages.$theme.musrenbang.aspirasimusrendesa.error")->with(['page_active'=>'aspirasimusrendesa', 
+                                                                                                'page_title'=>'ASPIRASI MUSRENBANG DESA',
+                                                                                                'errormessage'=>'Anda Tidak Diperkenankan Mengakses Halaman ini, karena Sudah dikunci oleh BAPELITBANG',
+                                                                                            ]);
+                }    
+            break;
+        }
         $search=$this->getControllerStateSession('aspirasimusrendesa','search');
         $currentpage=$request->has('page') ? $request->get('page') : $this->getCurrentPageInsideSession('aspirasimusrendesa'); 
         $data = $this->populateData($currentpage);
@@ -223,11 +298,13 @@ class AspirasiMusrenDesaController extends Controller {
         $this->setCurrentPageInsideSession('aspirasimusrendesa',$data->currentPage());
         
         return view("pages.$theme.musrenbang.aspirasimusrendesa.index")->with(['page_active'=>'aspirasimusrendesa',
-                                                'search'=>$this->getControllerStateSession('aspirasimusrendesa','search'),
-                                                'numberRecordPerPage'=>$this->getControllerStateSession('global_controller','numberRecordPerPage'),                                                                    
-                                                'column_order'=>$this->getControllerStateSession('aspirasimusrendesa.orderby','column_name'),
-                                                'direction'=>$this->getControllerStateSession('aspirasimusrendesa.orderby','order'),
-                                                'data'=>$data]);               
+                                                                                'search'=>$this->getControllerStateSession('aspirasimusrendesa','search'),
+                                                                                'filters'=>$filters,
+                                                                                'numberRecordPerPage'=>$this->getControllerStateSession('global_controller','numberRecordPerPage'),                                                                    
+                                                                                'column_order'=>$this->getControllerStateSession('aspirasimusrendesa.orderby','column_name'),
+                                                                                'direction'=>$this->getControllerStateSession('aspirasimusrendesa.orderby','order'),
+                                                                                'daftar_kecamatan'=>$daftar_kecamatan,
+                                                                                'data'=>$data]);               
     }
     /**
      * Show the form for creating a new resource.
@@ -237,12 +314,26 @@ class AspirasiMusrenDesaController extends Controller {
     public function create()
     {        
         $theme = \Auth::user()->theme;
-        $daftar_desa = DesaModel::getDaftarDesa(config('globalsettings.tahun_perencanaan'),false);
-        $sumber_dana = SumberDanaModel::getDaftarSumberDana(config('globalsettings.tahun_perencanaan'),false);
-        return view("pages.$theme.musrenbang.aspirasimusrendesa.create")->with(['page_active'=>'aspirasimusrendesa',
-                                                                            'daftar_desa'=>$daftar_desa,
-                                                                            'sumber_dana'=>$sumber_dana
-                                                                            ]);  
+        $filters=$this->getControllerStateSession('aspirasimusrendesa','filters');
+        $PmKecamatanID=$filters['PmKecamatanID'];
+        if ($PmKecamatanID == 'none')
+        {
+            return view("pages.$theme.musrenbang.aspirasimusrendesa.error")->with(['page_active'=>'aspirasimusrendesa', 
+                                                                                                'page_title'=>'ASPIRASI MUSRENBANG DESA',
+                                                                                                'errormessage'=>'Mohon terlebih dahulu, dipilih Kecamatan',
+                                                                                            ]);
+        }
+        else
+        {
+            $kecamatan = \App\Models\DMaster\KecamatanModel::find($PmKecamatanID);
+            $daftar_desa = DesaModel::getDaftarDesa(\HelperKegiatan::getTahunPerencanaan(),$PmKecamatanID,false);
+            $sumber_dana = SumberDanaModel::getDaftarSumberDana(\HelperKegiatan::getTahunPerencanaan(),false);
+            return view("pages.$theme.musrenbang.aspirasimusrendesa.create")->with(['page_active'=>'aspirasimusrendesa',
+                                                                                'daftar_desa'=>$daftar_desa,
+                                                                                'sumber_dana'=>$sumber_dana,
+                                                                                'kecamatan'=>$kecamatan,
+                                                                                ]);  
+        }
     }
     
     /**
@@ -263,7 +354,7 @@ class AspirasiMusrenDesaController extends Controller {
             'Target_Angka'=>'required',
             'Prioritas'=>'required|not_in:none'            
         ]);
-        
+        $jeniskeg=$request->has('Jeniskeg')?$request->input('Jeniskeg'):0;
         $aspirasimusrendesa = AspirasiMusrenDesaModel::create([
             'UsulanDesaID' => uniqid ('uid'),
             'PmDesaID' => $request->input('PmDesaID'),
@@ -275,10 +366,10 @@ class AspirasiMusrenDesaController extends Controller {
             'NilaiUsulan' => $request->input('NilaiUsulan'),
             'Target_Angka' => $request->input('Target_Angka'),
             'Target_Uraian' => $request->input('Target_Uraian'),
-            'Jeniskeg' => $request->input('Jeniskeg'),
+            'Jeniskeg' => $jeniskeg,
             'Prioritas' => $request->input('Prioritas'),
             'Descr' => $request->input('Descr'),
-            'TA' => config('globalsettings.tahun_perencanaan')
+            'TA' => \HelperKegiatan::getTahunPerencanaan()
         ]);        
         
         if ($request->ajax()) 
@@ -290,7 +381,7 @@ class AspirasiMusrenDesaController extends Controller {
         }
         else
         {
-            return redirect(route('aspirasimusrendesa.show',['id'=>$aspirasimusrendesa->UsulanDesaID]))->with('success','Data ini telah berhasil disimpan.');
+            return redirect(route('aspirasimusrendesa.show',['uuid'=>$aspirasimusrendesa->UsulanDesaID]))->with('success','Data ini telah berhasil disimpan.');
         }
 
     }
@@ -307,12 +398,11 @@ class AspirasiMusrenDesaController extends Controller {
 
         $data = AspirasiMusrenDesaModel::join('tmPmDesa','tmPmDesa.PmDesaID','trUsulanDesa.PmDesaID')
                                         ->join('tmPmKecamatan','tmPmDesa.PmKecamatanID','tmPmKecamatan.PmKecamatanID')
-                                        ->where('trUsulanDesa.TA', config('globalsettings.tahun_perencanaan'))
+                                        ->where('trUsulanDesa.TA', \HelperKegiatan::getTahunPerencanaan())
                                         ->findOrFail($id);
         if (!is_null($data) )  
         {            
             return view("pages.$theme.musrenbang.aspirasimusrendesa.show")->with(['page_active'=>'aspirasimusrendesa',
-                                                                                   
                                                                                     'data'=>$data
                                                                                 ]);
         }        
@@ -328,12 +418,15 @@ class AspirasiMusrenDesaController extends Controller {
     {
         $theme = \Auth::user()->theme;
         
-        $data = AspirasiMusrenDesaModel::where('Privilege',0)
+        $data = AspirasiMusrenDesaModel::join('tmPmDesa','tmPmDesa.PmDesaID','trUsulanDesa.PmDesaID')
+                                        ->join('tmPmKecamatan','tmPmDesa.PmKecamatanID','tmPmKecamatan.PmKecamatanID')
+                                        ->where('Privilege',0)
                                         ->findOrFail($id);
         if (!is_null($data) ) 
         {
-            $daftar_desa = DesaModel::getDaftarDesa(config('globalsettings.tahun_perencanaan'),false);
-            $sumber_dana = SumberDanaModel::getDaftarSumberDana(config('globalsettings.tahun_perencanaan'),false);
+            $kecamatan = \App\Models\DMaster\KecamatanModel::find($data->PmKecamatanID);
+            $daftar_desa = DesaModel::getDaftarDesa(\HelperKegiatan::getTahunPerencanaan(),$data->PmKecamatanID,false);
+            $sumber_dana = SumberDanaModel::getDaftarSumberDana(\HelperKegiatan::getTahunPerencanaan(),false);
             return view("pages.$theme.musrenbang.aspirasimusrendesa.edit")->with(['page_active'=>'aspirasimusrendesa',
                                                                                     'daftar_desa'=>$daftar_desa,
                                                                                     'sumber_dana'=>$sumber_dana,
@@ -386,7 +479,7 @@ class AspirasiMusrenDesaController extends Controller {
         }
         else
         {
-            return redirect(route('aspirasimusrendesa.show',['id'=>$aspirasimusrendesa->UsulanDesaID]))->with('success',"Data dengan id ($id) telah berhasil diubah.");
+            return redirect(route('aspirasimusrendesa.show',['uuid'=>$aspirasimusrendesa->UsulanDesaID]))->with('success',"Data dengan id ($id) telah berhasil diubah.");
         }
     }
 

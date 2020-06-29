@@ -1,3 +1,317 @@
+let format_uang_options = {
+    formatOnPageLoad: true,
+    allowDecimalPadding: false,
+    decimalCharacter: ",",
+    digitGroupSeparator: ".",
+    unformatOnSubmit: true,
+    showWarnings:false,
+    modifyValueOnWheel:false
+}
+
+let format_angka_options = {
+    allowDecimalPadding: false,
+    formatOnPageLoad: true,
+    minimumValue:0,
+    maximumValue:9999,
+    numericPos:true,
+    decimalPlaces : 0,
+    digitGroupSeparator : '',
+    showWarnings:false,
+    unformatOnSubmit: true,
+    modifyValueOnWheel:false
+}
+
+function checkExistsID(id) {
+    var status = false;
+    if ($(id).length) status = true;
+    return status;
+}
+
+function formatPaguTotalIndikatifOPD(totalpaguindikatif)
+{
+    var optionnumeric =  {
+                            allowDecimalPadding: false,
+                            decimalCharacter: ",",
+                            digitGroupSeparator: ".",
+                            showWarnings:false
+                        };
+    
+    if (checkExistsID('#datastatus #totalstatusopd0'))
+    {
+        $('#datastatus #totalstatusopd0').html(totalpaguindikatif[0]);                
+        new AutoNumeric ('#datastatus #totalstatusopd0',optionnumeric); 
+    }    
+    if (checkExistsID('#datastatus #totalstatusopd1'))
+    {
+        $('#datastatus #totalstatusopd1').html(totalpaguindikatif[1]);                        
+        new AutoNumeric ('#datastatus #totalstatusopd1',optionnumeric); 
+    }    
+    if (checkExistsID('#datastatus #totalstatusopd2'))
+    {
+        $('#datastatus #totalstatusopd2').html(totalpaguindikatif[2]); 
+        new AutoNumeric ('#datastatus #totalstatusopd2',optionnumeric);        
+    }
+    if (checkExistsID('#datastatus #totalstatusopd12'))
+    {
+        $('#datastatus #totalstatusopd12').html(parseFloat(totalpaguindikatif[1])+parseFloat(totalpaguindikatif[2]));        
+        new AutoNumeric ('#datastatus #totalstatusopd12',optionnumeric);        
+    }
+    if (checkExistsID('#datastatus #totalstatusopd3'))
+    {
+        $('#datastatus #totalstatusopd3').html(totalpaguindikatif[3]);        
+        new AutoNumeric ('#datastatus #totalstatusopd3',optionnumeric); 
+    }
+    if (checkExistsID('#datastatus #totalstatusopd'))
+    {
+        $('#datastatus #totalstatusopd').html(totalpaguindikatif.total);                
+        new AutoNumeric ('#datastatus #totalstatusopd',optionnumeric);        
+    }
+    
+}
+
+function formatPaguTotalIndikatifUnitKerja(totalpaguindikatif)
+{
+    var optionnumeric =  {
+                            allowDecimalPadding: false,
+                            decimalCharacter: ",",
+                            digitGroupSeparator: ".",
+                            showWarnings:false
+                        };
+
+    if (checkExistsID('#datastatus #totalstatusunitkerja0'))
+    {
+        $('#datastatus #totalstatusunitkerja0').html(totalpaguindikatif[0]);                
+        new AutoNumeric ('#datastatus #totalstatusunitkerja0',optionnumeric); 
+    }    
+    if (checkExistsID('#datastatus #totalstatusunitkerja1'))
+    {
+        $('#datastatus #totalstatusunitkerja1').html(totalpaguindikatif[1]);                        
+        new AutoNumeric ('#datastatus #totalstatusunitkerja1',optionnumeric); 
+    }    
+    if (checkExistsID('#datastatus #totalstatusunitkerja2'))
+    {
+        $('#datastatus #totalstatusunitkerja2').html(totalpaguindikatif[2]); 
+        new AutoNumeric ('#datastatus #totalstatusunitkerja2',optionnumeric);        
+    }
+    if (checkExistsID('#datastatus #totalstatusunitkerja12'))
+    {
+        $('#datastatus #totalstatusunitkerja12').html(parseFloat(totalpaguindikatif[1])+parseFloat(totalpaguindikatif[2]));        
+        new AutoNumeric ('#datastatus #totalstatusunitkerja12',optionnumeric);        
+    }
+    if (checkExistsID('#datastatus #totalstatusunitkerja3'))
+    {
+        $('#datastatus #totalstatusunitkerja3').html(totalpaguindikatif[3]);        
+        new AutoNumeric ('#datastatus #totalstatusunitkerja3',optionnumeric); 
+    }
+    if (checkExistsID('#datastatus #totalstatusunitkerja'))
+    {
+        $('#datastatus #totalstatusunitkerja').html(totalpaguindikatif.total);                
+        new AutoNumeric ('#datastatus #totalstatusunitkerja',optionnumeric);        
+    }   
+}
+function formatRKPDPaguPembahasanOPD(totalpagu)
+{
+    var optionnumeric =  {
+                            allowDecimalPadding: false,
+                            decimalCharacter: ",",
+                            digitGroupSeparator: ".",
+                            showWarnings:false
+                        };
+    
+    if (checkExistsID('#datapagu #totalpagumurniopd'))
+    {
+        $('#datapagu #totalpagumurniopd').html(totalpagu['murni']);                
+        new AutoNumeric ('#datapagu #totalpagumurniopd',optionnumeric); 
+    }    
+    if (checkExistsID('#datapagu #totalpagupembahasanopd'))
+    {
+        $('#datapagu #totalpagupembahasanopd').html(totalpagu['pembahasanm']);                        
+        new AutoNumeric ('#datapagu #totalpagupembahasanopd',optionnumeric); 
+    }    
+    if (checkExistsID('#datapagu #selisihopd'))
+    {
+        $('#datapagu #selisihopd').html(totalpagu['selisihm']);                        
+        new AutoNumeric ('#datapagu #selisihopd',optionnumeric); 
+    }     
+}
+function formatRKPDPaguPembahasanUnitKerja(totalpagu)
+{
+    var optionnumeric =  {
+                            allowDecimalPadding: false,
+                            decimalCharacter: ",",
+                            digitGroupSeparator: ".",
+                            showWarnings:false
+                        };
+    
+    if (checkExistsID('#datapagu #totalpagumurniunitkerja'))
+    {
+        $('#datapagu #totalpagumurniunitkerja').html(totalpagu['murni']);                
+        new AutoNumeric ('#datapagu #totalpagumurniunitkerja',optionnumeric); 
+    }    
+    if (checkExistsID('#datapagu #totalpagupembahasanunitkerja'))
+    {
+        $('#datapagu #totalpagupembahasanunitkerja').html(totalpagu['pembahasanm']);                        
+        new AutoNumeric ('#datapagu #totalpagupembahasanunitkerja',optionnumeric); 
+    }    
+    if (checkExistsID('#datapagu #selisihunitkerja'))
+    {
+        $('#datapagu #selisihunitkerja').html(totalpagu['selisihm']);                        
+        new AutoNumeric ('#datapagu #selisihunitkerja',optionnumeric); 
+    }          
+}
+function formatPaguRKPDMurniOPD(totalpagu)
+{
+    var optionnumeric =  {
+                            allowDecimalPadding: false,
+                            decimalCharacter: ",",
+                            digitGroupSeparator: ".",
+                            showWarnings:false
+                        };
+    
+    if (checkExistsID('#datapagu #totalpagumurniopd'))
+    {
+        $('#datapagu #totalpagumurniopd').html(totalpagu['murni']);                
+        new AutoNumeric ('#datapagu #totalpagumurniopd',optionnumeric); 
+    }   
+}
+
+function formatPaguRKPDMurniUnitKerja(totalpagu)
+{
+    var optionnumeric =  {
+                            allowDecimalPadding: false,
+                            decimalCharacter: ",",
+                            digitGroupSeparator: ".",
+                            showWarnings:false
+                        };
+    
+    if (checkExistsID('#datapagu #totalpagumurniunitkerja'))
+    {
+        $('#datapagu #totalpagumurniunitkerja').html(totalpagu['murni']);                
+        new AutoNumeric ('#datapagu #totalpagumurniunitkerja',optionnumeric); 
+    }       
+}
+function formatRKPDPaguPembahasanOPD(totalpagu)
+{
+    var optionnumeric =  {
+                            allowDecimalPadding: false,
+                            decimalCharacter: ",",
+                            digitGroupSeparator: ".",
+                            showWarnings:false
+                        };
+    
+    if (checkExistsID('#datapagu #totalpagumurniopd'))
+    {
+        $('#datapagu #totalpagumurniopd').html(totalpagu['murni']);                
+        new AutoNumeric ('#datapagu #totalpagumurniopd',optionnumeric); 
+    }    
+    if (checkExistsID('#datapagu #totalpagupembahasanopd'))
+    {
+        $('#datapagu #totalpagupembahasanopd').html(totalpagu['pembahasanm']);                        
+        new AutoNumeric ('#datapagu #totalpagupembahasanopd',optionnumeric); 
+    }    
+    if (checkExistsID('#datapagu #selisihopd'))
+    {
+        $('#datapagu #selisihopd').html(totalpagu['selisihm']);                        
+        new AutoNumeric ('#datapagu #selisihopd',optionnumeric); 
+    }     
+}
+
+function formatRKPDPaguPembahasanUnitKerja(totalpagu)
+{
+    var optionnumeric =  {
+                            allowDecimalPadding: false,
+                            decimalCharacter: ",",
+                            digitGroupSeparator: ".",
+                            showWarnings:false
+                        };
+    
+    if (checkExistsID('#datapagu #totalpagumurniunitkerja'))
+    {
+        $('#datapagu #totalpagumurniunitkerja').html(totalpagu['murni']);                
+        new AutoNumeric ('#datapagu #totalpagumurniunitkerja',optionnumeric); 
+    }    
+    if (checkExistsID('#datapagu #totalpagupembahasanunitkerja'))
+    {
+        $('#datapagu #totalpagupembahasanunitkerja').html(totalpagu['pembahasanm']);                        
+        new AutoNumeric ('#datapagu #totalpagupembahasanunitkerja',optionnumeric); 
+    }    
+    if (checkExistsID('#datapagu #selisihunitkerja'))
+    {
+        $('#datapagu #selisihunitkerja').html(totalpagu['selisihm']);                        
+        new AutoNumeric ('#datapagu #selisihunitkerja',optionnumeric); 
+    }          
+}
+
+function formatPaguRKPDPerubahanOPD(totalpagu)
+{
+    var optionnumeric =  {
+                            allowDecimalPadding: false,
+                            decimalCharacter: ",",
+                            digitGroupSeparator: ".",
+                            showWarnings:false
+                        };
+    
+    if (checkExistsID('#datapagu #totalpagumurniopd'))
+    {
+        $('#datapagu #totalpagumurniopd').html(totalpagu['pembahasanm']);                
+        new AutoNumeric ('#datapagu #totalpagumurniopd',optionnumeric); 
+    }    
+    if (checkExistsID('#datapagu #totalpaguperubahanopd'))
+    {
+        $('#datapagu #totalpaguperubahanopd').html(totalpagu['perubahan']);                        
+        new AutoNumeric ('#datapagu #totalpaguperubahanopd',optionnumeric); 
+    }    
+    if (checkExistsID('#datapagu #selisihopd'))
+    {
+        $('#datapagu #selisihopd').html(totalpagu['selisihpm']);                        
+        new AutoNumeric ('#datapagu #selisihopd',optionnumeric); 
+    }    
+    if (checkExistsID('#datapagu #pembahasanpopd'))
+    {
+        $('#datapagu #pembahasanpopd').html(totalpagu['pembahasanp']);                        
+        new AutoNumeric ('#datapagu #pembahasanpopd',optionnumeric); 
+    }    
+    if (checkExistsID('#datapagu #selisihppopd'))
+    {
+        $('#datapagu #selisihppopd').html(totalpagu['selisihpp']);                        
+        new AutoNumeric ('#datapagu #selisihppopd',optionnumeric); 
+    }    
+}
+function formatPaguRKPDPerubahanUnitKerja(totalpagu)
+{
+    var optionnumeric =  {
+                            allowDecimalPadding: false,
+                            decimalCharacter: ",",
+                            digitGroupSeparator: ".",
+                            showWarnings:false
+                        };
+    
+    if (checkExistsID('#datapagu #totalpagumurniunitkerja'))
+    {
+        $('#datapagu #totalpagumurniunitkerja').html(totalpagu['pembahasanm']);                
+        new AutoNumeric ('#datapagu #totalpagumurniunitkerja',optionnumeric); 
+    }    
+    if (checkExistsID('#datapagu #totalpaguperubahanunitkerja'))
+    {
+        $('#datapagu #totalpaguperubahanunitkerja').html(totalpagu['perubahan']);                        
+        new AutoNumeric ('#datapagu #totalpaguperubahanunitkerja',optionnumeric); 
+    }    
+    if (checkExistsID('#datapagu #selisihunitkerja'))
+    {
+        $('#datapagu #selisihunitkerja').html(totalpagu['selisihpm']);                        
+        new AutoNumeric ('#datapagu #selisihunitkerja',optionnumeric); 
+    }    
+    if (checkExistsID('#datapagu #pembahasanpunitkerja'))
+    {
+        $('#datapagu #pembahasanpunitkerja').html(totalpagu['pembahasanp']);                        
+        new AutoNumeric ('#datapagu #pembahasanpunitkerja',optionnumeric); 
+    }    
+    if (checkExistsID('#datapagu #selisihppunitkerja'))
+    {
+        $('#datapagu #selisihppunitkerja').html(totalpagu['selisihpp']);                        
+        new AutoNumeric ('#datapagu #selisihppunitkerja',optionnumeric); 
+    }    
+}
 //checking data type is json
 function isJSON (data) 
 {

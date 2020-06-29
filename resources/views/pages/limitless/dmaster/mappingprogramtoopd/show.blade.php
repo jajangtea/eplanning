@@ -5,7 +5,7 @@
 @section('page_header')
     <i class="icon-link position-left"></i>
     <span class="text-semibold"> 
-        MAPPING PROGRAM KE OPD TAHUN PERENCANAAN {{config('globalsettings.tahun_perencanaan')}}
+        MAPPING PROGRAM KE OPD PERIODE {{HelperKegiatan::getRPJMDTahunMulai()}} - {{HelperKegiatan::getRPJMDTahunAkhir()+1}}
     </span>     
 @endsection
 @section('page_info')
@@ -49,7 +49,7 @@
                                         @php
                                         if ($data->Jns==false)
                                         {
-                                            echo $data->kode_program_all_urusan;
+                                            echo $data->kode_program;
                                         }                            
                                         else {
                                             echo $data->kode_program;
@@ -87,7 +87,7 @@
                             <div class="form-group">
                                 <label class="col-md-4 control-label"><strong>KODE OPD / SKPD: </strong></label>
                                 <div class="col-md-8">
-                                    <p class="form-control-static">{{$data->kode_organisasi_all_urusan}}</p>
+                                    <p class="form-control-static">{{$data->kode_organisasi}}</p>
                                 </div>                            
                             </div> 
                             <div class="form-group">

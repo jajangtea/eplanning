@@ -24,7 +24,6 @@ class RenjaIndikatorModel extends Model {
        'RenjaID',
        'Target_Angka',
        'Target_Uraian',  
-       'Tahun',      
        'Descr',
        'Privilege',
        'TA',
@@ -58,4 +57,16 @@ class RenjaIndikatorModel extends Model {
      * log the changed attributes for all these events 
      */
     protected static $logAttributes = ['RenjaIndikatorID', 'IndikatorKinerjaID', 'RenjaID','Target_Angka','Target_Uraian'];
+    /**
+     * log changes to all the $fillable attributes of the model
+     */
+    protected static $logFillable = true;
+
+    //only the `deleted` event will get logged automatically
+    // protected static $recordEvents = ['deleted'];
+    
+    public function renja()
+    {
+        return $this->belongsTo('\App\Models\RKPD\RenjaModel','RenjaID');
+    }
 }

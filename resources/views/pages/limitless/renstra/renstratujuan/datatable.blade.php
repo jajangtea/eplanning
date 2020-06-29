@@ -1,18 +1,19 @@
 <div class="panel panel-flat border-top-lg border-top-info border-bottom-info">
-    <div class="panel-heading">
+    <div class="panel-heading">     
         <div class="panel-title">
-            <div class="row">
-                <div class="col-md-1">                    		
-					{!!Form::select('numberRecordPerPage',['1'=>1,'5'=>5,'10'=>10,'15'=>15,'30'=>30,'50'=>50],$numberRecordPerPage,['id'=>'numberRecordPerPage','class'=>'form-control'])!!}                        
-                </div>
-            </div>
+            <h6 class="panel-title">&nbsp;</h6>
         </div>
         <div class="heading-elements">
-            <div class="heading-btn">
-                <a href="{!!route('renstratujuan.create')!!}" class="btn btn-info btn-xs" title="Tambah RENSTRATUJUAN">
-                    <i class="icon-googleplus5"></i>
-                </a>
-            </div>            
+            {!! Form::open(['url'=>'#','method'=>'post','class'=>'heading-form','id'=>'frmheading','name'=>'frmheading'])!!} 
+                <div class="form-group">
+                    {!!Form::select('numberRecordPerPage',['1'=>1,'5'=>5,'10'=>10,'15'=>15,'30'=>30,'50'=>50],$numberRecordPerPage,['id'=>'numberRecordPerPage','class'=>'form-control','style'=>'width:70px'])!!}                        
+                </div> 
+                <div class="form-group">
+                    <a href="{!!route('renstratujuan.create')!!}" class="btn btn-info btn-xs" title="Tambah RENSTRA TUJUAN">
+                        <i class="icon-googleplus5"></i>
+                    </a>
+                </div> 
+            {!! Form::close()!!}
         </div>
     </div>
     @if (count($data) > 0)
@@ -21,11 +22,13 @@
             <thead>
                 <tr class="bg-teal-700">
                     <th width="55">NO</th>
-                    <th width="100">
-                        <a class="column-sort text-white" id="col-replace_it" data-order="{{$direction}}" href="#">
-                            replace_it  
-                        </a>                                             
+                    <th width="150">
+                        KODE TUJUAN 
                     </th> 
+                    <th>
+                        NAMA TUJUAN  
+                    </th> 
+                    <th width="100">TA</th>
                     <th width="100">AKSI</th>
                 </tr>
             </thead>
@@ -35,25 +38,47 @@
                     <td>
                         {{ ($data->currentpage()-1) * $data->perpage() + $key + 1 }}    
                     </td>                  
-                    <td>{{$item->replace_it}}</td>
+                    <td>{{$item->Kd_RenstraTujuan}}</td>
+                    <td>{{$item->Nm_RenstraTujuan}}</td>
+                    <td>{{$item->TA}}</td>
                     <td>
                         <ul class="icons-list">
                             <li class="text-primary-600">
-                                <a class="btnShow" href="{{route('renstratujuan.show',['id'=>$item->renstratujuan_id])}}" title="Detail Data RenstraTujuan">
+                                <a class="btnShow" href="{{route('renstratujuan.show',['uuid'=>$item->RenstraTujuanID])}}" title="Detail Data RpjmdTujuan">
                                     <i class='icon-eye'></i>
                                 </a>  
                             </li>
                             <li class="text-primary-600">
-                                <a class="btnEdit" href="{{route('renstratujuan.edit',['id'=>$item->renstratujuan_id])}}" title="Ubah Data RenstraTujuan">
+                                <a class="btnEdit" href="{{route('renstratujuan.edit',['uuid'=>$item->RenstraTujuanID])}}" title="Ubah Data RpjmdTujuan">
                                     <i class='icon-pencil7'></i>
                                 </a>  
                             </li>
                             <li class="text-danger-600">
-                                <a class="btnDelete" href="javascript:;" title="Hapus Data RenstraTujuan" data-id="{{$item->renstratujuan_id}}" data-url="{{route('renstratujuan.index')}}">
+                                <a class="btnDelete" href="javascript:;" title="Hapus Data RpjmdTujuan" data-id="{{$item->RenstraTujuanID}}" data-url="{{route('renstratujuan.index')}}">
                                     <i class='icon-trash'></i>
                                 </a> 
                             </li>
                         </ul>
+                    </td>
+                </tr>
+                <tr class="text-center info">
+                    <td colspan="10">
+                        <span class="label label-warning label-rounded" style="text-transform: none">
+                            <strong>RENSTRATUJUANID:</strong>
+                            {{$item->RenstraTujuanID}}
+                        </span>                        
+                        <span class="label label-warning label-rounded" style="text-transform: none">
+                            <strong>PRIORITASSASARANKABID:</strong>
+                            {{$item->PrioritasSasaranKabID}}
+                        </span>                        
+                        <span class="label label-warning label-rounded" style="text-transform: none">
+                            <strong>CREATED:</strong>
+                            {{Helper::tanggal('d/m/Y H:m',$item->created_at)}}
+                        </span>
+                        <span class="label label-warning label-rounded" style="text-transform: none">
+                            <strong>UPDATED:</strong>
+                            {{Helper::tanggal('d/m/Y H:m',$item->updated_at)}}
+                        </span>
                     </td>
                 </tr>
             @endforeach                    

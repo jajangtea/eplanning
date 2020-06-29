@@ -15,7 +15,7 @@ class RekeningRincianObyekController extends Controller {
     public function __construct()
     {
         parent::__construct();
-        $this->middleware(['auth']);
+        $this->middleware(['auth','role:superadmin|bapelitbang']);
     }
     /**
      * collect data from resources for index view
@@ -231,7 +231,7 @@ class RekeningRincianObyekController extends Controller {
         }
         else
         {
-            return redirect(route('rekeningrincianobyek.show',['id'=>$rekeningrincianobyek->replaceit]))->with('success','Data ini telah berhasil disimpan.');
+            return redirect(route('rekeningrincianobyek.show',['uuid'=>$rekeningrincianobyek->replaceit]))->with('success','Data ini telah berhasil disimpan.');
         }
 
     }
@@ -301,7 +301,7 @@ class RekeningRincianObyekController extends Controller {
         }
         else
         {
-            return redirect(route('rekeningrincianobyek.show',['id'=>$rekeningrincianobyek->replaceit]))->with('success','Data ini telah berhasil disimpan.');
+            return redirect(route('rekeningrincianobyek.show',['uuid'=>$rekeningrincianobyek->replaceit]))->with('success','Data ini telah berhasil disimpan.');
         }
     }
 

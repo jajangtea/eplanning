@@ -3,7 +3,7 @@
         <div class="panel-title">
             <div class="row">
                 <div class="col-md-1">                    		
-                    {!!Form::select('numberRecordPerPage',['1'=>1,'5'=>5,'10'=>10,'15'=>15,'30'=>30,'50'=>50],$numberRecordPerPage,['id'=>'numberRecordPerPage','class'=>'form-control'])!!}                        
+                    {!!Form::select('numberRecordPerPage',['1'=>1,'5'=>5,'10'=>10,'15'=>15,'30'=>30,'50'=>50],$numberRecordPerPage,['uuid'=>'numberRecordPerPage','class'=>'form-control'])!!}                        
                 </div>
             </div>
         </div>
@@ -76,9 +76,13 @@
                 </tr>
                 <tr class="text-center info">
                     <td colspan="10">
-                        <span class="label label-warning label-rounded">
-                            <strong>UsulanDesaID:</strong>
+                        <span class="label label-warning label-rounded" style="text-transform: none">
+                            <strong>USULANDESAID:</strong>
                             {{$item->UsulanDesaID}}
+                        </span>
+                        <span class="label label-warning label-rounded" style="text-transform: none">
+                            <strong>TA:</strong>
+                            {{$item->TA}}
                         </span>
                         <span class="label label-warning label-rounded">
                             <strong>KET:</strong>
@@ -97,7 +101,7 @@
     <div class="panel-body">
         <div class="alert alert-info alert-styled-left alert-bordered">
             <span class="text-semibold">Info!</span>
-            Belum ada data yang bisa ditampilkan.
+            Belum ada data yang bisa ditampilkan, mungkin disebabkan oleh usulan kegiatan belum di ACC di Musren. Desa; atau juga sudah di inputkan di Musren. Kecamatan.
         </div>
     </div>   
     @endif            

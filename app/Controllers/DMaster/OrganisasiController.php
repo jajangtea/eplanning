@@ -17,7 +17,7 @@ class OrganisasiController extends Controller {
     public function __construct()
     {
         parent::__construct();
-        $this->middleware(['auth']);
+        $this->middleware(['auth','role:superadmin|bapelitbang']);
     }
     /**
      * collect data from resources for index view
@@ -44,15 +44,20 @@ class OrganisasiController extends Controller {
             $search=$this->getControllerStateSession('organisasi','search');
             switch ($search['kriteria']) 
             {
+                case 'OrgID' :
+                    $data =\DB::table('v_urusan_organisasi') 
+                                ->where(['OrgID'=>$search['isikriteria']])
+                                ->orderBy($column_order,$direction); 
+                break;
                 case 'kode_organisasi' :
                     $data =\DB::table('v_urusan_organisasi') 
-                                ->where('TA',config('globalsettings.tahun_perencanaan'))
+                                ->where('TA',\HelperKegiatan::getTahunPerencanaan())
                                 ->where(['kode_organisasi'=>$search['isikriteria']])
                                 ->orderBy($column_order,$direction); 
                 break;
                 case 'OrgNm' :
                     $data =\DB::table('v_urusan_organisasi') 
-                                ->where('TA',config('globalsettings.tahun_perencanaan'))
+                                ->where('TA',\HelperKegiatan::getTahunPerencanaan())
                                 ->where('OrgNm', 'ilike', '%' . $search['isikriteria'] . '%')
                                 ->orderBy($column_order,$direction);                                        
                 break;
@@ -62,7 +67,7 @@ class OrganisasiController extends Controller {
         else
         {
             $data = \DB::table('v_urusan_organisasi') 
-                                ->where('TA',config('globalsettings.tahun_perencanaan'))
+                                ->where('TA',\HelperKegiatan::getTahunPerencanaan())
                                 ->orderBy($column_order,$direction)
                                 ->paginate($numberRecordPerPage, $columns, 'page', $currentpage); 
         }        
@@ -222,7 +227,7 @@ class OrganisasiController extends Controller {
     public function create()
     {        
         $theme = \Auth::user()->theme;
-        $daftar_urusan=UrusanModel::getDaftarUrusan(config('globalsettings.tahun_perencanaan'),false);
+        $daftar_urusan=UrusanModel::getDaftarUrusan(\HelperKegiatan::getRPJMDTahunMulai(),false);
         return view("pages.$theme.dmaster.organisasi.create")->with(['page_active'=>'organisasi',
                                                                     'daftar_urusan'=>$daftar_urusan
                                                                     ]);  
@@ -239,6 +244,9 @@ class OrganisasiController extends Controller {
         $this->validate($request, [            
             'OrgCd'=>'required|min:1|max:4|regex:/^[0-9]+$/',
             'OrgNm'=>'required|min:5',
+            'OrgAlias'=>'required',
+            'NIPKepalaSKPD'=>'required|min:5',
+            'NamaKepalaSKPD'=>'required|min:5',
             'Alamat'=>'required|min:5',
         ]);
         
@@ -247,11 +255,12 @@ class OrganisasiController extends Controller {
             'UrsID' => $request->input('UrsID'),
             'OrgCd' => $request->input('OrgCd'),
             'OrgNm' => $request->input('OrgNm'),
-            'Alamat' => $request->input('Alamat'),
-            'NamaKepalaSKPD' => '-',
-            'NIPKepalaSKPD' => '-',
+            'OrgAlias' => $request->input('OrgAlias'),
+            'NamaKepalaSKPD' => $request->input('NamaKepalaSKPD'),
+            'NIPKepalaSKPD' => $request->input('NIPKepalaSKPD'),
+            'Alamat' => $request->input('Alamat'),            
             'Descr' => $request->input('Descr'),
-            'TA'=>config('globalsettings.tahun_perencanaan'),
+            'TA'=>\HelperKegiatan::getTahunPerencanaan(),
         ]);        
         
         SubOrganisasiModel::create([
@@ -259,9 +268,10 @@ class OrganisasiController extends Controller {
             'OrgID' => $organisasi->OrgID,
             'SOrgCd' => $organisasi->OrgCd,
             'SOrgNm' => $organisasi->OrgNm,
+            'OrgAlias' => $request->input('OrgAlias'),
+            'NamaKepalaSKPD' => $request->input('NamaKepalaSKPD'),
+            'NIPKepalaSKPD' => $request->input('NIPKepalaSKPD'),
             'Alamat' => $organisasi->Alamat,
-            'NamaKepalaSKPD' => '-',
-            'NIPKepalaSKPD' => '-',
             'Descr' => $organisasi->Descr,
             'TA'=> $organisasi->TA,
         ]);
@@ -275,7 +285,7 @@ class OrganisasiController extends Controller {
         }
         else
         {
-            return redirect(route('organisasi.show',['id'=>$organisasi->OrgID]))->with('success','Data ini telah berhasil disimpan.');
+            return redirect(route('organisasi.show',['uuid'=>$organisasi->OrgID]))->with('success','Data ini telah berhasil disimpan.');
         }
 
     }
@@ -315,7 +325,7 @@ class OrganisasiController extends Controller {
         $data = OrganisasiModel::findOrFail($id);
         if (!is_null($data) ) 
         {
-            $daftar_urusan=UrusanModel::getDaftarUrusan(config('globalsettings.tahun_perencanaan'),false);
+            $daftar_urusan=UrusanModel::getDaftarUrusan(\HelperKegiatan::getRPJMDTahunMulai(),false);
             return view("pages.$theme.dmaster.organisasi.edit")->with(['page_active'=>'organisasi',
                                                                     'daftar_urusan'=>$daftar_urusan,
                                                                     'data'=>$data
@@ -335,16 +345,20 @@ class OrganisasiController extends Controller {
         $this->validate($request, [            
             'OrgCd'=>'required|min:1|max:4|regex:/^[0-9]+$/',
             'OrgNm'=>'required|min:5',
+            'OrgAlias'=>'required',
+            'NIPKepalaSKPD'=>'required|min:5',
+            'NamaKepalaSKPD'=>'required|min:5',
             'Alamat'=>'required|min:5',
         ]);
-        
+
         $organisasi = OrganisasiModel::find($id);
         $organisasi->UrsID = $request->input('UrsID');
         $organisasi->OrgCd = $request->input('OrgCd');
         $organisasi->OrgNm = $request->input('OrgNm');
+        $organisasi->OrgAlias = $request->input('OrgAlias');
+        $organisasi->NamaKepalaSKPD = $request->input('NamaKepalaSKPD');
+        $organisasi->NIPKepalaSKPD = $request->input('NIPKepalaSKPD');
         $organisasi->Alamat = $request->input('Alamat');
-        $organisasi->NamaKepalaSKPD = '-';
-        $organisasi->NIPKepalaSKPD = '-';
         $organisasi->Descr = $request->input('Descr');
         $organisasi->save();
 
@@ -357,7 +371,7 @@ class OrganisasiController extends Controller {
         }
         else
         {
-            return redirect(route('organisasi.show',['id'=>$organisasi->OrgID]))->with('success',"Data dengan id ($id) telah berhasil diubah.");
+            return redirect(route('organisasi.show',['uuid'=>$organisasi->OrgID]))->with('success',"Data dengan id ($id) telah berhasil diubah.");
         }
     }
 

@@ -19,7 +19,7 @@ class RPJMDMisiModel extends Model {
      * @var array
      */
     protected $fillable = [
-        'PrioritasKabID', 'Kd_PrioritasKab', 'Nm_PrioritasKab', 'Descr', 'TA'
+        'PrioritasKabID', 'RpjmdVisiID', 'Kd_PrioritasKab', 'Nm_PrioritasKab', 'Descr', 'TA'
     ];
     /**
      * primary key tabel ini.
@@ -45,7 +45,7 @@ class RPJMDMisiModel extends Model {
      *
      * @var string
      */
-    protected static $logName = 'RpjmdVisiController';
+    protected static $logName = 'RPJMDMisiController';
     /**
      * log the changed attributes for all these events 
      */

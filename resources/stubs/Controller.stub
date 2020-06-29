@@ -6,7 +6,8 @@ use Illuminate\Http\Request;
 use App\Controllers\Controller;
 use {{modelnamespace}}Model;
 
-class {{modelName}}Controller extends Controller {
+class {{modelName}}Controller extends Controller 
+{
      /**
      * Membuat sebuah objek
      *
@@ -236,7 +237,7 @@ class {{modelName}}Controller extends Controller {
         }
         else
         {
-            return redirect(route('{{modelNameLower}}.show',['id'=>${{modelNameLower}}->replaceit]))->with('success','Data ini telah berhasil disimpan.');
+            return redirect(route('{{modelNameLower}}.show',['uuid'=>${{modelNameLower}}->replaceit]))->with('success','Data ini telah berhasil disimpan.');
         }
 
     }
@@ -306,7 +307,7 @@ class {{modelName}}Controller extends Controller {
         }
         else
         {
-            return redirect(route('{{modelNameLower}}.show',['id'=>${{modelNameLower}}->replaceit]))->with('success','Data ini telah berhasil disimpan.');
+            return redirect(route('{{modelNameLower}}.show',['uuid'=>${{modelNameLower}}->replaceit]))->with('success','Data ini telah berhasil disimpan.');
         }
     }
 

@@ -5,7 +5,7 @@
 @section('page_header')
     <i class="icon-chess-queen position-left"></i>
     <span class="text-semibold">        
-        KELOMPOK URUSAN TAHUN PERENCANAAN {{config('globalsettings.tahun_perencanaan')}}
+        KELOMPOK URUSAN TAHUN PERENCANAAN {{HelperKegiatan::getRPJMDTahunMulai()}} - {{HelperKegiatan::getRPJMDTahunAkhir()}}
     </span>
 @endsection
 @section('page_info')
@@ -26,7 +26,10 @@
                     <i class="icon-eye"></i> DATA KELOMPOK URUSAN
                 </h5>
                 <div class="heading-elements">  
-                    <a href="{{route('kelompokurusan.edit',['id'=>$data->KUrsID])}}" class="btn btn-primary btn-icon heading-btn btnEdit" title="Ubah Data Kelompok Urusan">
+                    <a href="{{route('kelompokurusan.create')}}" class="btn btn-info btn-icon heading-btn btnTambah" title="Tambah Data Kelompok Urusan">
+                        <i class="icon-googleplus5"></i>
+                    </a>
+                    <a href="{{route('kelompokurusan.edit',['uuid'=>$data->KUrsID])}}" class="btn btn-primary btn-icon heading-btn btnEdit" title="Ubah Data Kelompok Urusan">
                         <i class="icon-pencil7"></i>
                     </a>
                     <a href="javascript:;" title="Hapus Data Kelompok Urusan" data-id="{{$data->KUrsID}}" data-url="{{route('kelompokurusan.index')}}" class="btn btn-danger btn-icon heading-btn btnDelete">

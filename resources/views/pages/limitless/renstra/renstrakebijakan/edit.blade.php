@@ -1,18 +1,20 @@
 @extends('layouts.limitless.l_main')
 @section('page_title')
-    RENSTRAKEBIJAKAN
+    RENSTRA ARAH KEBIJAKAN
 @endsection
 @section('page_header')
-    <i class="icon-price-tag position-left"></i>
+    <i class="icon-strategy position-left"></i>
     <span class="text-semibold"> 
-        RENSTRAKEBIJAKAN TAHUN PERENCANAAN {{config('globalsettings.tahun_perencanaan')}}
+        RENSTRA ARAH KEBIJAKAN TAHUN {{HelperKegiatan::getRENSTRATahunMulai()}} - {{HelperKegiatan::getRENSTRATahunAkhir()}}
     </span>     
 @endsection
 @section('page_info')
     @include('pages.limitless.renstra.renstrakebijakan.info')
 @endsection
 @section('page_breadcrumb')
-    <li><a href="{!!route('renstrakebijakan.index')!!}">RENSTRAKEBIJAKAN</a></li>
+    <li><a href="#">PERENCANAAN</a></li>
+    <li><a href="#">RENSTRA</a></li>
+    <li><a href="{!!route('renstrakebijakan.index')!!}">ARAH KEBIJAKAN</a></li>
     <li class="active">UBAH DATA</li>
 @endsection
 @section('page_content')
@@ -32,13 +34,35 @@
             </div>
         </div>
         <div class="panel-body">
-            {!! Form::open(['action'=>['Renstra\RenstraKebijakanController@update',$data->renstrakebijakan_id],'method'=>'post','class'=>'form-horizontal','id'=>'frmdata','name'=>'frmdata'])!!}        
-                {{Form::hidden('_method','PUT')}}
+            {!! Form::open(['action'=>['RENSTRA\RENSTRAKebijakanController@update',$data->RenstraKebijakanID],'method'=>'put','class'=>'form-horizontal','id'=>'frmdata','name'=>'frmdata'])!!}        
                 <div class="form-group">
-                    {{Form::label('replaceit','replaceit',['class'=>'control-label col-md-2'])}}
+                    <label class="col-md-2 control-label">STRATEGI :</label> 
                     <div class="col-md-10">
-                        {{Form::text('replaceit',$data[''],['class'=>'form-control','placeholder'=>'replaceit'])}}
-                    </div>                
+                        <select name="RenstraStrategiID" id="RenstraStrategiID" class="select">
+                            <option></option>
+                            @foreach ($daftar_strategi as $k=>$item)
+                                <option value="{{$k}}"{{$k==$data->RenstraStrategiID ?' selected':''}}>{{$item}}</option>
+                            @endforeach
+                        </select>                                
+                    </div>
+                </div>   
+                <div class="form-group">
+                    {{Form::label('Kd_RenstraKebijakan','KODE ARAH KEBIJAKAN',['class'=>'control-label col-md-2'])}}
+                    <div class="col-md-10">
+                        {{Form::text('Kd_RenstraKebijakan',$data->Kd_RenstraKebijakan,['class'=>'form-control','placeholder'=>'Kode Kebijakan','maxlength'=>'4'])}}
+                    </div>
+                </div>
+                <div class="form-group">
+                    {{Form::label('Nm_RenstraKebijakan','NAMA ARAH KEBIJAKAN',['class'=>'control-label col-md-2'])}}
+                    <div class="col-md-10">
+                        {{Form::text('Nm_RenstraKebijakan',$data->Nm_RenstraKebijakan,['class'=>'form-control','placeholder'=>'Nama Kebijakan'])}}
+                    </div>
+                </div>
+                <div class="form-group">
+                    {{Form::label('Descr','KETERANGAN',['class'=>'control-label col-md-2'])}}
+                    <div class="col-md-10">
+                        {{Form::textarea('Descr',$data->Descr,['class'=>'form-control','placeholder'=>'KETERANGAN','rows' => 2, 'cols' => 40])}}
+                    </div>
                 </div>
                 <div class="form-group">            
                     <div class="col-md-10 col-md-offset-2">                        
@@ -53,23 +77,77 @@
 @section('page_asset_js')
 <script src="{!!asset('themes/limitless/assets/js/jquery-validation/jquery.validate.min.js')!!}"></script>
 <script src="{!!asset('themes/limitless/assets/js/jquery-validation/additional-methods.min.js')!!}"></script>
+<script src="{!!asset('themes/limitless/assets/js/select2.min.js')!!}"></script>
+<script src="{!!asset('themes/limitless/assets/js/autoNumeric.min.js')!!}"></script>
 @endsection
 @section('page_custom_js')
 <script type="text/javascript">
 $(document).ready(function () {
+    AutoNumeric.multiple(['#Kd_RenstraKebijakan'], {
+                                        allowDecimalPadding: false,
+                                        minimumValue:0,
+                                        maximumValue:9999,
+                                        numericPos:true,
+                                        decimalPlaces : 0,
+                                        digitGroupSeparator : '',
+                                        showWarnings:false,
+                                        unformatOnSubmit: true,
+                                        modifyValueOnWheel:false
+                                    });
+    $('#RenstraStrategiID.select').select2({
+        placeholder: "PILIH STRATEGI",
+        allowClear:true
+    });
+    $(document).on('change','#RenstraStrategiID',function(ev) {
+        ev.preventDefault();
+        RenstraStrategiID=$(this).val();        
+        $.ajax({
+            type:'get',
+            url: url_current_page+'/getkodekebijakan/'+RenstraStrategiID,
+            dataType: 'json',
+            data: {
+                "_token": token,
+                "RenstraStrategiID": RenstraStrategiID,
+            },
+            success:function(result)
+            {   
+                const element = AutoNumeric.getAutoNumericElement('#Kd_RenstraKebijakan');
+                element.set(result.Kd_RenstraKebijakan);                                
+            },
+            error:function(xhr, status, error)
+            {   
+                console.log(parseMessageAjaxEror(xhr, status, error));                           
+            },
+        });
+    }); 
     $('#frmdata').validate({
+        ignore: [],
         rules: {
-            replaceit : {
+            RenstraStrategiID : {
+                required: true,
+                valueNotEquals: 'none'
+            },
+            Kd_RenstraKebijakan : {
+                required: true,
+            },
+            Nm_RenstraKebijakan : {
                 required: true,
                 minlength: 2
             }
         },
         messages : {
-            replaceit : {
+            RenstraStrategiID : {
+                required: "Mohon untuk di pilih karena ini diperlukan.",
+                valueNotEquals: "Mohon untuk di pilih karena ini diperlukan.",      
+            },
+            Kd_RenstraKebijakan : {
+                required: "Mohon untuk di isi karena ini diperlukan.",
+            },
+            Nm_RenstraKebijakan : {
                 required: "Mohon untuk di isi karena ini diperlukan.",
                 minlength: "Mohon di isi minimal 2 karakter atau lebih."
             }
-        }     
+        }      
     });   
 });
 </script>

@@ -1,14 +1,19 @@
 <div class="panel panel-flat border-top-lg border-top-info border-bottom-info">
     <div class="panel-heading">
-        <div class="panel-title" style="width:70px">
-            {!!Form::select('numberRecordPerPage',['1'=>1,'5'=>5,'10'=>10,'15'=>15,'30'=>30,'50'=>50],$numberRecordPerPage,['id'=>'numberRecordPerPage','class'=>'form-control'])!!}            
+        <div class="panel-title">
+            <h6 class="panel-title">&nbsp;</h6>
         </div>
         <div class="heading-elements">
-            <div class="heading-btn">
-                <a href="{!!route('urusan.create')!!}" class="btn btn-info btn-xs" title="Tambah URUSAN">
-                    <i class="icon-googleplus5"></i>
-                </a>
-            </div>            
+            {!! Form::open(['url'=>'#','method'=>'post','class'=>'heading-form','id'=>'frmheading','name'=>'frmheading'])!!} 
+                <div class="form-group">
+                    {!!Form::select('numberRecordPerPage',['1'=>1,'5'=>5,'10'=>10,'15'=>15,'30'=>30,'50'=>50],$numberRecordPerPage,['id'=>'numberRecordPerPage','class'=>'form-control','style'=>'width:70px'])!!}                        
+                </div> 
+                <div class="form-group">
+                    <a href="{!!route('urusan.create')!!}" class="btn btn-info btn-xs" title="Tambah URUSAN">
+                        <i class="icon-googleplus5"></i>
+                    </a>
+                </div>     
+            {!! Form::close()!!}
         </div>
     </div>
     @if (count($data) > 0)
@@ -35,6 +40,9 @@
                     <th>
                         KETERANGAN                                            
                     </th> 
+                    <th width="70">
+                        TA                                            
+                    </th> 
                     <th width="100">AKSI</th>
                 </tr>
             </thead>
@@ -48,15 +56,16 @@
                     <td>{{$item->Nm_Bidang}}</td>
                     <td>{{$item->Nm_Urusan}}</td>
                     <td>{{$item->Descr}}</td>
+                    <td>{{$item->TA}}</td>
                     <td>
                         <ul class="icons-list">
                             <li class="text-primary-600">
-                                <a class="btnShow" href="{{route('urusan.show',['id'=>$item->UrsID])}}" title="Detail Data Urusan">
+                                <a class="btnShow" href="{{route('urusan.show',['uuid'=>$item->UrsID])}}" title="Detail Data Urusan">
                                     <i class='icon-eye'></i>
                                 </a>  
                             </li>
                             <li class="text-primary-600">
-                                <a class="btnEdit" href="{{route('urusan.edit',['id'=>$item->UrsID])}}" title="Ubah Data Urusan">
+                                <a class="btnEdit" href="{{route('urusan.edit',['uuid'=>$item->UrsID])}}" title="Ubah Data Urusan">
                                     <i class='icon-pencil7'></i>
                                 </a>  
                             </li>
@@ -66,6 +75,26 @@
                                 </a> 
                             </li>
                         </ul>
+                    </td>
+                </tr>
+                <tr class="text-center info">
+                    <td colspan="10">
+                        <span class="label label-warning label-rounded" style="text-transform: none">
+                            <strong>URSID:</strong>
+                            {{$item->UrsID}}
+                        </span>
+                        <span class="label label-warning label-rounded" style="text-transform: none">
+                            <strong>KURSID:</strong>
+                            {{$item->KUrsID}}
+                        </span>  
+                        <span class="label label-warning label-rounded" style="text-transform: none">
+                            <strong>CREATED:</strong>
+                            {{Helper::tanggal('d/m/Y H:m',$item->created_at)}}
+                        </span>
+                        <span class="label label-warning label-rounded" style="text-transform: none">
+                            <strong>UPDATED:</strong>
+                            {{Helper::tanggal('d/m/Y H:m',$item->updated_at)}}
+                        </span>
                     </td>
                 </tr>
             @endforeach                    

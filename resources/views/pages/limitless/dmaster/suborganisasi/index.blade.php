@@ -5,7 +5,7 @@
 @section('page_header')
     <i class="icon-office position-left"></i>
     <span class="text-semibold">
-        UNIT KERJA TAHUN {{config('globalsettings.tahun_perencanaan')}}  
+        UNIT KERJA TAHUN {{HelperKegiatan::getTahunPerencanaan()}}  
     </span>
 @endsection
 @section('page_info')
@@ -23,7 +23,7 @@
             <div class="panel-heading">
                 <h5 class="panel-title">
                     <i class="icon-search4 position-left"></i>
-                    Pencarian Data
+                    PENCARIAN DATA
                 </h5>
             </div>
             <div class="panel-body">

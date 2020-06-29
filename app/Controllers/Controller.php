@@ -11,14 +11,40 @@ use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 class Controller extends BaseController
 {
     use AuthorizesRequests, DispatchesJobs, ValidatesRequests;    
+    /**
+     * nama session
+     */
+    protected $PageTitle;
+    /**
+     * nama session
+     */
+    protected $SessionName;
 
+     /**
+     * nama dari halaman saat ini 
+     */
+    protected $NameOfPage;
+    /**
+     * nama session
+     */
+    protected $LabelTransfer;
+    /**
+     * digunakan untuk menampung daftar theme
+     */
     protected $listOfthemes;
+
     public function __construct () 
     {          
         $this->listOfthemes=$this->getListThemes(false);
         \View::share('listOfthemes', $this->listOfthemes);
     }
-
+    /**
+     * digunakan untuk mendapatkan nama untuk session 
+     */
+    public function getNameForSession()
+    {
+        return \Helper::getNameOfPage();
+    }
     /**
      * digunakan untuk mengecek apakah controller telah memiliki ke session
      */

@@ -8,7 +8,7 @@ use App\Models\DMaster\KecamatanModel;
 use App\Models\Musrenbang\AspirasiMusrenKecamatanModel;
 
 class PembahasanMusrenKecamatanController extends Controller {
-     /**
+    /**
      * Membuat sebuah objek
      *
      * @return void
@@ -16,7 +16,7 @@ class PembahasanMusrenKecamatanController extends Controller {
     public function __construct()
     {
         parent::__construct();
-        $this->middleware(['auth','role:superadmin|kecamatan']);
+        $this->middleware(['auth','role:superadmin|bapelitbang|kecamatan']);
     }
     /**
      * collect data from resources for index view
@@ -42,7 +42,8 @@ class PembahasanMusrenKecamatanController extends Controller {
         //filter
         if (!$this->checkStateIsExistSession('pembahasanmusrenkecamatan','filters')) 
         {            
-            $this->putControllerStateSession('pembahasanmusrenkecamatan','filters',['PmKecamatanID'=>'none',
+            $this->putControllerStateSession('pembahasanmusrenkecamatan','filters',[
+                                                                                    'PmKecamatanID'=>'none',
                                                                                 ]);
         }        
         $PmKecamatanID= $this->getControllerStateSession('pembahasanmusrenkecamatan.filters','PmKecamatanID');        
@@ -57,7 +58,7 @@ class PembahasanMusrenKecamatanController extends Controller {
                                                         ->join('tmPmKecamatan','tmPmKecamatan.PmKecamatanID','trUsulanKec.PmKecamatanID')
                                                         ->join('tmOrg','tmOrg.OrgID','trUsulanKec.OrgID')
                                                         ->leftJoin('tmPmDesa','tmPmDesa.PmDesaID','trUsulanKec.PmDesaID')
-                                                        ->where('trUsulanKec.TA', config('globalsettings.tahun_perencanaan'))
+                                                        ->where('trUsulanKec.TA', \HelperKegiatan::getTahunPerencanaan())
                                                         ->where(['No_usulan'=>(int)$search['isikriteria']])
                                                         ->where('trUsulanKec.PmKecamatanID',$PmKecamatanID)
                                                         ->orderBy('trUsulanKec.Prioritas','ASC')
@@ -68,7 +69,7 @@ class PembahasanMusrenKecamatanController extends Controller {
                                                         ->join('tmPmKecamatan','tmPmKecamatan.PmKecamatanID','trUsulanKec.PmKecamatanID')
                                                         ->join('tmOrg','tmOrg.OrgID','trUsulanKec.OrgID')
                                                         ->leftJoin('tmPmDesa','tmPmDesa.PmDesaID','trUsulanKec.PmDesaID')                                                        
-                                                        ->where('trUsulanKec.TA', config('globalsettings.tahun_perencanaan'))
+                                                        ->where('trUsulanKec.TA', \HelperKegiatan::getTahunPerencanaan())
                                                         ->where('NamaKegiatan', 'ilike', '%' . $search['isikriteria'] . '%')
                                                         ->orderBy('trUsulanKec.Prioritas','ASC')
                                                         ->where('trUsulanKec.PmKecamatanID',$PmKecamatanID)
@@ -83,7 +84,7 @@ class PembahasanMusrenKecamatanController extends Controller {
                                                 ->join('tmPmKecamatan','tmPmKecamatan.PmKecamatanID','trUsulanKec.PmKecamatanID')
                                                 ->join('tmOrg','tmOrg.OrgID','trUsulanKec.OrgID')
                                                 ->leftJoin('tmPmDesa','tmPmDesa.PmDesaID','trUsulanKec.PmDesaID')                                                                                                
-                                                ->where('trUsulanKec.TA', config('globalsettings.tahun_perencanaan'))
+                                                ->where('trUsulanKec.TA', \HelperKegiatan::getTahunPerencanaan())
                                                 ->where('trUsulanKec.PmKecamatanID',$PmKecamatanID)
                                                 ->orderBy('trUsulanKec.Prioritas','ASC')
                                                 ->orderBy("$column_order",$direction)
@@ -255,8 +256,9 @@ class PembahasanMusrenKecamatanController extends Controller {
      * @return \Illuminate\Http\Response
      */
     public function index(Request $request)
-    {                
-        $theme = \Auth::user()->theme;
+    {               
+        $auth=\Auth::user();
+        $theme = $auth->theme;
 
         $search=$this->getControllerStateSession('pembahasanmusrenkecamatan','search');
         $currentpage=$request->has('page') ? $request->get('page') : $this->getCurrentPageInsideSession('pembahasanmusrenkecamatan'); 
@@ -267,7 +269,29 @@ class PembahasanMusrenKecamatanController extends Controller {
         }
         $this->setCurrentPageInsideSession('pembahasanmusrenkecamatan',$data->currentPage());
         $filters=$this->getControllerStateSession('pembahasanmusrenkecamatan','filters');        
-        $daftar_kecamatan=KecamatanModel::getDaftarKecamatan(config('globalsettings.tahun_perencanaan'),false);
+        $roles=$auth->getRoleNames();
+        $daftar_kecamatan=[];
+        switch ($roles[0])
+        {
+            case 'superadmin' :     
+            case 'bapelitbang' :     
+            case 'tapd' :
+                $daftar_kecamatan=KecamatanModel::getDaftarKecamatan(\HelperKegiatan::getTahunPerencanaan(),false);
+            break;
+            case 'kecamatan':
+                $daftar_kecamatan=\App\Models\UserKecamatan::getKecamatan();                      
+                if (!count($daftar_kecamatan) > 0)
+                {
+                    $filters['PmKecamatanID']='none';
+                    $this->putControllerStateSession('pembahasanmusrenkecamatan','filters',$filters);
+
+                    return view("pages.$theme.musrenbang.pembahasanmusrenkecamatan.error")->with(['page_active'=>'pembahasanmusrenkecamatan', 
+                                                                                                'page_title'=>'PEMBAHASAN MUSRENBANG KECAMATAN',
+                                                                                                'errormessage'=>'Anda Tidak Diperkenankan Mengakses Halaman ini, karena Sudah dikunci oleh BAPELITBANG',
+                                                                                            ]);
+                }    
+            break;
+        }
         $daftar_usulan_kec_id=\App\Models\Musrenbang\AspirasiMusrenKecamatanModel::select('UsulanKecID')
                                                                                 ->where('Privilege',1)
                                                                                 ->whereExists(function($query){
@@ -275,7 +299,7 @@ class PembahasanMusrenKecamatanController extends Controller {
                                                                                         ->from('trRenjaRinc')
                                                                                         ->whereRaw('"trRenjaRinc"."UsulanKecID"="trUsulanKec"."UsulanKecID"');
                                                                                 })
-                                                                                ->where('TA',config('globalsettings.tahun_perencanaan'))
+                                                                                ->where('TA',\HelperKegiatan::getTahunPerencanaan())
                                                                                 ->get()->pluck('UsulanKecID','UsulanKecID')->toArray();
         
         return view("pages.$theme.musrenbang.pembahasanmusrenkecamatan.index")->with(['page_active'=>'pembahasanmusrenkecamatan',
@@ -329,7 +353,36 @@ class PembahasanMusrenKecamatanController extends Controller {
         }
         else
         {
-            return redirect(route('pembahasanmusrenkecamatan.show',['id'=>$id]))->with('success','Data ini telah berhasil disimpan.');
+            return redirect(route('pembahasanmusrenkecamatan.show',['uuid'=>$id]))->with('success','Data ini telah berhasil disimpan.');
         }
+    }
+    /**
+     * Print to excel.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @param  int  $id
+     * @return \Illuminate\Http\Response
+     */
+    public function printtoexcel ()
+    {
+        $theme = \Auth::user()->theme;
+        
+        $filters=$this->getControllerStateSession('pembahasanmusrenkecamatan','filters');  
+        if ($filters['PmKecamatanID'] == 'none' || $filters['PmKecamatanID']=='')
+        {
+            return view("pages.$theme.musrenbang.pembahasanmusrenkecamatan.error")->with(['page_active'=>'pembahasanmusrenkecamatan', 
+                                                                                                'page_title'=>'PEMBAHASAN MUSRENBANG KECAMATAN',
+                                                                                                'errormessage'=>'Mohon filter data Kecamatan, untuk di pilih.',
+                                                                                            ]);
+        }
+        else
+        {
+            $data_report=\App\Models\DMaster\KecamatanModel::find($filters['PmKecamatanID'])->toArray();
+            $data_report['mode']='bypmkecamatanid';
+            $report= new \App\Models\Report\ReportMusrenbangKecamatanModel ($data_report);
+            $generate_date=date('Y-m-d_H_m_s');
+            return $report->download("laporan_musrenbang_kecamatan_$generate_date.xlsx");
+        }
+        
     }
 }

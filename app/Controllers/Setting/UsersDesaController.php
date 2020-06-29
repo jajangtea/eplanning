@@ -15,7 +15,7 @@ class UsersDesaController extends Controller {
     public function __construct()
     {
         parent::__construct();
-        $this->middleware(['auth']);
+        $this->middleware(['auth','role:superadmin|bapelitbang']);  
     }
     /**
      * collect data from resources for index view
@@ -224,7 +224,7 @@ class UsersDesaController extends Controller {
     {        
         $theme = \Auth::user()->theme;
         $daftar_theme = $this->listOfthemes;             
-        $daftar_desa=\App\Models\DMaster\DesaModel::getDaftarDesa(config('globalsettings.tahun_perencanaan'),null,false);         
+        $daftar_desa=\App\Models\DMaster\DesaModel::getDaftarDesa(\HelperKegiatan::getTahunPerencanaan(),null,false);         
         return view("pages.$theme.setting.usersdesa.create")->with(['page_active'=>'usersdesa',
                                                                     'daftar_desa'=>$daftar_desa,
                                                                     'daftar_theme'=>$daftar_theme

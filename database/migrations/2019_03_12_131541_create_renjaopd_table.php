@@ -19,28 +19,28 @@ class CreateRenjaopdTable extends Migration
             $table->string('SOrgID',19);
             $table->string('KgtID',19);
             $table->string('SumberDanaID',19);
-            $table->text('NamaIndikator');
+            $table->text('NamaIndikator'); //tolak ukur keluaran kegiatan
 
-            $table->text('Sasaran_Uraian1')->nullable();
+            $table->text('Sasaran_Uraian1')->nullable(); // hasil kegiatan
             $table->text('Sasaran_Uraian2')->nullable();
             $table->text('Sasaran_Uraian3')->nullable();
             $table->text('Sasaran_Uraian4')->nullable();
             $table->text('Sasaran_Uraian5')->nullable();
             $table->text('Sasaran_Uraian6')->nullable();
 
-            $table->decimal('Sasaran_Angka1',15,2)->nullable();
+            $table->decimal('Sasaran_Angka1',15,2)->nullable(); //angka 
             $table->decimal('Sasaran_Angka2',15,2)->nullable();
             $table->decimal('Sasaran_Angka3',15,2)->nullable();
             $table->decimal('Sasaran_Angka4',15,2)->nullable();
             $table->decimal('Sasaran_Angka5',15,2)->nullable();            
             $table->decimal('Sasaran_Angka6',15,2)->nullable();            
             
-            $table->decimal('Target1',10,2)->nullable();
-            $table->decimal('Target2',10,2)->nullable();
-            $table->decimal('Target3',10,2)->nullable();
-            $table->decimal('Target4',10,2)->nullable();
-            $table->decimal('Target5',10,2)->nullable();
-            $table->decimal('Target6',10,2)->nullable();
+            $table->decimal('Target1',15,2)->nullable(); //hasil
+            $table->decimal('Target2',15,2)->nullable();
+            $table->decimal('Target3',15,2)->nullable();
+            $table->decimal('Target4',15,2)->nullable();
+            $table->decimal('Target5',15,2)->nullable();
+            $table->decimal('Target6',15,2)->nullable();
 
             $table->decimal('NilaiUsulan1',15,2)->nullable();
             $table->decimal('NilaiUsulan2',15,2)->nullable();
@@ -58,6 +58,7 @@ class CreateRenjaopdTable extends Migration
             $table->text('Descr')->nullable();
             $table->year('TA');            
             $table->tinyInteger('Status')->default(0);
+            $table->tinyInteger('Status_Indikator')->default(0);
             $table->tinyInteger('EntryLvl')->default(0);
             $table->tinyInteger('Privilege')->default(0);                        
             $table->boolean('Locked')->default(0);
@@ -98,7 +99,7 @@ class CreateRenjaopdTable extends Migration
             $table->foreign('SumberDanaID')
                     ->references('SumberDanaID')
                     ->on('tmSumberDana')
-                    ->onDelete('cascade')
+                    ->onDelete('set null')
                     ->onUpdate('cascade');
 
         });
@@ -106,13 +107,10 @@ class CreateRenjaopdTable extends Migration
         Schema::create('trRenjaIndikator', function (Blueprint $table) {
             $table->string('RenjaIndikatorID',19);            
             $table->string('IndikatorKinerjaID',19);
-            $table->string('RenjaID',19);
-            $table->decimal('Target_Angka',10,2);
+            $table->string('RenjaID',19);            
+            $table->decimal('Target_Angka',15,2);
             $table->string('Target_Uraian');
-            $table->year('Tahun');
-
             $table->string('Descr')->nullable();
-            $table->tinyInteger('Privilege')->default(0); 
             $table->year('TA');
             $table->string('RenjaIndikatorID_Src',19)->nullable();
             $table->timestamps();
@@ -148,9 +146,9 @@ class CreateRenjaopdTable extends Migration
                 $table->string('PMProvID',19);
                 $table->string('PmKotaID',19)->nullable();
                 $table->string('PmKecamatanID',19)->nullable();
-                $table->string('PmDesaID',19)->nullable();
+                $table->string('PmDesaID',19)->nullable();                
                 $table->string('PokPirID',19)->nullable();
-            
+
                 $table->text('Uraian');
                 $table->string('No',4);
                
@@ -168,12 +166,12 @@ class CreateRenjaopdTable extends Migration
                 $table->decimal('Sasaran_Angka5',15,2)->nullable();            
                 $table->decimal('Sasaran_Angka6',15,2)->nullable();            
                 
-                $table->decimal('Target1',10,2)->nullable();
-                $table->decimal('Target2',10,2)->nullable();
-                $table->decimal('Target3',10,2)->nullable();
-                $table->decimal('Target4',10,2)->nullable();
-                $table->decimal('Target5',10,2)->nullable();
-                $table->decimal('Target6',10,2)->nullable();
+                $table->decimal('Target1',15,2)->nullable();
+                $table->decimal('Target2',15,2)->nullable();
+                $table->decimal('Target3',15,2)->nullable();
+                $table->decimal('Target4',15,2)->nullable();
+                $table->decimal('Target5',15,2)->nullable();
+                $table->decimal('Target6',15,2)->nullable();
 
                 $table->decimal('Jumlah1',15,2)->nullable();
                 $table->decimal('Jumlah2',15,2)->nullable();
@@ -182,8 +180,12 @@ class CreateRenjaopdTable extends Migration
                 $table->decimal('Jumlah5',15,2)->nullable();
                 $table->decimal('Jumlah6',15,2)->nullable();
 
+                $table->string('Lokasi')->nullable();
+                $table->string('Latitude')->nullable();
+                $table->string('Longitude')->nullable();
+                
                 $table->boolean('isReses')->nullable();
-                $table->string('isReses_Uraian',5)->nullable();
+                $table->string('isReses_Uraian')->nullable();
                 $table->boolean('isSKPD')->nullable();
                 $table->tinyInteger('Status');
                 $table->tinyInteger('EntryLvl')->default(0);

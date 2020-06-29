@@ -1,18 +1,20 @@
 @extends('layouts.limitless.l_main')
 @section('page_title')
-    RENSTRATUJUAN
+    RENSTRA TUJUAN
 @endsection
 @section('page_header')
-    <i class="icon-price-tag position-left"></i>
+    <i class="icon-strategy position-left"></i>
     <span class="text-semibold"> 
-        RENSTRATUJUAN TAHUN PERENCANAAN {{config('globalsettings.tahun_perencanaan')}}
+        RENSTRA TUJUAN TAHUN {{HelperKegiatan::getRENSTRATahunMulai()}} - {{HelperKegiatan::getRENSTRATahunAkhir()}}
     </span>     
 @endsection
 @section('page_info')
     @include('pages.limitless.renstra.renstratujuan.info')
 @endsection
 @section('page_breadcrumb')
-    <li><a href="{!!route('renstratujuan.index')!!}">RENSTRATUJUAN</a></li>
+    <li><a href="#">PERENCANAAN</a></li>
+    <li><a href="#">RENSTRA</a></li>
+    <li><a href="{!!route('renstratujuan.index')!!}">TUJUAN</a></li>
     <li class="active">UBAH DATA</li>
 @endsection
 @section('page_content')
@@ -32,13 +34,24 @@
             </div>
         </div>
         <div class="panel-body">
-            {!! Form::open(['action'=>['Renstra\RenstraTujuanController@update',$data->renstratujuan_id],'method'=>'post','class'=>'form-horizontal','id'=>'frmdata','name'=>'frmdata'])!!}        
-                {{Form::hidden('_method','PUT')}}
+            {!! Form::open(['action'=>['RENSTRA\RENSTRATujuanController@update',$data->RenstraTujuanID],'method'=>'put','class'=>'form-horizontal','id'=>'frmdata','name'=>'frmdata'])!!}                          
                 <div class="form-group">
-                    {{Form::label('replaceit','replaceit',['class'=>'control-label col-md-2'])}}
+                    {{Form::label('Kd_RenstraTujuan','KODE TUJUAN',['class'=>'control-label col-md-2'])}}
                     <div class="col-md-10">
-                        {{Form::text('replaceit',$data[''],['class'=>'form-control','placeholder'=>'replaceit'])}}
-                    </div>                
+                        {{Form::text('Kd_RenstraTujuan',$data->Kd_RenstraTujuan,['class'=>'form-control','placeholder'=>'Kode Tujuan','maxlength'=>'4'])}}
+                    </div>
+                </div>
+                <div class="form-group">
+                    {{Form::label('Nm_RenstraTujuan','NAMA TUJUAN',['class'=>'control-label col-md-2'])}}
+                    <div class="col-md-10">
+                        {{Form::text('Nm_RenstraTujuan',$data->Nm_RenstraTujuan,['class'=>'form-control','placeholder'=>'Nama Tujuan','readonly'=>true])}}
+                    </div>
+                </div>
+                <div class="form-group">
+                    {{Form::label('Descr','KETERANGAN',['class'=>'control-label col-md-2'])}}
+                    <div class="col-md-10">
+                        {{Form::textarea('Descr',$data->Descr,['class'=>'form-control','placeholder'=>'KETERANGAN','rows' => 2, 'cols' => 40])}}
+                    </div>
                 </div>
                 <div class="form-group">            
                     <div class="col-md-10 col-md-offset-2">                        
@@ -53,23 +66,43 @@
 @section('page_asset_js')
 <script src="{!!asset('themes/limitless/assets/js/jquery-validation/jquery.validate.min.js')!!}"></script>
 <script src="{!!asset('themes/limitless/assets/js/jquery-validation/additional-methods.min.js')!!}"></script>
+<script src="{!!asset('themes/limitless/assets/js/select2.min.js')!!}"></script>
+<script src="{!!asset('themes/limitless/assets/js/autoNumeric.min.js')!!}"></script>
 @endsection
 @section('page_custom_js')
 <script type="text/javascript">
 $(document).ready(function () {
+    AutoNumeric.multiple(['#Kd_RenstraTujuan'], {
+                                        allowDecimalPadding: false,
+                                        minimumValue:0,
+                                        maximumValue:9999,
+                                        numericPos:true,
+                                        decimalPlaces : 0,
+                                        digitGroupSeparator : '',
+                                        showWarnings:false,
+                                        unformatOnSubmit: true,
+                                        modifyValueOnWheel:false
+                                    });    
     $('#frmdata').validate({
-        rules: {
-            replaceit : {
+        ignore: [],
+        rules: {           
+            Kd_RenstraTujuan : {
+                required: true,
+            },
+            Nm_RenstraTujuan : {
                 required: true,
                 minlength: 2
             }
         },
-        messages : {
-            replaceit : {
+        messages : {           
+            Kd_RenstraTujuan : {
+                required: "Mohon untuk di isi karena ini diperlukan.",
+            },
+            Nm_RenstraTujuan : {
                 required: "Mohon untuk di isi karena ini diperlukan.",
                 minlength: "Mohon di isi minimal 2 karakter atau lebih."
             }
-        }     
+        }      
     });   
 });
 </script>

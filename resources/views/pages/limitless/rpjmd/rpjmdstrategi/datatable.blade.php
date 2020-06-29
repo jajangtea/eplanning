@@ -1,18 +1,19 @@
 <div class="panel panel-flat border-top-lg border-top-info border-bottom-info">
     <div class="panel-heading">
         <div class="panel-title">
-            <div class="row">
-                <div class="col-md-1">                    		
-					{!!Form::select('numberRecordPerPage',['1'=>1,'5'=>5,'10'=>10,'15'=>15,'30'=>30,'50'=>50],$numberRecordPerPage,['id'=>'numberRecordPerPage','class'=>'form-control'])!!}                        
-                </div>
-            </div>
+            <h6 class="panel-title">&nbsp;</h6>
         </div>
         <div class="heading-elements">
-            <div class="heading-btn">
-                <a href="{!!route('rpjmdstrategi.create')!!}" class="btn btn-info btn-xs" title="Tambah RPJMDSTRATEGI">
-                    <i class="icon-googleplus5"></i>
-                </a>
-            </div>            
+            {!! Form::open(['url'=>'#','method'=>'post','class'=>'heading-form','id'=>'frmheading','name'=>'frmheading'])!!} 
+                <div class="form-group">
+                    {!!Form::select('numberRecordPerPage',['1'=>1,'5'=>5,'10'=>10,'15'=>15,'30'=>30,'50'=>50],$numberRecordPerPage,['id'=>'numberRecordPerPage','class'=>'form-control','style'=>'width:70px'])!!}                        
+                </div> 
+                <div class="form-group">
+                    <a href="{!!route('rpjmdstrategi.create')!!}" class="btn btn-info btn-xs" title="Tambah RPJMD TUJUAN">
+                        <i class="icon-googleplus5"></i>
+                    </a>
+                </div> 
+            {!! Form::close()!!}
         </div>
     </div>
     @if (count($data) > 0)
@@ -21,16 +22,13 @@
             <thead>
                 <tr class="bg-teal-700">
                     <th width="55">NO</th>
-                    <th width="100">
-                        <a class="column-sort text-white" id="col-Kd_Strategi" data-order="{{$direction}}" href="#">
-                            KODE STRATEGI 
-                        </a>                                             
+                    <th width="150">
+                        KODE STRATEGI 
                     </th> 
-                    <th width="100">
-                        <a class="column-sort text-white" id="col-Nm_Strategi" data-order="{{$direction}}" href="#">
-                            NAMA STRATEGI  
-                        </a>                                             
+                    <th>
+                        NAMA STRATEGI  
                     </th> 
+                    <th width="100">TA</th>
                     <th width="100">AKSI</th>
                 </tr>
             </thead>
@@ -42,24 +40,45 @@
                     </td>                  
                     <td>{{$item->Kd_Strategi}}</td>
                     <td>{{$item->Nm_Strategi}}</td>
+                    <td>{{$item->TA}}</td>
                     <td>
                         <ul class="icons-list">
                             <li class="text-primary-600">
-                                <a class="btnShow" href="{{route('rpjmdstrategi.show',['id'=>$item->rpjmdstrategi_id])}}" title="Detail Data RpjmdStrategi">
+                                <a class="btnShow" href="{{route('rpjmdstrategi.show',['uuid'=>$item->PrioritasStrategiKabID])}}" title="Detail Data RPJMD Strategi">
                                     <i class='icon-eye'></i>
                                 </a>  
                             </li>
                             <li class="text-primary-600">
-                                <a class="btnEdit" href="{{route('rpjmdstrategi.edit',['id'=>$item->rpjmdstrategi_id])}}" title="Ubah Data RpjmdStrategi">
+                                <a class="btnEdit" href="{{route('rpjmdstrategi.edit',['uuid'=>$item->PrioritasStrategiKabID])}}" title="Ubah Data RPJMD Strategi">
                                     <i class='icon-pencil7'></i>
                                 </a>  
                             </li>
                             <li class="text-danger-600">
-                                <a class="btnDelete" href="javascript:;" title="Hapus Data RpjmdStrategi" data-id="{{$item->rpjmdstrategi_id}}" data-url="{{route('rpjmdstrategi.index')}}">
+                                <a class="btnDelete" href="javascript:;" title="Hapus Data RPJMD Strategi" data-id="{{$item->PrioritasStrategiKabID}}" data-url="{{route('rpjmdstrategi.index')}}">
                                     <i class='icon-trash'></i>
                                 </a> 
                             </li>
                         </ul>
+                    </td>
+                </tr>
+                <tr class="text-center info">
+                    <td colspan="5">
+                        <span class="label label-warning label-rounded" style="text-transform: none">
+                            <strong>PRIORITASSTRATEGIKABID:</strong>
+                            {{$item->PrioritasStrategiKabID}}
+                        </span>  
+                        <span class="label label-warning label-rounded" style="text-transform: none">
+                            <strong>PRIORITASSASARANKABID:</strong>
+                            {{$item->PrioritasSasaranKabID}}
+                        </span>                                             
+                        <span class="label label-warning label-rounded" style="text-transform: none">
+                            <strong>CREATED:</strong>
+                            {{Helper::tanggal('d/m/Y H:m',$item->created_at)}}
+                        </span>
+                        <span class="label label-warning label-rounded" style="text-transform: none">
+                            <strong>UPDATED:</strong>
+                            {{Helper::tanggal('d/m/Y H:m',$item->updated_at)}}
+                        </span>
                     </td>
                 </tr>
             @endforeach                    

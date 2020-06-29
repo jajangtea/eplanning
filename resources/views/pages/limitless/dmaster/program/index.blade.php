@@ -5,7 +5,7 @@
 @section('page_header')
     <i class="icon-codepen position-left"></i>
     <span class="text-semibold">
-        PROGRAM TAHUN PERENCANAAN {{config('globalsettings.tahun_perencanaan')}}  
+        PROGRAM TAHUN PERENCANAAN {{HelperKegiatan::getRPJMDTahunMulai()}} - {{HelperKegiatan::getRPJMDTahunAkhir()}}  
     </span>
 @endsection
 @section('page_info')
@@ -23,7 +23,7 @@
             <div class="panel-heading">
                 <h5 class="panel-title">
                     <i class="icon-search4 position-left"></i>
-                    Pencarian Data
+                    PENCARIAN DATA
                 </h5>
             </div>
             <div class="panel-body">
@@ -31,7 +31,7 @@
                     <div class="form-group">
                         <label class="col-md-2 control-label">Kriteria :</label> 
                         <div class="col-md-10">
-                            {{Form::select('cmbKriteria', ['kode_program'=>'KODE PROGRAM','PrgNm'=>'NAMA PROGRAM'], isset($search['kriteria'])?$search['kriteria']:'kode_program',['class'=>'form-control'])}}
+                            {{Form::select('cmbKriteria', ['PrgID'=>'ID PROGRAM','kode_program'=>'KODE PROGRAM','PrgNm'=>'NAMA PROGRAM'], isset($search['kriteria'])?$search['kriteria']:'kode_program',['class'=>'form-control'])}}
                         </div>
                     </div>
                     <div class="form-group" id="divKriteria">

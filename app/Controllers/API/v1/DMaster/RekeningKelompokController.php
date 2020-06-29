@@ -36,7 +36,7 @@ class RekeningKelompokController extends Controller {
         {
             $numberRecordPerPage = $request->input('numberrecordperpage');
         }
-        $ta=config('globalsettings.tahun_perencanaan');
+        $ta=\HelperKegiatan::getTahunPerencanaan();
         if ($request->exists('ta'))
         {
             $ta = $request->input('ta');

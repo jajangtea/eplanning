@@ -1,18 +1,20 @@
 @extends('layouts.limitless.l_main')
 @section('page_title')
-    PEMILIKPOKOKPIKIRAN
+    PEMILIK POKOK PIKIRAN
 @endsection
 @section('page_header')
     <i class="icon-price-tag position-left"></i>
     <span class="text-semibold">
-        PEMILIKPOKOKPIKIRAN TAHUN PERENCANAAN {{config('globalsettings.tahun_perencanaan')}}  
+        PEMILIK POKOK PIKIRAN TAHUN PERENCANAAN {{HelperKegiatan::getTahunPerencanaan()}}  
     </span>
 @endsection
 @section('page_info')
     @include('pages.limitless.pokir.pemilikpokokpikiran.info')
 @endsection
 @section('page_breadcrumb')
-    <li class="active">PEMILIKPOKOKPIKIRAN</li>
+    <li><a href="#">PERENCANAAN</a></li>
+    <li><a href="#">POKIR / RESES</a></li>
+    <li class="active">PEMILIK POKOK PIKIRAN</li>
 @endsection
 @section('page_content')
 <div class="row">
@@ -21,7 +23,7 @@
             <div class="panel-heading">
                 <h5 class="panel-title">
                     <i class="icon-search4 position-left"></i>
-                    Pencarian Data
+                    PENCARIAN DATA
                 </h5>
             </div>
             <div class="panel-body">
@@ -29,7 +31,7 @@
                     <div class="form-group">
                         <label class="col-md-2 control-label">Kriteria :</label> 
                         <div class="col-md-10">
-                            {{Form::select('cmbKriteria', ['replaceit'=>'replaceit','nama'=>'replaceit'], isset($search['kriteria'])?$search['kriteria']:'replaceit',['class'=>'form-control'])}}
+                            {{Form::select('cmbKriteria', ['Kd_PK'=>'KODE','NmPk'=>'NAMA'], isset($search['kriteria'])?$search['kriteria']:'Kd_PK',['class'=>'form-control'])}}
                         </div>
                     </div>
                     <div class="form-group" id="divKriteria">
@@ -59,7 +61,7 @@
 <script type="text/javascript">
 $(document).ready(function () {  
     $("#divdatatable").on("click",".btnDelete", function(){
-        if (confirm('Apakah Anda ingin menghapus Data PemilikPokokPikiran ini ?')) {
+        if (confirm('Apakah Anda ingin menghapus Data Pemilik Pokok Pikiran ini ?')) {
             let url_ = $(this).attr("data-url");
             let id = $(this).attr("data-id");
             $.ajax({            
@@ -75,7 +77,7 @@ $(document).ready(function () {
                     if (result.success==1){
                         $('#divdatatable').html(result.datatable);                        
                     }else{
-                        console.log("Gagal menghapus data PemilikPokokPikiran dengan id "+id);
+                        console.log("Gagal menghapus data Pemilik Pokok Pikiran dengan id "+id);
                     }                    
                 },
                 error:function(xhr, status, error){
